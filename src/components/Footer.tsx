@@ -10,13 +10,15 @@ export function Footer() {
       <div className="topo-bg mx-auto max-w-6xl px-6 py-14">
         <div className="grid gap-10 md:grid-cols-4">
           <div className="md:col-span-1">
-            <Image
-              src="/brand/logo-full.png"
-              alt={company.name}
-              width={200}
-              height={54}
-              className="h-12 w-auto brightness-110"
-            />
+            <div className="inline-block rounded-lg bg-[#f2f0ec] px-4 py-3">
+              <Image
+                src="/brand/logo-full.png"
+                alt={company.name}
+                width={280}
+                height={280}
+                className="h-auto w-44"
+              />
+            </div>
             <p className="mt-4 text-sm leading-relaxed text-slate-400">{company.tagline}</p>
           </div>
 
