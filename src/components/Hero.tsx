@@ -1,4 +1,3 @@
-import Image from "next/image";
 import type { ReactNode } from "react";
 import { capabilities, company } from "@/lib/content";
 
@@ -34,65 +33,59 @@ const iconMap: Record<string, ReactNode> = {
 
 export function Hero() {
   return (
-    <section className="pt-16">
-      {/* Banner — branding is already in this image, no duplicate logo */}
-      <div className="relative h-[42vh] min-h-[260px] max-h-[480px] w-full overflow-hidden sm:h-[48vh] sm:min-h-[320px]">
-        <Image
-          src="/brand/hero-ridge.png"
-          alt={company.name}
-          fill
-          className="object-cover object-top"
-          priority
-          quality={90}
-        />
-        <div className="banner-fade absolute inset-0" />
-      </div>
+    <section className="bg-navy-950 pt-24 pb-12 sm:pt-28 sm:pb-14">
+      <div className="mx-auto max-w-6xl px-6">
+        <div className="max-w-3xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-copper-400">
+            {company.tagline}
+          </p>
+          <p className="mt-4 font-display text-4xl font-bold tracking-wide text-white sm:text-5xl">
+            HOGBACK
+          </p>
+          <p className="font-display text-lg tracking-[0.35em] text-copper-400 sm:text-xl">
+            TECHNOLOGIES
+          </p>
 
-      {/* Compact content below the banner */}
-      <div className="bg-navy-950 px-6 py-10 sm:py-12">
-        <div className="mx-auto max-w-6xl">
-          <div className="max-w-3xl">
-            <h1 className="font-display text-2xl font-semibold leading-snug text-white sm:text-3xl lg:text-4xl">
-              Rugged, mission-critical software for{" "}
-              <span className="gradient-copper">public safety, fleet intelligence,</span>{" "}
-              and enterprise operations
-            </h1>
+          <h1 className="mt-8 font-display text-2xl font-semibold leading-snug text-white sm:text-3xl lg:text-4xl">
+            Rugged, mission-critical software for{" "}
+            <span className="gradient-copper">public safety, fleet intelligence,</span>{" "}
+            and enterprise operations
+          </h1>
 
-            <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-400 sm:text-lg">
-              {company.mission}
-            </p>
+          <p className="mt-4 text-base leading-relaxed text-slate-400 sm:text-lg">
+            {company.mission}
+          </p>
 
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <a
-                href="#products"
-                className="inline-flex items-center justify-center rounded-full bg-copper-500 px-7 py-3 text-sm font-semibold text-navy-950 transition-colors hover:bg-copper-400"
-              >
-                Explore Products
-              </a>
-              <a
-                href="#contact"
-                className="inline-flex items-center justify-center rounded-full border border-white/15 px-7 py-3 text-sm font-medium text-white transition-colors hover:border-copper-500/40 hover:bg-white/5"
-              >
-                Request a Demo
-              </a>
-            </div>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <a
+              href="#products"
+              className="inline-flex items-center justify-center rounded-full bg-copper-500 px-7 py-3 text-sm font-semibold text-navy-950 transition-colors hover:bg-copper-400"
+            >
+              Explore Products
+            </a>
+            <a
+              href="#contact"
+              className="inline-flex items-center justify-center rounded-full border border-white/15 px-7 py-3 text-sm font-medium text-white transition-colors hover:border-copper-500/40 hover:bg-white/5"
+            >
+              Request a Demo
+            </a>
           </div>
+        </div>
 
-          <div className="mt-8 grid grid-cols-2 gap-3 border-t border-white/5 pt-8 sm:grid-cols-5">
-            {capabilities.map((cap, i) => (
-              <div
-                key={cap.label}
-                className={`flex items-center gap-2 sm:flex-col sm:text-center ${i === 4 ? "col-span-2 sm:col-span-1" : ""}`}
-              >
-                <div className={`shrink-0 ${i % 2 === 0 ? "text-copper-400" : "text-slate-500"}`}>
-                  {iconMap[cap.icon]}
-                </div>
-                <p className="text-[11px] uppercase leading-tight tracking-wide text-slate-500 sm:text-xs">
-                  {cap.label}
-                </p>
+        <div className="mt-10 grid grid-cols-2 gap-3 border-t border-white/5 pt-8 sm:grid-cols-5">
+          {capabilities.map((cap, i) => (
+            <div
+              key={cap.label}
+              className={`flex items-center gap-2 sm:flex-col sm:text-center ${i === 4 ? "col-span-2 sm:col-span-1" : ""}`}
+            >
+              <div className={`shrink-0 ${i % 2 === 0 ? "text-copper-400" : "text-slate-500"}`}>
+                {iconMap[cap.icon]}
               </div>
-            ))}
-          </div>
+              <p className="text-[11px] uppercase leading-tight tracking-wide text-slate-500 sm:text-xs">
+                {cap.label}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </section>

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { company, roadmap, techStack, values } from "@/lib/content";
 
 export function About() {
@@ -29,14 +28,6 @@ export function About() {
           </div>
 
           <div className="space-y-6">
-            <Image
-              src="/brand/logo-mark.png"
-              alt="Hogback ridge logo"
-              width={500}
-              height={400}
-              className="w-full rounded-2xl border border-white/5"
-            />
-
             <div className="grid grid-cols-2 gap-4">
               {values.map((value) => (
                 <div
