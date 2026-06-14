@@ -15,15 +15,15 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-navy-950/80 backdrop-blur-md">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-2.5">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-navy-950/90 backdrop-blur-md">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2 sm:px-6">
         <Link href="/" className="group flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-br from-copper-500 to-copper-600 shadow-sm">
-            <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 text-navy-950" aria-hidden="true">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-copper-500 to-copper-600">
+            <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5 text-navy-950" aria-hidden="true">
               <path d="M3 20L8 12L12 16L16 8L21 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <span className="font-display text-sm font-semibold tracking-wide text-white">
+          <span className="font-display text-xs font-semibold tracking-wide text-white sm:text-sm">
             HOGBACK<span className="text-copper-400">TECH</span>
           </span>
         </Link>
