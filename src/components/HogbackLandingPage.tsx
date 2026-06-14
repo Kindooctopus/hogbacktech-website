@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { HogbackLogo } from "@/components/HogbackLogo";
 
 export function HogbackLandingPage() {
   return (
@@ -17,38 +18,27 @@ export function HogbackLandingPage() {
 
 export function HogbackHeader() {
   return (
-    <header className="sticky top-0 z-30 border-b border-black/10 bg-[#faf9f7]">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-2 sm:px-6">
+    <header className="sticky top-0 z-30 border-b border-white/5 bg-[#0a111a]">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <a href="#top" aria-label="Hogback Ridge Technologies home" className="shrink-0">
-          {/* Show top of mobile logo: mountain + HOGBACK + TECHNOLOGIES + tagline */}
-          <div className="relative h-[96px] w-[240px] overflow-hidden sm:h-[104px] sm:w-[260px]">
-            <Image
-              src="/brand/logo-mobile.png"
-              alt="Hogback Ridge Technologies"
-              width={1024}
-              height={1024}
-              className="absolute left-1/2 top-0 max-w-none -translate-x-1/2"
-              style={{ width: "260px", height: "auto" }}
-              priority
-            />
-          </div>
+          <HogbackLogo compact />
         </a>
 
-        <nav className="hidden items-center gap-8 text-sm text-slate-600 md:flex">
-          <a href="#products" className="transition-colors hover:text-slate-900">
+        <nav className="hidden items-center gap-8 text-sm text-slate-300 md:flex">
+          <a href="#products" className="transition-colors hover:text-white">
             Products
           </a>
-          <a href="#about" className="transition-colors hover:text-slate-900">
+          <a href="#about" className="transition-colors hover:text-white">
             About
           </a>
-          <a href="#contact" className="transition-colors hover:text-slate-900">
+          <a href="#contact" className="transition-colors hover:text-white">
             Contact
           </a>
         </nav>
 
         <a
           href="#contact"
-          className="shrink-0 rounded-full bg-copper-500 px-4 py-1.5 text-sm font-semibold text-white hover:bg-copper-600"
+          className="shrink-0 rounded-full bg-copper-500 px-4 py-1.5 text-sm font-semibold text-navy-950 hover:bg-copper-400"
         >
           Talk with us
         </a>
@@ -59,8 +49,15 @@ export function HogbackHeader() {
 
 export function HogbackHero() {
   return (
-    <section id="top" className="scroll-mt-16 pt-6">
-      <div className="mx-auto grid max-w-6xl items-center gap-8 px-6 lg:grid-cols-[1.2fr_1fr]">
+    <section id="top" className="scroll-mt-16">
+      {/* Full trademark on dark background */}
+      <div className="border-b border-white/5 bg-[#0a111a] px-6 py-5 sm:py-6">
+        <div className="mx-auto max-w-6xl">
+          <HogbackLogo />
+        </div>
+      </div>
+
+      <div className="mx-auto grid max-w-6xl items-center gap-8 px-6 py-8 lg:grid-cols-[1.2fr_1fr]">
         <div className="space-y-5">
           <p className="text-xs uppercase tracking-[0.25em] text-copper-500">
             The Dalles, Oregon · hogbacktech.com
