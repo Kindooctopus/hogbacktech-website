@@ -18,27 +18,21 @@ export function HogbackLandingPage() {
 export function HogbackHeader() {
   return (
     <header className="sticky top-0 z-30 border-b border-white/5 bg-[#0a111a]/95 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-        <a href="#top" className="flex items-center gap-3">
-          <div className="rounded-lg bg-[#f2f0ec] px-2 py-1">
-            <Image
-              src="/brand/logo-full.png"
-              alt="Hogback Ridge Technologies"
-              width={140}
-              height={36}
-              className="hidden h-8 w-auto sm:block"
-              priority
-            />
-            <Image
-              src="/brand/logo-mobile.png"
-              alt="Hogback Ridge Technologies"
-              width={80}
-              height={80}
-              className="h-8 w-auto sm:hidden"
-              priority
-            />
-          </div>
-          <span className="sr-only">Hogback Ridge Technologies</span>
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2 sm:px-6">
+        <a href="#top" aria-label="Hogback Ridge Technologies home" className="flex items-center gap-2">
+          <img
+            src="/brand/ridge-icon.svg"
+            alt=""
+            width={32}
+            height={22}
+            className="h-5 w-7 shrink-0"
+          />
+          <span className="font-display text-sm font-semibold tracking-wide text-white">
+            HOGBACK
+            <span className="ml-1 text-[10px] font-normal tracking-[0.2em] text-copper-500 sm:text-xs">
+              TECH
+            </span>
+          </span>
         </a>
 
         <nav className="hidden items-center gap-8 text-sm text-slate-300 md:flex">
@@ -66,9 +60,9 @@ export function HogbackHeader() {
 
 export function HogbackHero() {
   return (
-    <section id="top" className="scroll-mt-24 pt-8">
-      <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 lg:grid-cols-[1.2fr_1fr]">
-        <div className="space-y-6">
+    <section id="top" className="scroll-mt-16 pt-6">
+      <div className="mx-auto grid max-w-6xl items-center gap-8 px-6 lg:grid-cols-[1.2fr_1fr]">
+        <div className="space-y-5">
           <p className="text-xs uppercase tracking-[0.25em] text-copper-500">
             The Dalles, Oregon · hogbacktech.com
           </p>
@@ -110,28 +104,15 @@ export function HogbackHero() {
           </div>
         </div>
 
-        <div className="relative">
-          <div className="rounded-3xl border border-white/10 bg-gradient-to-b from-white/5 to-transparent p-4 sm:p-6">
-            <div className="relative overflow-hidden rounded-2xl bg-black/40">
-              <Image
-                src="/brand/hero-ridge.png"
-                alt="Hogback Ridge Technologies hero"
-                width={800}
-                height={800}
-                className="h-auto w-full"
-                priority
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0a111a] via-transparent to-transparent opacity-80" />
-              <div className="absolute bottom-4 left-4 right-4 space-y-2">
-                <p className="text-xs uppercase tracking-[0.25em] text-slate-300">
-                  Hogback Ridge Technologies
-                </p>
-                <p className="text-sm text-slate-200">
-                  Software shaped by the realities of the field—built with the
-                  reliability of the ridge it&apos;s named for.
-                </p>
-              </div>
-            </div>
+        <div className="relative lg:max-w-md lg:justify-self-end">
+          <div className="overflow-hidden rounded-2xl border border-white/10">
+            <Image
+              src="/brand/hero-ridge.png"
+              alt="Hogback Ridge Technologies hero"
+              width={1024}
+              height={1024}
+              className="h-auto max-h-56 w-full object-contain object-top sm:max-h-64"
+            />
           </div>
         </div>
       </div>
