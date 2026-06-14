@@ -20,14 +20,15 @@ export function HogbackHeader() {
     <header className="sticky top-0 z-30 border-b border-black/10 bg-[#faf9f7]">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-2 sm:px-6">
         <a href="#top" aria-label="Hogback Ridge Technologies home" className="shrink-0">
-          <div className="relative h-[52px] w-[200px] overflow-hidden sm:h-[58px] sm:w-[230px]">
+          {/* Show top of mobile logo: mountain + HOGBACK + TECHNOLOGIES + tagline */}
+          <div className="relative h-[96px] w-[240px] overflow-hidden sm:h-[104px] sm:w-[260px]">
             <Image
               src="/brand/logo-mobile.png"
               alt="Hogback Ridge Technologies"
               width={1024}
               height={1024}
-              className="absolute left-1/2 top-0 h-auto w-[230px] max-w-none -translate-x-1/2"
-              style={{ clipPath: "inset(0 0 58% 0)" }}
+              className="absolute left-1/2 top-0 max-w-none -translate-x-1/2"
+              style={{ width: "260px", height: "auto" }}
               priority
             />
           </div>
