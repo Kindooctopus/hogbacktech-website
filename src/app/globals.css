@@ -70,6 +70,14 @@ body {
   );
 }
 
+.banner-fade {
+  background: linear-gradient(
+    to bottom,
+    transparent 70%,
+    rgba(10, 17, 26, 1) 100%
+  );
+}
+
 .product-accent-ops { border-color: color-mix(in srgb, var(--color-ops) 40%, transparent); }
 .product-accent-geo { border-color: color-mix(in srgb, var(--color-geo) 40%, transparent); }
 .product-accent-docs { border-color: color-mix(in srgb, var(--color-docs) 40%, transparent); }
