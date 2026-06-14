@@ -17,39 +17,37 @@ export function HogbackLandingPage() {
 
 export function HogbackHeader() {
   return (
-    <header className="sticky top-0 z-30 border-b border-white/5 bg-[#0a111a]/95 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2 sm:px-6">
-        <a href="#top" aria-label="Hogback Ridge Technologies home" className="flex items-center gap-2">
-          <img
-            src="/brand/ridge-icon.svg"
-            alt=""
-            width={32}
-            height={22}
-            className="h-5 w-7 shrink-0"
-          />
-          <span className="font-display text-sm font-semibold tracking-wide text-white">
-            HOGBACK
-            <span className="ml-1 text-[10px] font-normal tracking-[0.2em] text-copper-500 sm:text-xs">
-              TECH
-            </span>
-          </span>
+    <header className="sticky top-0 z-30 border-b border-black/10 bg-[#faf9f7]">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-2 sm:px-6">
+        <a href="#top" aria-label="Hogback Ridge Technologies home" className="shrink-0">
+          <div className="relative h-[52px] w-[200px] overflow-hidden sm:h-[58px] sm:w-[230px]">
+            <Image
+              src="/brand/logo-mobile.png"
+              alt="Hogback Ridge Technologies"
+              width={1024}
+              height={1024}
+              className="absolute left-1/2 top-0 h-auto w-[230px] max-w-none -translate-x-1/2"
+              style={{ clipPath: "inset(0 0 58% 0)" }}
+              priority
+            />
+          </div>
         </a>
 
-        <nav className="hidden items-center gap-8 text-sm text-slate-300 md:flex">
-          <a href="#products" className="transition-colors hover:text-white">
+        <nav className="hidden items-center gap-8 text-sm text-slate-600 md:flex">
+          <a href="#products" className="transition-colors hover:text-slate-900">
             Products
           </a>
-          <a href="#about" className="transition-colors hover:text-white">
+          <a href="#about" className="transition-colors hover:text-slate-900">
             About
           </a>
-          <a href="#contact" className="transition-colors hover:text-white">
+          <a href="#contact" className="transition-colors hover:text-slate-900">
             Contact
           </a>
         </nav>
 
         <a
           href="#contact"
-          className="rounded-full border border-white/15 px-4 py-1.5 text-sm font-medium text-white hover:bg-white/5"
+          className="shrink-0 rounded-full bg-copper-500 px-4 py-1.5 text-sm font-semibold text-white hover:bg-copper-600"
         >
           Talk with us
         </a>
