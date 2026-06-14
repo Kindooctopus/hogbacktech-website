@@ -1,74 +1,79 @@
+import Image from "next/image";
+import { company, roadmap, techStack, values } from "@/lib/content";
+
 export function About() {
   return (
-    <section id="about" className="relative py-24 sm:py-32">
+    <section id="about" className="border-t border-white/5 bg-navy-900/30 py-24 sm:py-32">
       <div className="mx-auto max-w-6xl px-6">
-        <div className="grid items-center gap-16 lg:grid-cols-2">
-          <div className="relative">
-            <div className="aspect-[4/3] overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-br from-slate-800 to-slate-900">
-              <div className="flex h-full flex-col items-center justify-center p-8">
-                <svg
-                  viewBox="0 0 200 120"
-                  className="w-full max-w-xs text-slate-600"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M0 100 L30 70 L60 80 L90 40 L120 55 L150 25 L180 45 L200 35 L200 120 L0 120 Z"
-                    fill="currentColor"
-                    opacity="0.3"
-                  />
-                  <path
-                    d="M0 100 L30 70 L60 80 L90 40 L120 55 L150 25 L180 45 L200 35"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    opacity="0.6"
-                  />
-                  <circle cx="150" cy="25" r="8" fill="#f59e0b" opacity="0.8" />
-                </svg>
-                <p className="mt-6 text-center text-sm text-slate-500">
-                  Columbia River Gorge, Oregon
-                </p>
-              </div>
-            </div>
-            <div className="absolute -bottom-4 -right-4 rounded-xl border border-amber-500/20 bg-slate-950 px-6 py-4 shadow-xl">
-              <p className="text-2xl font-semibold text-amber-400">Est. 2026</p>
-              <p className="text-sm text-slate-500">The Dalles, OR</p>
+        <div className="grid items-start gap-16 lg:grid-cols-2">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-copper-400">About Us</p>
+            <h2 className="mt-3 font-display text-4xl font-semibold text-white sm:text-5xl">
+              Rooted in the Columbia River Gorge
+            </h2>
+            <p className="mt-6 text-lg leading-relaxed text-slate-400">
+              {company.name} draws its identity from the geological formations of the Columbia
+              River Gorge — strong, enduring, and unmistakable. Each product line reflects this
+              rugged foundation.
+            </p>
+            <p className="mt-4 text-lg leading-relaxed text-slate-400">
+              Based in {company.location}, we combine regional craftsmanship with modern cloud
+              architecture to deliver reliable, high-performance solutions for agencies and
+              businesses that require precision, speed, and trust.
+            </p>
+
+            <div className="mt-8 rounded-xl border border-white/5 bg-navy-950/50 p-6">
+              <p className="text-xs uppercase tracking-widest text-copper-400">Vision</p>
+              <p className="mt-2 text-sm leading-relaxed text-slate-300">{company.vision}</p>
             </div>
           </div>
 
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-wider text-amber-400">
-              About Hogback Tech
-            </p>
-            <h2 className="mt-3 font-display text-4xl tracking-tight text-white sm:text-5xl">
-              Rooted in the Pacific Northwest
-            </h2>
-            <p className="mt-6 text-lg leading-relaxed text-slate-400">
-              Named after the iconic Hogback ridge overlooking the Columbia River Gorge,
-              Hogback Tech was founded with a simple mission: build technology that
-              stands the test of time.
-            </p>
-            <p className="mt-4 text-lg leading-relaxed text-slate-400">
-              Based in The Dalles, Oregon, we combine regional craftsmanship with modern
-              engineering practices. We partner with businesses and organizations that
-              value quality software, thoughtful design, and genuine user engagement.
-            </p>
-            <div className="mt-8 grid grid-cols-2 gap-4">
-              {[
-                "Quality-first engineering",
-                "Transparent communication",
-                "User-centered design",
-                "Long-term partnerships",
-              ].map((value) => (
+          <div className="space-y-6">
+            <Image
+              src="/brand/logo-mark.png"
+              alt="Hogback ridge logo"
+              width={500}
+              height={400}
+              className="w-full rounded-2xl border border-white/5"
+            />
+
+            <div className="grid grid-cols-2 gap-4">
+              {values.map((value) => (
                 <div
-                  key={value}
-                  className="flex items-center gap-2 rounded-lg border border-white/5 bg-slate-900/30 px-4 py-3 text-sm text-slate-300"
+                  key={value.title}
+                  className="rounded-lg border border-white/5 bg-navy-950/40 px-4 py-4"
                 >
-                  <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-                  {value}
+                  <p className="font-display text-sm font-semibold text-copper-400">{value.title}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-slate-500">{value.description}</p>
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+
+        <div className="mt-20">
+          <p className="text-xs font-semibold uppercase tracking-widest text-copper-400">Technology Stack</p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            {techStack.map((tech) => (
+              <span
+                key={tech}
+                className="rounded-full border border-white/10 bg-navy-950/50 px-4 py-2 text-sm text-slate-300"
+              >
+                {tech}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-12">
+          <p className="text-xs font-semibold uppercase tracking-widest text-copper-400">Roadmap</p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {roadmap.map((item) => (
+              <div key={item} className="flex items-center gap-2 text-sm text-slate-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-copper-500" />
+                {item}
+              </div>
+            ))}
           </div>
         </div>
       </div>

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { DM_Sans, Instrument_Serif } from "next/font/google";
+import { Barlow, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { company } from "@/lib/content";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -10,62 +11,57 @@ const dmSans = DM_Sans({
   display: "swap",
 });
 
-const instrumentSerif = Instrument_Serif({
+const barlow = Barlow({
   subsets: ["latin"],
-  weight: "400",
-  variable: "--font-instrument-serif",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-barlow",
   display: "swap",
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "Hogback Tech | Software, Applications & Engagement",
-    template: "%s | Hogback Tech",
+    default: `${company.name} | Mission-Critical Software`,
+    template: `%s | ${company.shortName}`,
   },
-  description:
-    "Hogback Tech builds custom software, modern applications, and meaningful digital engagement experiences. Based in The Dalles, Oregon.",
+  description: company.mission,
   keywords: [
-    "software development",
-    "web applications",
-    "mobile apps",
-    "digital engagement",
-    "Hogback Tech",
-    "Oregon tech",
+    "public safety software",
+    "fleet tracking",
+    "document management",
+    "custom software development",
+    "Hogback Ops",
+    "Hogback Geo",
+    "Hogback Docs",
+    "Hogback Forge",
+    "Columbia River Gorge",
+    "Oregon technology",
   ],
-  authors: [{ name: "Hogback Tech" }],
-  creator: "Hogback Tech",
-  metadataBase: new URL("https://hogbacktech.com"),
+  authors: [{ name: company.name }],
+  creator: company.name,
+  metadataBase: new URL(`https://${company.domain}`),
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://hogbacktech.com",
-    siteName: "Hogback Tech",
-    title: "Hogback Tech | Software, Applications & Engagement",
-    description:
-      "Custom software, modern applications, and meaningful digital engagement experiences.",
+    url: `https://${company.domain}`,
+    siteName: company.name,
+    title: `${company.name} | ${company.tagline}`,
+    description: company.mission,
+    images: [{ url: "/brand/hero-ridge.png", width: 1200, height: 630, alt: company.name }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Hogback Tech | Software, Applications & Engagement",
-    description:
-      "Custom software, modern applications, and meaningful digital engagement experiences.",
+    title: company.name,
+    description: company.mission,
   },
-  robots: {
-    index: true,
-    follow: true,
-  },
-  icons: {
-    icon: "/favicon.svg",
-  },
+  robots: { index: true, follow: true },
+  icons: { icon: "/brand/logo-mark.png", apple: "/brand/logo-mobile.png" },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${dmSans.variable} ${instrumentSerif.variable}`}>
+    <html lang="en" className={`${dmSans.variable} ${barlow.variable}`}>
       <body className="font-sans antialiased">
         <Header />
         <main>{children}</main>
