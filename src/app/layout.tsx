@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Barlow, DM_Sans } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { company } from "@/lib/content";
 
 const dmSans = DM_Sans({
@@ -63,9 +61,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${dmSans.variable} ${barlow.variable}`}>
       <body className="font-sans antialiased">
-        <Header />
-        <main>{children}</main>
-        <Footer />
+        {children}
       </body>
     </html>
   );
