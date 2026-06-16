@@ -111,11 +111,26 @@ export const products = [
 ];
 
 export const capabilities = [
-  { label: "Software Development", icon: "code" },
-  { label: "Mobile App Development", icon: "mobile" },
-  { label: "Customized Solutions", icon: "puzzle" },
-  { label: "Secure Platforms", icon: "shield" },
-  { label: "Strategy & Engagement", icon: "strategy" },
+  {
+    label: "Software Development",
+    image: "/brand/tiles/software-transparent.png",
+  },
+  {
+    label: "Mobile App Development",
+    image: "/brand/tiles/mobile-app-transparent.png",
+  },
+  {
+    label: "Customized for Your Organization",
+    image: "/brand/tiles/customize-transparent.png",
+  },
+  {
+    label: "Secure Platforms",
+    image: "/brand/tiles/secure-platform-transparent.png",
+  },
+  {
+    label: "Communication & Development Strategy",
+    image: "/brand/tiles/comms-strategy-transparent.png",
+  },
 ];
 
 export const markets = [
