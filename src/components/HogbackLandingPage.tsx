@@ -61,14 +61,14 @@ export function HogbackHero() {
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
         <div className="overflow-hidden border-y border-copper-500/60">
           <div className="flex flex-col lg:flex-row">
-            <div className="min-w-0 flex-1">
-              <div className="-mt-5 overflow-hidden sm:-mt-8">
+            <div className="min-w-0 flex-1 lg:flex lg:items-center">
+              <div className="-mt-3 overflow-hidden sm:-mt-5">
                 <Image
-                  src="/brand/hero-banner.png"
-                  alt="Hogback Ridge Technologies — Solid Foundation. Smart Solutions."
-                  width={1024}
-                  height={1024}
-                  className="block h-auto w-full -translate-y-[4%] scale-[1.02] object-contain object-top sm:-translate-y-[5%]"
+                  src="/brand/top-logo.png"
+                  alt="Hogback Technologies — Solid Foundation. Smart Solutions."
+                  width={1022}
+                  height={694}
+                  className="block h-auto w-full object-contain object-center"
                   priority
                 />
               </div>
