@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { company, products } from "@/lib/content";
+import { capabilities, company, products } from "@/lib/content";
 
 export function HogbackLandingPage() {
   return (
@@ -60,26 +60,38 @@ export function HogbackHero() {
     <section id="top" className="scroll-mt-16">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
         <div className="overflow-hidden border-y border-copper-500/60">
-          <div className="flex flex-col lg:flex-row">
-            <div className="min-w-0 flex-1 lg:flex lg:items-center">
-              <div className="-mt-3 overflow-hidden sm:-mt-5">
-                <Image
-                  src="/brand/top-logo.png"
-                  alt="Hogback Technologies — Solid Foundation. Smart Solutions."
-                  width={1022}
-                  height={694}
-                  className="block h-auto w-full object-contain object-center"
-                  priority
-                />
-              </div>
-            </div>
+          <div className="relative">
+            <Image
+              src="/brand/top-logo.png"
+              alt="Hogback Technologies — Solid Foundation. Smart Solutions."
+              width={1022}
+              height={694}
+              className="block h-auto w-full object-contain"
+              priority
+            />
 
-            <div className="grid shrink-0 grid-cols-2 gap-2 border-t border-copper-500/60 bg-[#0a111a] p-2 sm:gap-2.5 sm:p-3 lg:w-56 lg:border-t-0 lg:border-l xl:w-64">
+            {/* Capability artwork — transparent overlays on the left */}
+            <ul className="absolute bottom-14 left-1 flex max-w-[42%] flex-col gap-1 sm:bottom-16 sm:left-2 sm:gap-1.5 md:max-w-[38%] lg:bottom-auto lg:left-3 lg:top-1/2 lg:max-w-none lg:-translate-y-1/2 lg:gap-2">
+              {capabilities.map((capability) => (
+                <li key={capability.label}>
+                  <Image
+                    src={capability.image}
+                    alt={capability.label}
+                    width={280}
+                    height={280}
+                    className="h-[4.5rem] w-auto object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.65)] sm:h-20 md:h-[5.5rem] lg:h-24"
+                  />
+                </li>
+              ))}
+            </ul>
+
+            {/* Desktop: product links overlaid on the right */}
+            <div className="absolute right-1 top-1/2 hidden w-60 -translate-y-1/2 flex-col gap-2.5 sm:right-2 sm:w-72 lg:flex xl:w-[21rem]">
               {products.map((product) => (
                 <Link
                   key={product.id}
                   href={`/products/${product.id}`}
-                  className="group overflow-hidden rounded-lg border border-white/10 bg-black/30 transition hover:border-copper-500/60 hover:ring-1 hover:ring-copper-500/40"
+                  className="group block overflow-hidden rounded-2xl shadow-lg shadow-black/50 ring-1 ring-white/25 transition duration-200 hover:scale-[1.02] hover:shadow-xl hover:ring-copper-500/40"
                   aria-label={`Learn more about ${product.name}`}
                 >
                   <Image
@@ -87,8 +99,32 @@ export function HogbackHero() {
                     alt={product.name}
                     width={1024}
                     height={1024}
-                    className="block h-auto w-full object-contain transition duration-200 group-hover:scale-[1.03]"
+                    className="h-auto max-h-36 w-full object-contain xl:max-h-[10.5rem]"
                   />
+                </Link>
+              ))}
+            </div>
+
+            {/* Mobile / tablet: compact product links along the bottom */}
+            <div className="absolute inset-x-0 bottom-0 grid grid-cols-4 gap-1.5 p-2 sm:gap-2 sm:p-2.5 lg:hidden">
+              {products.map((product) => (
+                <Link
+                  key={product.id}
+                  href={`/products/${product.id}`}
+                  className="group flex flex-col items-center gap-1 overflow-hidden rounded-xl px-0.5 py-1 text-center shadow-md shadow-black/40 ring-1 ring-white/20 transition hover:ring-copper-500/40"
+                  aria-label={`Learn more about ${product.name}`}
+                >
+                  <Image
+                    src={product.tileImage}
+                    alt=""
+                    width={1024}
+                    height={1024}
+                    aria-hidden
+                    className="h-[5.25rem] w-[5.25rem] object-contain sm:h-24 sm:w-24"
+                  />
+                  <span className="text-[7px] font-semibold uppercase leading-tight tracking-wide text-white drop-shadow-sm group-hover:text-copper-300 sm:text-[8px]">
+                    {product.name.replace("Hogback ", "")}
+                  </span>
                 </Link>
               ))}
             </div>
