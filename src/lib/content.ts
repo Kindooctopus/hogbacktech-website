@@ -36,6 +36,7 @@ export const products = [
     id: "ops",
     name: "Hogback Ops",
     subtitle: "Public Safety Operations Platform",
+    tileImage: "/brand/products/ops.png",
     description:
       "A unified operations hub for Fire, EMS, and emergency services — consolidating CAD, AVL, ICS, staffing, and protocols into a single platform.",
     features: [
@@ -54,6 +55,7 @@ export const products = [
     id: "geo",
     name: "Hogback Geo",
     subtitle: "Fleet Tracking & Situational Awareness",
+    tileImage: "/brand/products/geo.png",
     description:
       "Real-time tracking and intelligence for fleet operators, utilities, public works, and logistics — with Cradlepoint integrations and advanced mapping.",
     features: [
@@ -72,6 +74,7 @@ export const products = [
     id: "docs",
     name: "Hogback Docs",
     subtitle: "Document Management & Search",
+    tileImage: "/brand/products/docs.png",
     description:
       "A lightweight, high-performance document system with full-text search, categories, workflows, and training modules — without enterprise bloat.",
     features: [
@@ -90,6 +93,7 @@ export const products = [
     id: "forge",
     name: "Hogback Forge",
     subtitle: "Custom Development & Integrations",
+    tileImage: "/brand/products/forge.png",
     description:
       "Custom software engineering, integrations, mobile apps, dashboards, GIS tools, and automation workflows tailored to your organization.",
     features: [

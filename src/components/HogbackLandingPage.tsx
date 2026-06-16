@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { HogbackLogo } from "@/components/HogbackLogo";
+import Link from "next/link";
+import { company, products } from "@/lib/content";
 
 export function HogbackLandingPage() {
   return (
@@ -18,10 +19,17 @@ export function HogbackLandingPage() {
 
 export function HogbackHeader() {
   return (
-    <header className="sticky top-0 z-30 border-b border-white/5 bg-[#0a111a]">
+    <header className="sticky top-0 z-30 border-b border-white/5 bg-[#0a111a]/95 backdrop-blur-sm">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <a href="#top" aria-label="Hogback Ridge Technologies home" className="shrink-0">
-          <HogbackLogo compact />
+          <Image
+            src="/brand/logo-with-name.png"
+            alt={company.name}
+            width={681}
+            height={299}
+            className="h-10 w-auto sm:h-11"
+            priority
+          />
         </a>
 
         <nav className="hidden items-center gap-8 text-sm text-slate-300 md:flex">
@@ -50,66 +58,69 @@ export function HogbackHeader() {
 export function HogbackHero() {
   return (
     <section id="top" className="scroll-mt-16">
-      {/* Full trademark on dark background */}
-      <div className="border-b border-white/5 bg-[#0a111a] px-6 py-5 sm:py-6">
-        <div className="mx-auto max-w-6xl">
-          <HogbackLogo />
+      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+        <div className="overflow-hidden border-y border-copper-500/60">
+          <div className="flex flex-col lg:flex-row">
+            <div className="min-w-0 flex-1">
+              <div className="-mt-5 overflow-hidden sm:-mt-8">
+                <Image
+                  src="/brand/hero-banner.png"
+                  alt="Hogback Ridge Technologies — Solid Foundation. Smart Solutions."
+                  width={1024}
+                  height={1024}
+                  className="block h-auto w-full -translate-y-[4%] scale-[1.02] object-contain object-top sm:-translate-y-[5%]"
+                  priority
+                />
+              </div>
+            </div>
+
+            <div className="grid shrink-0 grid-cols-2 gap-2 border-t border-copper-500/60 bg-[#0a111a] p-2 sm:gap-2.5 sm:p-3 lg:w-56 lg:border-t-0 lg:border-l xl:w-64">
+              {products.map((product) => (
+                <Link
+                  key={product.id}
+                  href={`/products/${product.id}`}
+                  className="group overflow-hidden rounded-lg border border-white/10 bg-black/30 transition hover:border-copper-500/60 hover:ring-1 hover:ring-copper-500/40"
+                  aria-label={`Learn more about ${product.name}`}
+                >
+                  <Image
+                    src={product.tileImage}
+                    alt={product.name}
+                    width={1024}
+                    height={1024}
+                    className="block h-auto w-full object-contain transition duration-200 group-hover:scale-[1.03]"
+                  />
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="mx-auto grid max-w-6xl items-center gap-8 px-6 py-8 lg:grid-cols-[1.2fr_1fr]">
-        <div className="space-y-5">
-          <p className="text-xs uppercase tracking-[0.25em] text-copper-500">
-            The Dalles, Oregon · hogbacktech.com
-          </p>
-          <h1 className="font-display text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
-            Solid Foundation.
-            <br />
-            <span className="text-copper-500">Smart Solutions.</span>
-          </h1>
-          <p className="max-w-xl text-base text-slate-400 sm:text-lg">
-            Hogback Ridge Technologies builds software for the people who keep
-            communities moving—public safety, fleets, and field operations.
-            Grounded in real‑world experience, engineered for what comes next.
-          </p>
+      <div className="mx-auto max-w-6xl space-y-5 px-6 pt-6 pb-6 lg:pb-8">
+        <h1 className="font-display text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
+          Solid Foundation.
+          <br />
+          <span className="text-copper-500">Smart Solutions.</span>
+        </h1>
+        <p className="max-w-xl text-base text-slate-400 sm:text-lg">
+          Hogback Ridge Technologies builds software for the people who keep
+          communities moving—public safety, fleets, and field operations.
+          Grounded in real-world experience, engineered for what comes next.
+        </p>
 
-          <div className="flex flex-wrap items-center gap-4">
-            <a
-              href="#products"
-              className="rounded-full bg-copper-500 px-6 py-2.5 text-sm font-semibold text-navy-950 hover:bg-copper-400 sm:text-base"
-            >
-              Explore products
-            </a>
-            <a
-              href="#contact"
-              className="rounded-full border border-white/15 px-6 py-2.5 text-sm text-white hover:bg-white/5 sm:text-base"
-            >
-              Schedule a conversation
-            </a>
-          </div>
-
-          <div className="flex flex-wrap gap-6 pt-4 text-xs text-slate-500">
-            <div className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-copper-500" />
-              <span>Built for public safety &amp; operations</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-copper-500" />
-              <span>Pacific Northwest owned &amp; operated</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="relative lg:max-w-md lg:justify-self-end">
-          <div className="overflow-hidden rounded-2xl border border-white/10">
-            <Image
-              src="/brand/hero-ridge.png"
-              alt="Hogback Ridge Technologies hero"
-              width={1024}
-              height={1024}
-              className="h-auto max-h-56 w-full object-contain object-top sm:max-h-64"
-            />
-          </div>
+        <div className="flex flex-wrap items-center gap-4">
+          <a
+            href="#products"
+            className="rounded-full bg-copper-500 px-6 py-2.5 text-sm font-semibold text-navy-950 hover:bg-copper-400 sm:text-base"
+          >
+            Explore products
+          </a>
+          <a
+            href="#contact"
+            className="rounded-full border border-white/15 px-6 py-2.5 text-sm text-white hover:bg-white/5 sm:text-base"
+          >
+            Schedule a conversation
+          </a>
         </div>
       </div>
     </section>
@@ -117,8 +128,9 @@ export function HogbackHero() {
 }
 
 export function HogbackProducts() {
-  const products = [
+  const productCards = [
     {
+      id: "ops",
       name: "Hogback Ops",
       badge: "Public Safety",
       description:
@@ -130,6 +142,7 @@ export function HogbackProducts() {
       ],
     },
     {
+      id: "geo",
       name: "Hogback Geo",
       badge: "Fleet & Field",
       description:
@@ -141,6 +154,7 @@ export function HogbackProducts() {
       ],
     },
     {
+      id: "docs",
       name: "Hogback Docs",
       badge: "Documents",
       description:
@@ -152,6 +166,7 @@ export function HogbackProducts() {
       ],
     },
     {
+      id: "forge",
       name: "Hogback Forge",
       badge: "Custom Development",
       description:
@@ -178,7 +193,7 @@ export function HogbackProducts() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          {products.map((product) => (
+          {productCards.map((product) => (
             <article
               key={product.name}
               className="flex flex-col justify-between rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-transparent p-5"
@@ -203,13 +218,13 @@ export function HogbackProducts() {
                 </ul>
               </div>
               <div className="mt-4">
-                <a
-                  href="#contact"
+                <Link
+                  href={`/products/${product.id}`}
                   className="inline-flex items-center gap-2 text-sm text-copper-500 hover:text-copper-400"
                 >
-                  Talk about {product.name}
+                  Learn about {product.name}
                   <span aria-hidden="true">↗</span>
-                </a>
+                </Link>
               </div>
             </article>
           ))}
@@ -244,14 +259,12 @@ export function HogbackAbout() {
               build on solid ground, and you can go higher.
             </span>
           </p>
-        </div>
 
-        <div className="space-y-6">
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+          <div className="rounded-2xl border border-white/10 bg-gradient-to-r from-copper-500/15 to-copper-500/5 p-5">
             <h3 className="mb-3 font-display text-lg font-semibold text-white">
               What we care about
             </h3>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-2 text-sm text-slate-300">
               <li className="flex gap-2">
                 <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-copper-500" />
                 <span>Clarity under pressure for public safety and operations teams</span>
@@ -265,6 +278,18 @@ export function HogbackAbout() {
                 <span>Software that respects budgets, time, and the realities of the field</span>
               </li>
             </ul>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="overflow-hidden rounded-2xl border border-white/10">
+            <Image
+              src="/brand/hero-ridge.png"
+              alt="Hogback Ridge geological formation in The Dalles, Oregon"
+              width={800}
+              height={600}
+              className="h-auto w-full object-cover"
+            />
           </div>
 
           <div className="rounded-2xl border border-white/10 bg-gradient-to-r from-copper-500/15 to-copper-500/5 p-5">

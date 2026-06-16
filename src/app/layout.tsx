@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     siteName: company.name,
     title: `${company.name} | ${company.tagline}`,
     description: company.mission,
-    images: [{ url: "/brand/hero-ridge.png", width: 1200, height: 630, alt: company.name }],
+    images: [{ url: "/brand/hero-banner.png", width: 1024, height: 1024, alt: company.name }],
   },
   twitter: {
     card: "summary_large_image",
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     description: company.mission,
   },
   robots: { index: true, follow: true },
-  icons: { icon: "/brand/logo-mark.png", apple: "/brand/logo-mobile.png" },
+  icons: { icon: "/brand/top-logo.png", apple: "/brand/top-logo.png" },
 };
 
 export default function RootLayout({
