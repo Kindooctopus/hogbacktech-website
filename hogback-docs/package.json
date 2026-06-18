@@ -1,0 +1,15 @@
+{
+  "name": "hogback-docs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "admin:dev": "npm --prefix admin run dev",
+    "admin:build": "npm --prefix admin run build",
+    "functions:build": "npm --prefix functions run build",
+    "firebase:deploy": "firebase deploy",
+    "seed:demo": "node scripts/seed-demo.mjs"
+  },
+  "devDependencies": {
+    "firebase-admin": "^13.4.0"
+  }
+}

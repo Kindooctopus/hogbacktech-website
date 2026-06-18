@@ -21,7 +21,7 @@ export function ProductDetailPage({ product }: { product: Product }) {
         </Link>
 
         <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
-          <div className="overflow-hidden rounded-2xl shadow-lg shadow-black/40 ring-1 ring-white/20">
+          <div className="overflow-hidden rounded-2xl border border-copper-500/40 bg-black/40">
             <Image
               src={product.tileImage}
               alt={product.name}
@@ -85,7 +85,7 @@ export function ProductDetailPage({ product }: { product: Product }) {
               <Link
                 key={other.id}
                 href={`/products/${other.id}`}
-                className="group overflow-hidden rounded-2xl shadow-lg shadow-black/40 ring-1 ring-white/20 transition hover:ring-copper-500/40"
+                className="group overflow-hidden rounded-xl border border-white/10 transition hover:border-copper-500/50 hover:ring-1 hover:ring-copper-500/30"
               >
                 <Image
                   src={other.tileImage}

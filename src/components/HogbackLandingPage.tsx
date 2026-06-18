@@ -77,21 +77,21 @@ export function HogbackHero() {
                   <Image
                     src={capability.image}
                     alt={capability.label}
-                    width={280}
-                    height={280}
-                    className="h-[4.5rem] w-auto object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.65)] sm:h-20 md:h-[5.5rem] lg:h-24"
+                    width={512}
+                    height={512}
+                    className="hero-capability-blend h-[7.02rem] w-auto object-contain sm:h-[7.8rem] md:h-[8.58rem] lg:h-[9.36rem]"
                   />
                 </li>
               ))}
             </ul>
 
-            {/* Desktop: product links overlaid on the right */}
-            <div className="absolute right-1 top-1/2 hidden w-60 -translate-y-1/2 flex-col gap-2.5 sm:right-2 sm:w-72 lg:flex xl:w-[21rem]">
+            {/* Desktop: product links on the right — mirror left spacing */}
+            <div className="absolute right-1 top-1/2 z-10 hidden -translate-y-1/2 flex-col items-end gap-2 sm:right-2 lg:right-3 md:flex">
               {products.map((product) => (
                 <Link
                   key={product.id}
                   href={`/products/${product.id}`}
-                  className="group block overflow-hidden rounded-2xl shadow-lg shadow-black/50 ring-1 ring-white/25 transition duration-200 hover:scale-[1.02] hover:shadow-xl hover:ring-copper-500/40"
+                  className="group block transition duration-200 hover:scale-[1.02] hover:opacity-95"
                   aria-label={`Learn more about ${product.name}`}
                 >
                   <Image
@@ -99,19 +99,19 @@ export function HogbackHero() {
                     alt={product.name}
                     width={1024}
                     height={1024}
-                    className="h-auto max-h-36 w-full object-contain xl:max-h-[10.5rem]"
+                    className="hero-product-blend h-auto max-h-[8.9505rem] w-auto object-contain xl:max-h-[10.44225rem]"
                   />
                 </Link>
               ))}
             </div>
 
             {/* Mobile / tablet: compact product links along the bottom */}
-            <div className="absolute inset-x-0 bottom-0 grid grid-cols-4 gap-1.5 p-2 sm:gap-2 sm:p-2.5 lg:hidden">
+            <div className="absolute inset-x-0 bottom-0 z-10 grid grid-cols-4 gap-1.5 p-2 sm:gap-2 sm:p-2.5 md:hidden">
               {products.map((product) => (
                 <Link
                   key={product.id}
                   href={`/products/${product.id}`}
-                  className="group flex flex-col items-center gap-1 overflow-hidden rounded-xl px-0.5 py-1 text-center shadow-md shadow-black/40 ring-1 ring-white/20 transition hover:ring-copper-500/40"
+                  className="group flex flex-col items-center gap-1 rounded-lg px-0.5 py-1 text-center transition hover:bg-black/25"
                   aria-label={`Learn more about ${product.name}`}
                 >
                   <Image
@@ -120,7 +120,7 @@ export function HogbackHero() {
                     width={1024}
                     height={1024}
                     aria-hidden
-                    className="h-[5.25rem] w-[5.25rem] object-contain sm:h-24 sm:w-24"
+                    className="hero-product-blend h-[5.221125rem] w-[5.221125rem] object-contain sm:h-[5.967rem] sm:w-[5.967rem]"
                   />
                   <span className="text-[7px] font-semibold uppercase leading-tight tracking-wide text-white drop-shadow-sm group-hover:text-copper-300 sm:text-[8px]">
                     {product.name.replace("Hogback ", "")}
@@ -364,12 +364,21 @@ export function HogbackContact() {
 
           <div className="space-y-3 text-sm">
             <p className="text-slate-300">
-              Email:{" "}
+              <span className="text-slate-400">Development:</span>{" "}
               <a
-                href="mailto:hello@hogbacktech.com"
+                href={`mailto:${company.emails.developer}`}
                 className="text-copper-500 hover:text-copper-400"
               >
-                hello@hogbacktech.com
+                Developer@hogbacktech.com
+              </a>
+            </p>
+            <p className="text-slate-300">
+              <span className="text-slate-400">David Jensen:</span>{" "}
+              <a
+                href={`mailto:${company.emails.djensen}`}
+                className="text-copper-500 hover:text-copper-400"
+              >
+                Djensen@hogbacktech.com
               </a>
             </p>
             <p className="text-slate-300">
@@ -408,10 +417,10 @@ export function HogbackContact() {
 
           <div className="pt-2">
             <a
-              href="mailto:hello@hogbacktech.com?subject=Hogback%20Ridge%20Technologies%20Inquiry"
+              href={`mailto:${company.email}?subject=Hogback%20Ridge%20Technologies%20Inquiry`}
               className="inline-flex items-center gap-2 rounded-full bg-copper-500 px-5 py-2 text-sm font-semibold text-navy-950 hover:bg-copper-400"
             >
-              Email Hogback Ridge Technologies
+              Email {company.email}
               <span aria-hidden="true">↗</span>
             </a>
           </div>
@@ -426,7 +435,7 @@ export function HogbackFooter() {
     <footer className="mt-16 border-t border-white/10">
       <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-4 px-6 py-6 text-xs text-slate-500 sm:flex-row sm:items-center">
         <p>
-          © {new Date().getFullYear()} Hogback Ridge Technologies · The Dalles,
+          © <span suppressHydrationWarning>{new Date().getFullYear()}</span> Hogback Ridge Technologies · The Dalles,
           Oregon · Solid Foundation. Smart Solutions.
         </p>
         <p>Brand &amp; site: hogbacktech.com</p>
