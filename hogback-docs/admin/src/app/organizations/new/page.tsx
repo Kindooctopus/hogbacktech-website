@@ -22,7 +22,7 @@ export default function NewOrganizationPage() {
 
     try {
       const orgId = await createOrganization({ name, code, isDemo });
-      router.push(`/organizations/${orgId}`);
+      router.push(`/organizations/manage?id=${orgId}`);
     } catch {
       setError("Unable to create organization. The code may already exist.");
     } finally {

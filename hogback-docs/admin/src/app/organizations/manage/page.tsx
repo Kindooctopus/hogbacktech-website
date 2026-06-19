@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useMemo, useState } from "react";
-import { useParams } from "next/navigation";
+import { FormEvent, Suspense, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { ref, uploadBytes } from "firebase/storage";
 import { AdminShell, Button, Card, Field, Input } from "@/components/ui";
 import { RequireAdmin } from "@/components/RequireAdmin";
@@ -16,9 +16,9 @@ import {
 import { getFirebaseStorage } from "@/lib/firebase";
 import type { Category, DocumentRecord, Organization } from "@shared/types";
 
-export default function OrganizationPage() {
-  const params = useParams<{ id: string }>();
-  const orgId = params.id;
+function OrganizationManageContent() {
+  const searchParams = useSearchParams();
+  const orgId = searchParams.get("id") ?? "";
 
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -40,6 +40,8 @@ export default function OrganizationPage() {
   );
 
   async function refresh() {
+    if (!orgId) return;
+
     const [org, nextCategories, nextDocuments] = await Promise.all([
       getOrganization(orgId),
       listCategories(orgId),
@@ -54,6 +56,12 @@ export default function OrganizationPage() {
   }
 
   useEffect(() => {
+    if (!orgId) {
+      setLoading(false);
+      setError("Organization ID is missing.");
+      return;
+    }
+
     refresh()
       .catch(() => setError("Unable to load organization."))
       .finally(() => setLoading(false));
@@ -131,7 +139,7 @@ export default function OrganizationPage() {
         {loading ? (
           <p className="text-slate-400">Loading organization…</p>
         ) : !organization ? (
-          <p className="text-red-300">Organization not found.</p>
+          <p className="text-red-300">{error || "Organization not found."}</p>
         ) : (
           <div className="space-y-6">
             <div>
@@ -252,5 +260,13 @@ export default function OrganizationPage() {
         )}
       </AdminShell>
     </RequireAdmin>
+  );
+}
+
+export default function OrganizationManagePage() {
+  return (
+    <Suspense fallback={<p className="p-8 text-slate-400">Loading organization…</p>}>
+      <OrganizationManageContent />
+    </Suspense>
   );
 }

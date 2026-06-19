@@ -70,7 +70,7 @@ export default function DashboardPage() {
                         {!org.active ? " · Inactive" : ""}
                       </p>
                     </div>
-                    <Link href={`/organizations/${org.id}`}>
+                    <Link href={`/organizations/manage?id=${org.id}`}>
                       <Button variant="secondary">Manage</Button>
                     </Link>
                   </div>
