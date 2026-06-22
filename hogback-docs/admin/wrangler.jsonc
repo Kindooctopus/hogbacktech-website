@@ -3,6 +3,8 @@
   "name": "hogback-docs-admin",
   "compatibility_date": "2026-06-13",
   "assets": {
-    "directory": "./out"
+    "directory": "./out",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
   }
 }
