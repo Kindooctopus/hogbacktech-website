@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "hogbacktech-website",
+  "name": "hogback-docs-admin",
   "compatibility_date": "2026-06-13",
   "assets": {
     "directory": "./out"
