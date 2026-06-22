@@ -6,6 +6,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
   output: "export",
+  trailingSlash: true,
   outputFileTracingRoot: join(__dirname, ".."),
   images: {
     unoptimized: true,

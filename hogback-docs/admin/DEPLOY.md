@@ -1,32 +1,78 @@
-# Deploy Hogback Docs Admin to Cloudflare Pages
+# Deploy Hogback Docs Admin to Cloudflare
 
-## Cloudflare build settings (required)
+## The problem (if you see the marketing site or blank /login)
 
-In **Workers & Pages → hogback-docs-admin → Settings → Builds**:
+This repo has **two** apps and **two** `wrangler.jsonc` files:
+
+| File | Deploys |
+|------|---------|
+| `/wrangler.jsonc` | **hogbacktech.com** marketing site |
+| `/hogback-docs/admin/wrangler.jsonc` | **Hogback Docs admin** portal |
+
+If Cloudflare uses the **root** wrangler file, `hogback-docs-admin.workers.dev` will show the **wrong website**.
+
+---
+
+## Cloudflare settings for `hogback-docs-admin`
+
+**Workers & Pages → hogback-docs-admin → Settings → Build**
 
 | Setting | Value |
 |---------|--------|
-| **Root directory** | `hogback-docs/admin` |
-| **Build command** | `npm run build` |
-| **Build output directory** | `out` |
+| **Build command** | `cd hogback-docs/admin && npm install && npm run build` |
+| **Deploy command** | `cd hogback-docs/admin && npx wrangler deploy` |
+| **Root directory** | *(leave empty — paths are in the commands above)* |
 
-**Build variables** (Settings → Build → Build variables — NOT runtime Variables):
+### Build variables (Settings → Build → Build variables)
 
-Add all `NEXT_PUBLIC_FIREBASE_*` values and `NODE_VERSION=22`.
+Not runtime Variables & Secrets.
 
-### Verify the build log
+```
+NEXT_PUBLIC_FIREBASE_API_KEY
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=hogback-docs
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+NEXT_PUBLIC_FIREBASE_APP_ID
+NODE_VERSION=22
+```
 
-After deploy, the log **must** show:
+---
+
+## Verify the build log
+
+Must show:
 
 ```
 > hogback-docs-admin@0.1.0 build
 ```
 
-If you see `hogbacktech-website@0.1.0 build`, the project is deploying the **marketing site** by mistake (no login screen).
+Must **NOT** show:
 
-### Alternative (if root directory cannot be set)
+```
+> hogbacktech-website@0.1.0 build
+```
 
-| Setting | Value |
-|---------|--------|
-| **Build command** | `cd hogback-docs/admin && npm install && npm run build` |
-| **Build output directory** | `hogback-docs/admin/out` |
+---
+
+## Test URLs after deploy
+
+- https://hogback-docs-admin.kdphbm5zw7.workers.dev/login/
+- Should show **Hogback Docs** sign-in (dark page, email + password)
+
+Not "Solid Foundation. Smart Solutions." (that is the marketing site).
+
+---
+
+## Firebase authorized domains
+
+Add before testing sign-in:
+
+- `hogback-docs-admin.kdphbm5zw7.workers.dev`
+- `docs.hogbacktech.com` (when custom domain is ready)
+
+---
+
+## Custom domain
+
+**hogback-docs-admin → Custom domains →** add `docs.hogbacktech.com`
