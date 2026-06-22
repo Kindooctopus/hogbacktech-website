@@ -83,3 +83,8 @@ body {
 .product-accent-docs { border-color: color-mix(in srgb, var(--color-docs) 40%, transparent); }
 .product-accent-forge { border-color: color-mix(in srgb, var(--color-forge) 40%, transparent); }
 
+.hero-product-blend,
+.hero-capability-blend {
+  -webkit-mask-image: radial-gradient(ellipse 90% 86% at 50% 50%, #000 58%, transparent 100%);
+  mask-image: radial-gradient(ellipse 90% 86% at 50% 50%, #000 58%, transparent 100%);
+}
