@@ -106,7 +106,7 @@ export function HogbackHero() {
             </div>
 
             {/* Mobile / tablet: compact product links along the bottom */}
-            <div className="absolute inset-x-0 bottom-0 z-10 grid grid-cols-4 gap-1.5 p-2 sm:gap-2 sm:p-2.5 md:hidden">
+            <div className="absolute inset-x-0 bottom-0 z-10 grid grid-cols-5 gap-1 p-1.5 sm:gap-1.5 sm:p-2 md:hidden">
               {products.map((product) => (
                 <Link
                   key={product.id}
@@ -213,6 +213,18 @@ export function HogbackProducts() {
         "Long‑term partnership, not one‑off code",
       ],
     },
+    {
+      id: "sat",
+      name: "Hogback Sat",
+      badge: "Satellite",
+      description:
+        "Near-real-time satellite imagery for wildfire smoke, thermal hotspots, and field situational awareness.",
+      points: [
+        "NASA GIBS live map feed",
+        "True color, fire, and night layers",
+        "Open the app and scrub recent passes",
+      ],
+    },
   ];
 
   return (
@@ -253,7 +265,7 @@ export function HogbackProducts() {
                   ))}
                 </ul>
               </div>
-              <div className="mt-4">
+              <div className="mt-4 flex flex-wrap items-center gap-4">
                 <Link
                   href={`/products/${product.id}`}
                   className="inline-flex items-center gap-2 text-sm text-copper-500 hover:text-copper-400"
@@ -261,6 +273,15 @@ export function HogbackProducts() {
                   Learn about {product.name}
                   <span aria-hidden="true">↗</span>
                 </Link>
+                {product.id === "sat" && (
+                  <Link
+                    href="/apps/sat"
+                    className="inline-flex items-center gap-2 text-sm text-white hover:text-copper-300"
+                  >
+                    Open live feed
+                    <span aria-hidden="true">↗</span>
+                  </Link>
+                )}
               </div>
             </article>
           ))}

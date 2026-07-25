@@ -66,13 +66,28 @@ export function ProductDetailPage({ product }: { product: Product }) {
               </p>
             </div>
 
-            <a
-              href={`mailto:${company.email}?subject=${encodeURIComponent(`${product.name} inquiry`)}`}
-              className="inline-flex items-center gap-2 rounded-full bg-copper-500 px-6 py-2.5 text-sm font-semibold text-navy-950 hover:bg-copper-400"
-            >
-              Talk about {product.name}
-              <span aria-hidden="true">↗</span>
-            </a>
+            <div className="flex flex-wrap items-center gap-3">
+              {product.id === "sat" && (
+                <Link
+                  href="/apps/sat"
+                  className="inline-flex items-center gap-2 rounded-full bg-copper-500 px-6 py-2.5 text-sm font-semibold text-navy-950 hover:bg-copper-400"
+                >
+                  Open live feed
+                  <span aria-hidden="true">↗</span>
+                </Link>
+              )}
+              <a
+                href={`mailto:${company.email}?subject=${encodeURIComponent(`${product.name} inquiry`)}`}
+                className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold ${
+                  product.id === "sat"
+                    ? "border border-white/15 text-white hover:bg-white/5"
+                    : "bg-copper-500 text-navy-950 hover:bg-copper-400"
+                }`}
+              >
+                Talk about {product.name}
+                <span aria-hidden="true">↗</span>
+              </a>
+            </div>
           </div>
         </div>
 

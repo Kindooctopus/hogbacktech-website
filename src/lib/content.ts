@@ -112,6 +112,25 @@ export const products = [
       setup: "Scoped per project",
     },
   },
+  {
+    id: "sat",
+    name: "Hogback Sat",
+    subtitle: "Live Satellite Situational Awareness",
+    tileImage: "/brand/products/sat.png",
+    description:
+      "Near-real-time satellite imagery for public safety and field ops — true color, thermal/fire hotspots, and night lights powered by NASA GIBS.",
+    features: [
+      "Live satellite map feed",
+      "True color & thermal/fire layers",
+      "Date scrubbing for recent passes",
+      "Built for PNW situational awareness",
+    ],
+    accent: "geo",
+    pricing: {
+      tiers: ["Core $1,200/yr", "Standard $2,500/yr", "Pro $5,000/yr"],
+      setup: "$500–$2,000",
+    },
+  },
 ];
 
 export const capabilities = [
@@ -168,6 +187,7 @@ export const techStack = [
   "Cradlepoint NetCloud",
   "CrewSense",
   "Open-Meteo & OpenSky",
+  "NASA GIBS",
 ];
 
 export const supportPlans = [
@@ -183,4 +203,5 @@ export const roadmap = [
   "AI-powered document search",
   "AI incident summaries",
   "Additional GIS layers",
+  "Hogback Sat agency overlays",
 ];
