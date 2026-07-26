@@ -9,7 +9,7 @@ This repo has **two** apps and **two** `wrangler.jsonc` files:
 | `/wrangler.jsonc` | **hogbacktech.com** marketing site |
 | `/hogback-docs/admin/wrangler.jsonc` | **Hogback Docs admin** portal |
 
-If Cloudflare uses the **root** wrangler file, `hogback-docs-admin.workers.dev` will show the **wrong website**.
+If Cloudflare uses the **root** wrangler file, `hogback-docs-admin.workers.dev` will show the **wrong website**, or the build will fail the Workers name requirement (`hogbacktech-website` ≠ `hogback-docs-admin`).
 
 ---
 
@@ -19,9 +19,12 @@ If Cloudflare uses the **root** wrangler file, `hogback-docs-admin.workers.dev` 
 
 | Setting | Value |
 |---------|--------|
-| **Build command** | `cd hogback-docs/admin && npm install && npm run build` |
-| **Deploy command** | `cd hogback-docs/admin && npx wrangler deploy` |
-| **Root directory** | *(leave empty — paths are in the commands above)* |
+| **Root directory** | `hogback-docs/admin` |
+| **Build command** | `npm run build` |
+| **Deploy command** | `npx wrangler deploy` |
+| **Non-production branch deploy command** | `npx wrangler versions upload` |
+
+Root directory **must** be `hogback-docs/admin` so Workers Builds validates and deploys with this app’s `wrangler.jsonc` (`name: "hogback-docs-admin"`), not the marketing site config at the repo root.
 
 ### Build variables (Settings → Build → Build variables)
 
@@ -36,6 +39,12 @@ NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
 NEXT_PUBLIC_FIREBASE_APP_ID
 NODE_VERSION=22
 ```
+
+### Lockfile note
+
+Cloudflare runs `npm clean-install` (`npm ci`) in the Root directory before the build command. Keep `package-lock.json` in sync with `package.json` (re-run `npm install` in `hogback-docs/admin` after dependency changes). A stale lockfile fails the admin Workers check.
+
+Optional watch path (reduces noise on marketing-only PRs): `hogback-docs/admin/**`
 
 ---
 
