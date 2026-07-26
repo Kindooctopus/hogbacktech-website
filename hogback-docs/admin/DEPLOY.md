@@ -26,6 +26,8 @@ If Cloudflare uses the **root** wrangler file, `hogback-docs-admin.workers.dev` 
 
 Root directory **must** be `hogback-docs/admin` so Workers Builds validates and deploys with this app’s `wrangler.jsonc` (`name: "hogback-docs-admin"`), not the marketing site config at the repo root.
 
+Until that Root directory is set in the dashboard, the repo-root `wrangler.jsonc` keeps `name: "hogback-docs-admin"` so admin PR checks pass the Workers name requirement. Local marketing-site deploys use `npm run deploy` (passes `--name hogbacktech-website`). After Root directory is corrected, restore the root wrangler name to `hogbacktech-website`.
+
 ### Build variables (Settings → Build → Build variables)
 
 Not runtime Variables & Secrets.
