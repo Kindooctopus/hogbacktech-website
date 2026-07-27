@@ -1,13 +1,26 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import type {
+  CircleMarker,
   FeatureGroup,
   GeoJSON as LeafletGeoJSON,
   Map as LeafletMap,
+  Polygon,
   TileLayer,
 } from "leaflet";
 import "leaflet/dist/leaflet.css";
+import {
+  CompassArView,
+  readCompassHeading,
+  requestOrientationPermission,
+} from "@/components/CompassArView";
+import {
+  featureDisplayName,
+  flashlightSector,
+  type ArTarget,
+  type LatLng,
+} from "@/lib/geoNav";
 import {
   defaultBasemapId,
   defaultMapCenter,
@@ -73,6 +86,60 @@ function createBasemapLayer(
     maxZoom: basemap.maxZoom,
     ...(basemap.subdomains ? { subdomains: basemap.subdomains } : {}),
   });
+}
+
+function targetsFromGeoJSON(
+  id: GsiOverlayId,
+  geojson: GeoJSON.FeatureCollection,
+): ArTarget[] {
+  const overlay = gsiOverlays.find((o) => o.id === id);
+  const kind = overlay?.shortName ?? id;
+  const targets: ArTarget[] = [];
+
+  geojson.features?.forEach((feature, index) => {
+    const geometry = feature.geometry;
+    if (!geometry) return;
+
+    let lat: number | null = null;
+    let lng: number | null = null;
+
+    if (geometry.type === "Point") {
+      lng = geometry.coordinates[0];
+      lat = geometry.coordinates[1];
+    } else if (geometry.type === "MultiPoint" && geometry.coordinates[0]) {
+      lng = geometry.coordinates[0][0];
+      lat = geometry.coordinates[0][1];
+    } else if (
+      geometry.type === "Polygon" &&
+      geometry.coordinates[0]?.length
+    ) {
+      const ring = geometry.coordinates[0];
+      let x = 0;
+      let y = 0;
+      for (const [px, py] of ring) {
+        x += px;
+        y += py;
+      }
+      lng = x / ring.length;
+      lat = y / ring.length;
+    }
+
+    if (lat == null || lng == null || !Number.isFinite(lat) || !Number.isFinite(lng)) {
+      return;
+    }
+    if (Math.abs(lat) < 0.01 && Math.abs(lng) < 0.01) return;
+
+    const props = (feature.properties ?? {}) as Record<string, unknown>;
+    targets.push({
+      id: `${id}-${index}`,
+      name: featureDisplayName(props, kind),
+      kind,
+      lat,
+      lng,
+    });
+  });
+
+  return targets;
 }
 
 function fireMarkerIcon(L: typeof import("leaflet")) {
@@ -613,10 +680,18 @@ export function GsiMap() {
   const mapRef = useRef<LeafletMap | null>(null);
   const basemapLayerRef = useRef<TileLayer | null>(null);
   const groupsRef = useRef<Partial<Record<GsiOverlayId, FeatureGroup>>>({});
+  const featuresRef = useRef<Partial<Record<GsiOverlayId, ArTarget[]>>>({});
+  const userMarkerRef = useRef<CircleMarker | null>(null);
+  const flashlightRef = useRef<Polygon | null>(null);
   const layersMenuRef = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
   const [basemapId, setBasemapId] = useState<GsiBasemapId>(defaultBasemapId);
   const [layersOpen, setLayersOpen] = useState(false);
+  const [arOpen, setArOpen] = useState(false);
+  const [userLocation, setUserLocation] = useState<LatLng | null>(null);
+  const [heading, setHeading] = useState<number | null>(null);
+  const [headingAccuracy, setHeadingAccuracy] = useState<number | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
   const [overlayState, setOverlayState] = useState<OverlayState>(
     initialOverlayState,
   );
@@ -635,6 +710,18 @@ export function GsiMap() {
     },
     [],
   );
+
+  const [targetsVersion, setTargetsVersion] = useState(0);
+
+  const arTargets = useMemo(() => {
+    const list: ArTarget[] = [];
+    for (const overlay of gsiOverlays) {
+      if (!overlayState[overlay.id]?.enabled) continue;
+      const items = featuresRef.current[overlay.id];
+      if (items?.length) list.push(...items);
+    }
+    return list;
+  }, [overlayState, targetsVersion]);
 
   useEffect(() => {
     let cancelled = false;
@@ -670,6 +757,9 @@ export function GsiMap() {
         mapRef.current = null;
         basemapLayerRef.current = null;
         groupsRef.current = {};
+        featuresRef.current = {};
+        userMarkerRef.current = null;
+        flashlightRef.current = null;
       }
     };
   }, []);
@@ -721,6 +811,7 @@ export function GsiMap() {
         group.clearLayers();
         const layer = await buildOverlayLayer(L, id, geojson);
         layer.addTo(group);
+        featuresRef.current[id] = targetsFromGeoJSON(id, geojson);
         setLayerMeta(id, {
           status: "ready",
           count: geojson.features?.length ?? 0,
@@ -729,13 +820,17 @@ export function GsiMap() {
         if (cancelled) return;
         const message =
           err instanceof Error ? err.message : "Failed to load layer";
+        featuresRef.current[id] = [];
         setLayerMeta(id, { status: "error", error: message, count: 0 });
       }
     }
 
     void (async () => {
       await Promise.all(gsiOverlays.map((o) => loadOverlay(o.id)));
-      if (!cancelled) setLastRefresh(new Date());
+      if (!cancelled) {
+        setLastRefresh(new Date());
+        setTargetsVersion((n) => n + 1);
+      }
     })();
 
     return () => {
@@ -767,6 +862,124 @@ export function GsiMap() {
     };
   }, [layersOpen]);
 
+  useEffect(() => {
+    if (!arOpen) return;
+
+    if (!navigator.geolocation) {
+      setLocationError("GPS is not available in this browser.");
+      return;
+    }
+
+    setLocationError(null);
+    const watchId = navigator.geolocation.watchPosition(
+      (pos) => {
+        setUserLocation({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        });
+      },
+      (err) => {
+        setLocationError(err.message || "Unable to read GPS location.");
+      },
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 },
+    );
+
+    return () => {
+      navigator.geolocation.clearWatch(watchId);
+    };
+  }, [arOpen]);
+
+  useEffect(() => {
+    if (!arOpen) return;
+
+    function onOrientation(event: DeviceOrientationEvent) {
+      const reading = readCompassHeading(event);
+      if (!reading) return;
+      setHeading(reading.heading);
+      setHeadingAccuracy(reading.accuracy);
+    }
+
+    window.addEventListener("deviceorientationabsolute", onOrientation, true);
+    window.addEventListener("deviceorientation", onOrientation, true);
+    return () => {
+      window.removeEventListener(
+        "deviceorientationabsolute",
+        onOrientation,
+        true,
+      );
+      window.removeEventListener("deviceorientation", onOrientation, true);
+    };
+  }, [arOpen]);
+
+  useEffect(() => {
+    if (!ready || !mapRef.current || !userLocation) return;
+
+    const loc = userLocation;
+    const currentHeading = heading;
+    let cancelled = false;
+
+    async function drawUserAndBeam() {
+      const L = await import("leaflet");
+      const map = mapRef.current;
+      if (!map || cancelled) return;
+
+      if (!userMarkerRef.current) {
+        userMarkerRef.current = L.circleMarker([loc.lat, loc.lng], {
+          radius: 7,
+          color: "#fff",
+          weight: 2,
+          fillColor: "#3b82f6",
+          fillOpacity: 1,
+        }).addTo(map);
+      } else {
+        userMarkerRef.current.setLatLng([loc.lat, loc.lng]);
+        if (!map.hasLayer(userMarkerRef.current)) {
+          userMarkerRef.current.addTo(map);
+        }
+      }
+
+      if (currentHeading == null) {
+        if (flashlightRef.current) {
+          map.removeLayer(flashlightRef.current);
+          flashlightRef.current = null;
+        }
+        return;
+      }
+
+      const ring = flashlightSector(loc, currentHeading, 8000, 18);
+      if (!flashlightRef.current) {
+        flashlightRef.current = L.polygon(ring, {
+          color: "#f59e0b",
+          weight: 1,
+          fillColor: "#f59e0b",
+          fillOpacity: 0.18,
+          interactive: false,
+        }).addTo(map);
+      } else {
+        flashlightRef.current.setLatLngs(ring);
+        if (!map.hasLayer(flashlightRef.current)) {
+          flashlightRef.current.addTo(map);
+        }
+      }
+    }
+
+    void drawUserAndBeam();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [ready, userLocation, heading]);
+
+  useEffect(() => {
+    if (arOpen) return;
+    const map = mapRef.current;
+    if (!map) return;
+    if (flashlightRef.current) {
+      map.removeLayer(flashlightRef.current);
+      flashlightRef.current = null;
+    }
+  }, [arOpen]);
+
   function toggleOverlay(id: GsiOverlayId) {
     const map = mapRef.current;
     const group = groupsRef.current[id];
@@ -785,6 +998,18 @@ export function GsiMap() {
 
   function refresh() {
     setRefreshToken((n) => n + 1);
+  }
+
+  async function openAr() {
+    setLayersOpen(false);
+    const allowed = await requestOrientationPermission();
+    if (!allowed) {
+      setLocationError(
+        "Motion/compass permission denied — you can still set heading manually.",
+      );
+    }
+    if (!heading) setHeading(0);
+    setArOpen(true);
   }
 
   const enabledCount = gsiOverlays.filter(
@@ -924,6 +1149,18 @@ export function GsiMap() {
           )}
           <button
             type="button"
+            onClick={() => void openAr()}
+            className={`rounded-md border px-2.5 py-1.5 text-sm ${
+              arOpen
+                ? "border-copper-500/60 bg-copper-500/20 text-copper-300"
+                : "border-white/15 text-white hover:bg-white/5"
+            }`}
+            title="Open AR compass with direction flashlight"
+          >
+            AR Compass
+          </button>
+          <button
+            type="button"
             onClick={refresh}
             className="rounded-md border border-white/15 px-2.5 py-1.5 text-sm text-white hover:bg-white/5"
           >
@@ -931,6 +1168,12 @@ export function GsiMap() {
           </button>
         </div>
       </div>
+
+      {locationError && arOpen && (
+        <p className="border-b border-amber-500/20 bg-amber-500/10 px-3 py-1.5 text-xs text-amber-200">
+          {locationError}
+        </p>
+      )}
 
       <div className="relative min-h-0 flex-1">
         <div
@@ -943,6 +1186,15 @@ export function GsiMap() {
             Loading GSI map…
           </div>
         )}
+        <CompassArView
+          open={arOpen}
+          onClose={() => setArOpen(false)}
+          userLocation={userLocation}
+          heading={heading}
+          headingAccuracy={headingAccuracy}
+          targets={arTargets}
+          onManualHeading={setHeading}
+        />
       </div>
     </div>
   );
