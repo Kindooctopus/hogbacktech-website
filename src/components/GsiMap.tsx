@@ -15,12 +15,14 @@ import {
   readCompassHeading,
   requestOrientationPermission,
 } from "@/components/CompassArView";
+import { MapSearchBox } from "@/components/MapSearchBox";
 import {
   featureDisplayName,
   flashlightSector,
   type ArTarget,
   type LatLng,
 } from "@/lib/geoNav";
+import type { MapSearchResult } from "@/lib/mapSearch";
 import {
   defaultBasemapId,
   defaultMapCenter,
@@ -682,6 +684,7 @@ export function GsiMap() {
   const groupsRef = useRef<Partial<Record<GsiOverlayId, FeatureGroup>>>({});
   const featuresRef = useRef<Partial<Record<GsiOverlayId, ArTarget[]>>>({});
   const userMarkerRef = useRef<CircleMarker | null>(null);
+  const searchMarkerRef = useRef<CircleMarker | null>(null);
   const flashlightRef = useRef<Polygon | null>(null);
   const layersMenuRef = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
@@ -692,6 +695,8 @@ export function GsiMap() {
   const [heading, setHeading] = useState<number | null>(null);
   const [headingAccuracy, setHeadingAccuracy] = useState<number | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [didCenterOnUser, setDidCenterOnUser] = useState(false);
   const [overlayState, setOverlayState] = useState<OverlayState>(
     initialOverlayState,
   );
@@ -721,7 +726,19 @@ export function GsiMap() {
       if (items?.length) list.push(...items);
     }
     return list;
+    // targetsVersion bumps after overlay GeoJSON loads into featuresRef.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [overlayState, targetsVersion]);
+
+  const allSearchTargets = useMemo(() => {
+    const list: ArTarget[] = [];
+    for (const overlay of gsiOverlays) {
+      const items = featuresRef.current[overlay.id];
+      if (items?.length) list.push(...items);
+    }
+    return list;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [targetsVersion]);
 
   useEffect(() => {
     let cancelled = false;
@@ -759,6 +776,7 @@ export function GsiMap() {
         groupsRef.current = {};
         featuresRef.current = {};
         userMarkerRef.current = null;
+        searchMarkerRef.current = null;
         flashlightRef.current = null;
       }
     };
@@ -863,13 +881,14 @@ export function GsiMap() {
   }, [layersOpen]);
 
   useEffect(() => {
-    if (!arOpen) return;
+    if (!ready) return;
 
     if (!navigator.geolocation) {
       setLocationError("GPS is not available in this browser.");
       return;
     }
 
+    setLocating(true);
     setLocationError(null);
     const watchId = navigator.geolocation.watchPosition(
       (pos) => {
@@ -877,9 +896,16 @@ export function GsiMap() {
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
         });
+        setLocating(false);
+        setLocationError(null);
       },
       (err) => {
-        setLocationError(err.message || "Unable to read GPS location.");
+        setLocating(false);
+        setLocationError(
+          err.code === err.PERMISSION_DENIED
+            ? "Location permission denied — tap My location to try again."
+            : err.message || "Unable to read GPS location.",
+        );
       },
       { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 },
     );
@@ -887,7 +913,7 @@ export function GsiMap() {
     return () => {
       navigator.geolocation.clearWatch(watchId);
     };
-  }, [arOpen]);
+  }, [ready]);
 
   useEffect(() => {
     if (!arOpen) return;
@@ -916,6 +942,7 @@ export function GsiMap() {
 
     const loc = userLocation;
     const currentHeading = heading;
+    const showBeam = arOpen && currentHeading != null;
     let cancelled = false;
 
     async function drawUserAndBeam() {
@@ -925,12 +952,18 @@ export function GsiMap() {
 
       if (!userMarkerRef.current) {
         userMarkerRef.current = L.circleMarker([loc.lat, loc.lng], {
-          radius: 7,
-          color: "#fff",
-          weight: 2,
+          radius: 8,
+          color: "#ffffff",
+          weight: 3,
           fillColor: "#3b82f6",
           fillOpacity: 1,
-        }).addTo(map);
+        })
+          .bindTooltip("You are here", {
+            permanent: false,
+            direction: "top",
+            className: "hogback-gsi-popup",
+          })
+          .addTo(map);
       } else {
         userMarkerRef.current.setLatLng([loc.lat, loc.lng]);
         if (!map.hasLayer(userMarkerRef.current)) {
@@ -938,7 +971,15 @@ export function GsiMap() {
         }
       }
 
-      if (currentHeading == null) {
+      if (!didCenterOnUser) {
+        map.flyTo([loc.lat, loc.lng], Math.max(map.getZoom(), 11), {
+          animate: true,
+          duration: 0.9,
+        });
+        setDidCenterOnUser(true);
+      }
+
+      if (!showBeam) {
         if (flashlightRef.current) {
           map.removeLayer(flashlightRef.current);
           flashlightRef.current = null;
@@ -946,7 +987,7 @@ export function GsiMap() {
         return;
       }
 
-      const ring = flashlightSector(loc, currentHeading, 8000, 18);
+      const ring = flashlightSector(loc, currentHeading!, 8000, 18);
       if (!flashlightRef.current) {
         flashlightRef.current = L.polygon(ring, {
           color: "#f59e0b",
@@ -968,7 +1009,7 @@ export function GsiMap() {
     return () => {
       cancelled = true;
     };
-  }, [ready, userLocation, heading]);
+  }, [ready, userLocation, heading, arOpen, didCenterOnUser]);
 
   useEffect(() => {
     if (arOpen) return;
@@ -1000,6 +1041,75 @@ export function GsiMap() {
     setRefreshToken((n) => n + 1);
   }
 
+  function locateMe() {
+    setLocating(true);
+    setLocationError(null);
+
+    if (!navigator.geolocation) {
+      setLocating(false);
+      setLocationError("GPS is not available in this browser.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const loc = {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        };
+        setUserLocation(loc);
+        setLocating(false);
+        const map = mapRef.current;
+        if (map) {
+          map.flyTo([loc.lat, loc.lng], Math.max(map.getZoom(), 13), {
+            animate: true,
+            duration: 0.8,
+          });
+        }
+      },
+      (err) => {
+        setLocating(false);
+        setLocationError(
+          err.code === err.PERMISSION_DENIED
+            ? "Location permission denied. Enable location for this site in browser settings."
+            : err.message || "Unable to read GPS location.",
+        );
+      },
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 },
+    );
+  }
+
+  async function goToSearchResult(result: MapSearchResult) {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const L = await import("leaflet");
+    map.flyTo([result.lat, result.lng], result.kind === "fire" ? 11 : 13, {
+      animate: true,
+      duration: 0.85,
+    });
+
+    if (searchMarkerRef.current) {
+      map.removeLayer(searchMarkerRef.current);
+    }
+    searchMarkerRef.current = L.circleMarker([result.lat, result.lng], {
+      radius: 9,
+      color: "#fbbf24",
+      weight: 2,
+      fillColor: result.kind === "fire" ? "#ea580c" : "#22d3ee",
+      fillOpacity: 0.95,
+    })
+      .bindPopup(
+        `<div style="min-width:160px;font-family:system-ui,sans-serif;font-size:12px;color:#e2e8f0">
+          <div style="font-weight:600;color:#fff;margin-bottom:4px">${result.label.replace(/</g, "&lt;")}</div>
+          <div style="color:#94a3b8">${result.detail.replace(/</g, "&lt;")}</div>
+        </div>`,
+        { className: "hogback-gsi-popup", maxWidth: 260 },
+      )
+      .addTo(map)
+      .openPopup();
+  }
+
   async function openAr() {
     setLayersOpen(false);
     const allowed = await requestOrientationPermission();
@@ -1009,6 +1119,7 @@ export function GsiMap() {
       );
     }
     if (!heading) setHeading(0);
+    if (!userLocation) locateMe();
     setArOpen(true);
   }
 
@@ -1020,8 +1131,8 @@ export function GsiMap() {
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="relative z-20 flex flex-wrap items-center gap-2 border-b border-white/10 bg-navy-900/80 px-3 py-2 backdrop-blur-sm sm:gap-3 sm:px-4">
-        <label className="flex min-w-0 items-center gap-2 text-xs text-slate-400">
-          <span className="shrink-0 font-medium uppercase tracking-wider text-slate-500">
+        <label className="flex shrink-0 items-center gap-2 text-xs text-slate-400">
+          <span className="font-medium uppercase tracking-wider text-slate-500">
             Map
           </span>
           <select
@@ -1029,7 +1140,7 @@ export function GsiMap() {
             onChange={(e) => setBasemapId(e.target.value as GsiBasemapId)}
             title={activeBasemap.description}
             aria-label="Basemap style"
-            className="min-w-[8.5rem] rounded-md border border-white/15 bg-navy-950 px-2.5 py-1.5 text-sm text-white outline-none focus:border-copper-500/50"
+            className="min-w-[7.5rem] rounded-md border border-white/15 bg-navy-950 px-2.5 py-1.5 text-sm text-white outline-none focus:border-copper-500/50"
           >
             {gsiBasemaps.map((basemap) => (
               <option key={basemap.id} value={basemap.id}>
@@ -1141,9 +1252,18 @@ export function GsiMap() {
           )}
         </div>
 
-        <div className="ml-auto flex flex-wrap items-center gap-2 sm:gap-3">
+        <MapSearchBox
+          targets={allSearchTargets}
+          bias={userLocation}
+          onSelect={(result) => void goToSearchResult(result)}
+          onLocateMe={locateMe}
+          locating={locating}
+          hasLocation={Boolean(userLocation)}
+        />
+
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           {lastRefresh && (
-            <p className="hidden text-xs text-slate-500 sm:block">
+            <p className="hidden text-xs text-slate-500 lg:block">
               Updated {lastRefresh.toLocaleTimeString()}
             </p>
           )}
@@ -1169,7 +1289,7 @@ export function GsiMap() {
         </div>
       </div>
 
-      {locationError && arOpen && (
+      {locationError && (
         <p className="border-b border-amber-500/20 bg-amber-500/10 px-3 py-1.5 text-xs text-amber-200">
           {locationError}
         </p>
@@ -1184,6 +1304,11 @@ export function GsiMap() {
         {!ready && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-navy-950 text-sm text-slate-400">
             Loading GSI map…
+          </div>
+        )}
+        {ready && !userLocation && !locationError && (
+          <div className="pointer-events-none absolute bottom-3 left-3 z-20 rounded-md border border-white/10 bg-navy-950/80 px-2.5 py-1.5 text-[11px] text-slate-300 backdrop-blur-sm">
+            Getting your location…
           </div>
         )}
         <CompassArView
