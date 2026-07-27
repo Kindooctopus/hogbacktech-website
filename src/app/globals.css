@@ -88,3 +88,30 @@ body {
   -webkit-mask-image: radial-gradient(ellipse 90% 86% at 50% 50%, #000 58%, transparent 100%);
   mask-image: radial-gradient(ellipse 90% 86% at 50% 50%, #000 58%, transparent 100%);
 }
+
+/* Hogback GSI / Leaflet dark popups */
+.leaflet-container {
+  background: var(--color-navy-950);
+  font: inherit;
+}
+
+.hogback-gsi-popup .leaflet-popup-content-wrapper {
+  background: #101820;
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+.hogback-gsi-popup .leaflet-popup-tip {
+  background: #101820;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hogback-gsi-popup .leaflet-popup-content {
+  margin: 12px 14px;
+}
+
+.hogback-gsi-popup a.leaflet-popup-close-button {
+  color: #94a3b8;
+}

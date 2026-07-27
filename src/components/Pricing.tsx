@@ -48,7 +48,7 @@ export function Pricing() {
             ))}
           </div>
           <p className="mt-6 text-xs text-slate-500">
-            Add-ons available: Android App, GIS Layers, ICS Web Editor, Drone Integration.{" "}
+            Add-ons available: Android App, GIS Layers, Hogback GSI, ICS Web Editor, Drone Integration.{" "}
             <a href="#contact" className="text-copper-400 hover:underline">Contact us for details.</a>
           </p>
         </div>

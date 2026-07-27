@@ -106,7 +106,7 @@ export function HogbackHero() {
             </div>
 
             {/* Mobile / tablet: compact product links along the bottom */}
-            <div className="absolute inset-x-0 bottom-0 z-10 grid grid-cols-4 gap-1.5 p-2 sm:gap-2 sm:p-2.5 md:hidden">
+            <div className="absolute inset-x-0 bottom-0 z-10 grid grid-cols-3 gap-1.5 p-2 sm:grid-cols-5 sm:gap-2 sm:p-2.5 md:hidden">
               {products.map((product) => (
                 <Link
                   key={product.id}
@@ -164,7 +164,14 @@ export function HogbackHero() {
 }
 
 export function HogbackProducts() {
-  const productCards = [
+  const productCards: {
+    id: string;
+    name: string;
+    badge: string;
+    description: string;
+    points: string[];
+    appHref?: string;
+  }[] = [
     {
       id: "ops",
       name: "Hogback Ops",
@@ -213,6 +220,19 @@ export function HogbackProducts() {
         "Long‑term partnership, not one‑off code",
       ],
     },
+    {
+      id: "gsi",
+      name: "Hogback GSI",
+      badge: "Wildfire Intelligence",
+      description:
+        "NIFC incidents, fire perimeters, and evacuation zones — geographic situational intelligence when the map matters.",
+      points: [
+        "Live NIFC WFIGS incident feed",
+        "Interagency fire perimeter overlays",
+        "Evacuation order and warning layers",
+      ],
+      appHref: "/apps/gsi",
+    },
   ];
 
   return (
@@ -253,7 +273,7 @@ export function HogbackProducts() {
                   ))}
                 </ul>
               </div>
-              <div className="mt-4">
+              <div className="mt-4 flex flex-wrap items-center gap-4">
                 <Link
                   href={`/products/${product.id}`}
                   className="inline-flex items-center gap-2 text-sm text-copper-500 hover:text-copper-400"
@@ -261,6 +281,15 @@ export function HogbackProducts() {
                   Learn about {product.name}
                   <span aria-hidden="true">↗</span>
                 </Link>
+                {product.appHref ? (
+                  <Link
+                    href={product.appHref}
+                    className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white"
+                  >
+                    Open map
+                    <span aria-hidden="true">↗</span>
+                  </Link>
+                ) : null}
               </div>
             </article>
           ))}
