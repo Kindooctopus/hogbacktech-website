@@ -66,7 +66,7 @@ export const products = [
       "Real-time fleet tracking",
       "Geofencing & alerts",
       "Cradlepoint NetCloud integration",
-      "Advanced mapping & GIS layers",
+      "Topo, satellite, imagery & relief basemaps",
     ],
     accent: "geo",
     pricing: {

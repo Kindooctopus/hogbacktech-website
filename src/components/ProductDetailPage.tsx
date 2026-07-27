@@ -67,6 +67,15 @@ export function ProductDetailPage({ product }: { product: Product }) {
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
+              {product.id === "geo" && (
+                <Link
+                  href="/apps/geo"
+                  className="inline-flex items-center gap-2 rounded-full bg-copper-500 px-6 py-2.5 text-sm font-semibold text-navy-950 hover:bg-copper-400"
+                >
+                  Open Geo map
+                  <span aria-hidden="true">↗</span>
+                </Link>
+              )}
               {product.id === "gsi" && (
                 <Link
                   href="/apps/gsi"
@@ -79,7 +88,7 @@ export function ProductDetailPage({ product }: { product: Product }) {
               <a
                 href={`mailto:${company.email}?subject=${encodeURIComponent(`${product.name} inquiry`)}`}
                 className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold ${
-                  product.id === "gsi"
+                  product.id === "geo" || product.id === "gsi"
                     ? "border border-white/15 text-white hover:bg-white/5"
                     : "bg-copper-500 text-navy-950 hover:bg-copper-400"
                 }`}

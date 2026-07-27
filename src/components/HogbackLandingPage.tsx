@@ -192,9 +192,10 @@ export function HogbackProducts() {
         "Location‑aware tools for fleets, apparatus, and field units—so you always know what's moving and why.",
       points: [
         "Fleet and asset visibility",
-        "Route and coverage insights",
+        "Topo, satellite, imagery & relief basemaps",
         "Supports mixed public & contract fleets",
       ],
+      appHref: "/apps/geo",
     },
     {
       id: "docs",

@@ -4,36 +4,36 @@ import { HogbackMapAppShell } from "@/components/HogbackMapAppShell";
 import { company } from "@/lib/content";
 
 export const metadata: Metadata = {
-  title: "Hogback GSI — NIFC Fire, Evacuation & AVL Layers",
+  title: "Hogback Geo — Advanced Mapping & GIS Layers",
   description:
-    "Geographic situational intelligence with NIFC WFIGS incidents, fire perimeters, evacuations, Cal OES fire resource AVL, and USFS hotshot/IHC tracking.",
+    "Hogback Geo advanced mapping with topo, satellite, imagery, and relief basemaps plus live GIS overlays for situational awareness.",
   openGraph: {
-    title: `Hogback GSI | ${company.name}`,
+    title: `Hogback Geo | ${company.name}`,
     description:
-      "NIFC incidents, fire perimeters, evacuations, Field Maps–style AVL, and USFS hotshot overlays on one map.",
+      "Topo, satellite, imagery, and relief basemaps with live GIS overlays for fleet and field situational awareness.",
     images: [
       {
-        url: "/brand/products/gsi.png",
+        url: "/brand/products/geo.png",
         width: 1024,
         height: 1024,
-        alt: "Hogback GSI",
+        alt: "Hogback Geo",
       },
     ],
   },
 };
 
-export default function HogbackGsiAppPage() {
+export default function HogbackGeoAppPage() {
   return (
     <HogbackMapAppShell
-      activeApp="gsi"
-      eyebrow="Hogback GSI"
-      title="Fire, OR / USFS units & AVL"
+      activeApp="geo"
+      eyebrow="Hogback Geo"
+      title="Advanced mapping & GIS layers"
       footer={
         <>
           <strong className="font-medium text-slate-400">
             Informational only.
           </strong>{" "}
-          Incidents, perimeters, and hotshot/IHC locations from{" "}
+          Basemaps from OpenTopoMap, Esri, and USGS. Overlay feeds from{" "}
           <a
             href="https://data-nifc.opendata.arcgis.com/"
             className="text-copper-400 hover:underline"
@@ -42,7 +42,7 @@ export default function HogbackGsiAppPage() {
           >
             NIFC / USFS
           </a>
-          ; evacuations and fire resource AVL from{" "}
+          ,{" "}
           <a
             href="https://www.caloes.ca.gov/"
             className="text-copper-400 hover:underline"
@@ -51,26 +51,16 @@ export default function HogbackGsiAppPage() {
           >
             Cal OES
           </a>
-          ; ODF units from{" "}
+          , and{" "}
           <a
             href="https://gis.odf.oregon.gov/"
             className="text-copper-400 hover:underline"
             target="_blank"
             rel="noreferrer"
           >
-            Oregon Department of Forestry
+            ODF
           </a>
-          ; USFS Oregon offices from{" "}
-          <a
-            href="https://data.fs.usda.gov/geodata/edw/"
-            className="text-copper-400 hover:underline"
-            target="_blank"
-            rel="noreferrer"
-          >
-            USFS EDW
-          </a>
-          . Not a substitute for official alerts, dispatch, or Field Maps
-          incident systems.
+          . Not a substitute for official dispatch or fleet systems.
         </>
       }
     >
