@@ -145,7 +145,7 @@ export function MapSearchBox({
           className="absolute left-0 right-0 top-full z-40 mt-1 max-h-72 overflow-auto rounded-lg border border-white/10 bg-navy-900 py-1 shadow-xl shadow-black/40"
         >
           {results.map((result) => (
-            <li key={result.id} role="option">
+            <li key={result.id} role="option" aria-selected={false}>
               <button
                 type="button"
                 onClick={() => choose(result)}
