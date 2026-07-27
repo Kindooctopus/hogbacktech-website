@@ -225,11 +225,11 @@ export function HogbackProducts() {
       name: "Hogback GSI",
       badge: "Wildfire Intelligence",
       description:
-        "NIFC incidents, fire perimeters, and evacuation zones — geographic situational intelligence when the map matters.",
+        "NIFC incidents, fire perimeters, evacuations, and Field Maps–style AVL / USFS hotshot tracking — geographic situational intelligence when the map matters.",
       points: [
         "Live NIFC WFIGS incident feed",
-        "Interagency fire perimeter overlays",
-        "Evacuation order and warning layers",
+        "Fire resource AVL unit tracking",
+        "USFS hotshot / IHC crew locations",
       ],
       appHref: "/apps/gsi",
     },

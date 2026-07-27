@@ -16,6 +16,7 @@ import {
   formatEpoch,
   formatPercent,
   gsiOverlays,
+  hotshotStyle,
   overlayQueryUrls,
   type GsiOverlayId,
 } from "@/lib/gsiLayers";
@@ -127,6 +128,158 @@ function evacuationPopup(props: Record<string, unknown>): string {
     </div>`;
 }
 
+function avlPopup(props: Record<string, unknown>): string {
+  const unit = props.UNIT__ || props.OES_ID__ || "Unit";
+  return `
+    <div style="min-width:200px;font-family:system-ui,sans-serif;font-size:12px;line-height:1.4">
+      <div style="font-weight:600;color:#fff;margin-bottom:4px">AVL Unit ${escapeHtml(unit)}</div>
+      <div style="display:inline-block;margin-bottom:6px;padding:2px 8px;border-radius:999px;background:#06b6d433;color:#67e8f9;font-size:11px;font-weight:600">Fire resource AVL</div>
+      <table style="border-collapse:collapse">${[
+        popupRow("Assignee", escapeHtml(props.ASSIGNEE || "—")),
+        popupRow("Op area", escapeHtml(props.OP_AREA || "—")),
+        popupRow("Region", escapeHtml(props.REG || "—")),
+        popupRow("Type", escapeHtml(props.Type || "—")),
+        popupRow("Location", escapeHtml(props.LOCATION || "—")),
+      ].join("")}</table>
+    </div>`;
+}
+
+function hotshotPopup(props: Record<string, unknown>): string {
+  const name =
+    props.resource_operational_name ||
+    props.resource_name ||
+    "Hotshot / IHC crew";
+  const status = String(props.resource_status || "—");
+  return `
+    <div style="min-width:220px;font-family:system-ui,sans-serif;font-size:12px;line-height:1.4">
+      <div style="font-weight:600;color:#fff;margin-bottom:4px">${escapeHtml(name)}</div>
+      <div style="display:inline-block;margin-bottom:6px;padding:2px 8px;border-radius:999px;background:#22c55e33;color:#86efac;font-size:11px;font-weight:600">${escapeHtml(status)}</div>
+      <table style="border-collapse:collapse">${[
+        popupRow("Qualifications", escapeHtml(props.qualifications || "—")),
+        popupRow("Incident", escapeHtml(props.incident_name || "—")),
+        popupRow(
+          "Assignment",
+          escapeHtml(props.active_assignment || "—"),
+        ),
+        popupRow("Dispatch", escapeHtml(props.DispName || "—")),
+        popupRow(
+          "Available area",
+          escapeHtml(props.available_area || "—"),
+        ),
+      ].join("")}</table>
+    </div>`;
+}
+
+async function buildOverlayLayer(
+  L: typeof import("leaflet"),
+  id: GsiOverlayId,
+  geojson: GeoJSON.FeatureCollection,
+): Promise<LeafletGeoJSON> {
+  if (id === "incidents") {
+    return L.geoJSON(geojson, {
+      pointToLayer(_feature, latlng) {
+        return L.circleMarker(latlng, {
+          radius: 6,
+          color: "#9a3412",
+          weight: 1.5,
+          fillColor: "#ea580c",
+          fillOpacity: 0.9,
+        });
+      },
+      onEachFeature(feature, lyr) {
+        const props = (feature.properties ?? {}) as Record<string, unknown>;
+        lyr.bindPopup(incidentPopup(props), {
+          className: "hogback-gsi-popup",
+          maxWidth: 280,
+        });
+      },
+    });
+  }
+
+  if (id === "perimeters") {
+    return L.geoJSON(geojson, {
+      style: {
+        color: "#ef4444",
+        weight: 2,
+        fillColor: "#f97316",
+        fillOpacity: 0.35,
+      },
+      onEachFeature(feature, lyr) {
+        const props = (feature.properties ?? {}) as Record<string, unknown>;
+        lyr.bindPopup(perimeterPopup(props), {
+          className: "hogback-gsi-popup",
+          maxWidth: 280,
+        });
+      },
+    });
+  }
+
+  if (id === "evacuations") {
+    return L.geoJSON(geojson, {
+      style(feature) {
+        const props = (feature?.properties ?? {}) as Record<string, unknown>;
+        const s = evacuationStyle(props.STATUS);
+        return {
+          color: s.stroke,
+          weight: 2,
+          fillColor: s.fill,
+          fillOpacity: 0.4,
+        };
+      },
+      onEachFeature(feature, lyr) {
+        const props = (feature.properties ?? {}) as Record<string, unknown>;
+        lyr.bindPopup(evacuationPopup(props), {
+          className: "hogback-gsi-popup",
+          maxWidth: 300,
+        });
+      },
+    });
+  }
+
+  if (id === "avl") {
+    return L.geoJSON(geojson, {
+      pointToLayer(_feature, latlng) {
+        return L.circleMarker(latlng, {
+          radius: 7,
+          color: "#0e7490",
+          weight: 2,
+          fillColor: "#22d3ee",
+          fillOpacity: 0.95,
+        });
+      },
+      onEachFeature(feature, lyr) {
+        const props = (feature.properties ?? {}) as Record<string, unknown>;
+        lyr.bindPopup(avlPopup(props), {
+          className: "hogback-gsi-popup",
+          maxWidth: 300,
+        });
+      },
+    });
+  }
+
+  // hotshots
+  return L.geoJSON(geojson, {
+    pointToLayer(feature, latlng) {
+      const props = (feature.properties ?? {}) as Record<string, unknown>;
+      const s = hotshotStyle(props.resource_status);
+      return L.circleMarker(latlng, {
+        radius: 8,
+        color: s.stroke,
+        weight: 2,
+        fillColor: s.fill,
+        fillOpacity: 0.95,
+      });
+    },
+    onEachFeature(feature, lyr) {
+      const props = (feature.properties ?? {}) as Record<string, unknown>;
+      lyr.bindPopup(hotshotPopup(props), {
+        className: "hogback-gsi-popup",
+        maxWidth: 320,
+      });
+    },
+  });
+}
+
 export function GsiMap() {
   const mapId = useId().replace(/:/g, "");
   const containerRef = useRef<HTMLDivElement>(null);
@@ -215,78 +368,7 @@ export function GsiMap() {
         if (cancelled) return;
 
         group.clearLayers();
-
-        let layer: LeafletGeoJSON;
-
-        if (id === "incidents") {
-          layer = L.geoJSON(geojson, {
-            pointToLayer(_feature, latlng) {
-              return L.circleMarker(latlng, {
-                radius: 6,
-                color: "#9a3412",
-                weight: 1.5,
-                fillColor: "#ea580c",
-                fillOpacity: 0.9,
-              });
-            },
-            onEachFeature(feature, lyr) {
-              const props = (feature.properties ?? {}) as Record<
-                string,
-                unknown
-              >;
-              lyr.bindPopup(incidentPopup(props), {
-                className: "hogback-gsi-popup",
-                maxWidth: 280,
-              });
-            },
-          });
-        } else if (id === "perimeters") {
-          layer = L.geoJSON(geojson, {
-            style: {
-              color: "#ef4444",
-              weight: 2,
-              fillColor: "#f97316",
-              fillOpacity: 0.35,
-            },
-            onEachFeature(feature, lyr) {
-              const props = (feature.properties ?? {}) as Record<
-                string,
-                unknown
-              >;
-              lyr.bindPopup(perimeterPopup(props), {
-                className: "hogback-gsi-popup",
-                maxWidth: 280,
-              });
-            },
-          });
-        } else {
-          layer = L.geoJSON(geojson, {
-            style(feature) {
-              const props = (feature?.properties ?? {}) as Record<
-                string,
-                unknown
-              >;
-              const s = evacuationStyle(props.STATUS);
-              return {
-                color: s.stroke,
-                weight: 2,
-                fillColor: s.fill,
-                fillOpacity: 0.4,
-              };
-            },
-            onEachFeature(feature, lyr) {
-              const props = (feature.properties ?? {}) as Record<
-                string,
-                unknown
-              >;
-              lyr.bindPopup(evacuationPopup(props), {
-                className: "hogback-gsi-popup",
-                maxWidth: 300,
-              });
-            },
-          });
-        }
-
+        const layer = await buildOverlayLayer(L, id, geojson);
         layer.addTo(group);
         setLayerMeta(id, {
           status: "ready",
@@ -343,6 +425,7 @@ export function GsiMap() {
                 type="button"
                 onClick={() => toggleOverlay(overlay.id)}
                 aria-pressed={active}
+                title={overlay.description}
                 className={`rounded-lg border px-3 py-2 text-left text-sm transition ${
                   active
                     ? "border-copper-500/60 bg-copper-500/15 text-white"
@@ -352,7 +435,8 @@ export function GsiMap() {
                 <span className="block font-medium">{overlay.shortName}</span>
                 <span className="mt-0.5 block text-[11px] text-slate-500">
                   {state.status === "loading" && "Loading…"}
-                  {state.status === "ready" && `${state.count.toLocaleString()} features`}
+                  {state.status === "ready" &&
+                    `${state.count.toLocaleString()} features`}
                   {state.status === "error" && "Error"}
                   {state.status === "idle" && "—"}
                 </span>
@@ -392,8 +476,12 @@ export function GsiMap() {
             Evac order
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="h-2.5 w-3 rounded-sm bg-amber-500/70" />
-            Evac warning
+            <span className="h-2.5 w-2.5 rounded-full bg-cyan-400" />
+            Fire AVL
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
+            Hotshot / IHC
           </span>
         </div>
       </div>

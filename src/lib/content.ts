@@ -118,12 +118,12 @@ export const products = [
     subtitle: "Geographic Situational Intelligence",
     tileImage: "/brand/products/gsi.png",
     description:
-      "Live wildfire situational awareness — NIFC incident information, interagency fire perimeters, and evacuation zones on one operational map.",
+      "Live wildfire situational awareness — NIFC incidents, fire perimeters, evacuation zones, and Field Maps–style AVL / USFS hotshot tracking on one operational map.",
     features: [
       "NIFC WFIGS incident locations",
       "Current fire perimeter overlays",
       "Evacuation order & warning zones",
-      "Built for PNW public safety awareness",
+      "Fire resource AVL & USFS hotshot/IHC tracking",
     ],
     accent: "ops",
     pricing: {

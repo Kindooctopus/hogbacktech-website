@@ -4,13 +4,13 @@ import { GsiMap } from "@/components/GsiMap";
 import { company } from "@/lib/content";
 
 export const metadata: Metadata = {
-  title: "Hogback GSI — NIFC Fire & Evacuation Layers",
+  title: "Hogback GSI — NIFC Fire, Evacuation & AVL Layers",
   description:
-    "Geographic situational intelligence with NIFC WFIGS incidents, fire perimeters, and evacuation zones for public safety awareness.",
+    "Geographic situational intelligence with NIFC WFIGS incidents, fire perimeters, evacuations, Cal OES fire resource AVL, and USFS hotshot/IHC tracking.",
   openGraph: {
     title: `Hogback GSI | ${company.name}`,
     description:
-      "NIFC incident information, interagency fire perimeters, and evacuation overlays on one map.",
+      "NIFC incidents, fire perimeters, evacuations, Field Maps–style AVL, and USFS hotshot overlays on one map.",
     images: [
       {
         url: "/brand/products/gsi.png",
@@ -31,7 +31,7 @@ export default function HogbackGsiAppPage() {
             Hogback GSI
           </p>
           <h1 className="truncate font-display text-lg font-semibold text-white sm:text-xl">
-            NIFC fire &amp; evacuation layers
+            Fire, evacuation &amp; AVL layers
           </h1>
         </div>
         <div className="flex shrink-0 items-center gap-3 text-sm">
@@ -56,16 +56,16 @@ export default function HogbackGsiAppPage() {
 
       <footer className="border-t border-white/10 px-4 py-2 text-[11px] leading-relaxed text-slate-500 sm:px-6">
         <strong className="font-medium text-slate-400">Informational only.</strong>{" "}
-        Incidents and perimeters from{" "}
+        Incidents, perimeters, and hotshot/IHC locations from{" "}
         <a
           href="https://data-nifc.opendata.arcgis.com/"
           className="text-copper-400 hover:underline"
           target="_blank"
           rel="noreferrer"
         >
-          NIFC WFIGS
+          NIFC / USFS
         </a>
-        ; evacuations from{" "}
+        ; evacuations and fire resource AVL from{" "}
         <a
           href="https://www.caloes.ca.gov/"
           className="text-copper-400 hover:underline"
@@ -74,7 +74,8 @@ export default function HogbackGsiAppPage() {
         >
           Cal OES
         </a>
-        . Not a substitute for official alerts or local emergency management.
+        . Not a substitute for official alerts, dispatch, or Field Maps incident
+        systems.
       </footer>
     </div>
   );

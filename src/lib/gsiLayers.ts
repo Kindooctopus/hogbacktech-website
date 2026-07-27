@@ -1,4 +1,4 @@
-/** Hogback GSI — NIFC / WFIGS wildfire + evacuation overlay sources. */
+/** Hogback GSI — NIFC / WFIGS wildfire + evacuation + AVL overlay sources. */
 
 export const defaultMapCenter: [number, number] = [45.5945, -121.1787];
 export const defaultMapZoom = 6;
@@ -19,7 +19,25 @@ export const firePerimetersUrl = `${WFIGS_BASE}/WFIGS_Interagency_Perimeters_Cur
 export const evacuationsUrl =
   "https://services.arcgis.com/BLN4oKB0N1YSgvY8/arcgis/rest/services/CA_EVACUATIONS_CalOESHosted_view/FeatureServer/0";
 
-export type GsiOverlayId = "incidents" | "perimeters" | "evacuations";
+/**
+ * Cal OES Fire Resource AVL — unit locations used on wildland fire Field Maps
+ * style operational maps across the West.
+ */
+export const fireResourceAvlUrl =
+  "https://services.arcgis.com/BLN4oKB0N1YSgvY8/arcgis/rest/services/Fire_Rescue_Unit_Location/FeatureServer/0";
+
+/**
+ * NIFC / NWCC Hotshot & IHC daily locations — USFS wildland fire Type 1 crew
+ * resource tracking commonly paired with Field Maps incident maps.
+ */
+export const hotshotLocationsUrl = `${WFIGS_BASE}/HotShotIHC_Locations/FeatureServer/0`;
+
+export type GsiOverlayId =
+  | "incidents"
+  | "perimeters"
+  | "evacuations"
+  | "avl"
+  | "hotshots";
 
 export type GsiOverlay = {
   id: GsiOverlayId;
@@ -64,6 +82,28 @@ export const gsiOverlays: GsiOverlay[] = [
     sourceHref: "https://www.caloes.ca.gov/",
     defaultOn: true,
   },
+  {
+    id: "avl",
+    name: "Fire resource AVL",
+    shortName: "AVL",
+    description:
+      "Wildland fire Field Maps–style AVL unit tracking from Cal OES Fire Resource locations (engines and assigned units).",
+    sourceLabel: "Cal OES AVL",
+    sourceHref:
+      "https://www.arcgis.com/home/item.html?id=Fire_Rescue_Unit_Location",
+    defaultOn: true,
+  },
+  {
+    id: "hotshots",
+    name: "USFS hotshot / IHC",
+    shortName: "Hotshots",
+    description:
+      "US Forest Service / interagency Hotshot and IHC crew locations from NIFC — status, assignment, and home dispatch.",
+    sourceLabel: "NIFC / USFS",
+    sourceHref:
+      "https://www.arcgis.com/home/item.html?id=HotShotIHC_Locations",
+    defaultOn: true,
+  },
 ];
 
 const INCIDENT_FIELDS = [
@@ -103,6 +143,29 @@ const EVACUATION_FIELDS = [
   "NOTES",
 ].join(",");
 
+const AVL_FIELDS = [
+  "UNIT__",
+  "OES_ID__",
+  "ASSIGNEE",
+  "REG",
+  "OP_AREA",
+  "LOCATION",
+  "Type",
+].join(",");
+
+const HOTSHOT_FIELDS = [
+  "resource_operational_name",
+  "resource_name",
+  "qualifications",
+  "resource_status",
+  "incident_name",
+  "active_assignment",
+  "active_request_status",
+  "DispName",
+  "available_area",
+  "current_dispatch_unit_identifier",
+].join(",");
+
 export function buildFeatureQueryUrl(
   layerUrl: string,
   outFields: string,
@@ -124,7 +187,6 @@ export function buildFeatureQueryUrl(
 
 export const overlayQueryUrls: Record<GsiOverlayId, string> = {
   incidents: buildFeatureQueryUrl(nifcIncidentsUrl, INCIDENT_FIELDS, {
-    // Prefer wildfires; still include CX/CX-adjacent if category missing via OR
     where: "IncidentTypeCategory = 'WF' OR IncidentTypeCategory IS NULL",
   }),
   perimeters: buildFeatureQueryUrl(firePerimetersUrl, PERIMETER_FIELDS, {
@@ -133,6 +195,8 @@ export const overlayQueryUrls: Record<GsiOverlayId, string> = {
   evacuations: buildFeatureQueryUrl(evacuationsUrl, EVACUATION_FIELDS, {
     geometryPrecision: 4,
   }),
+  avl: buildFeatureQueryUrl(fireResourceAvlUrl, AVL_FIELDS),
+  hotshots: buildFeatureQueryUrl(hotshotLocationsUrl, HOTSHOT_FIELDS),
 };
 
 export function formatAcres(value: unknown): string {
@@ -181,4 +245,20 @@ export function evacuationStyle(status: unknown): EvacStyle {
     return { fill: "#3b82f6", stroke: "#1d4ed8", label: "Advisory" };
   }
   return { fill: "#94a3b8", stroke: "#64748b", label: "Other" };
+}
+
+export type HotshotStyle = { fill: string; stroke: string };
+
+export function hotshotStyle(status: unknown): HotshotStyle {
+  const s = String(status ?? "").toLowerCase();
+  if (s.includes("assigned") || s.includes("committed")) {
+    return { fill: "#ef4444", stroke: "#991b1b" };
+  }
+  if (s.includes("available")) {
+    return { fill: "#22c55e", stroke: "#166534" };
+  }
+  if (s.includes("returned") || s.includes("demob")) {
+    return { fill: "#94a3b8", stroke: "#475569" };
+  }
+  return { fill: "#38bdf8", stroke: "#0369a1" };
 }
