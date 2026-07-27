@@ -115,3 +115,24 @@ body {
 .hogback-gsi-popup a.leaflet-popup-close-button {
   color: #94a3b8;
 }
+
+/* Custom map symbols (fire / engines / resources) */
+.hogback-map-symbol {
+  background: transparent !important;
+  border: none !important;
+}
+
+.hogback-fire-symbol,
+.hogback-engine-symbol,
+.hogback-resource-symbol {
+  display: block;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
+  line-height: 0;
+}
+
+.hogback-fire-symbol svg,
+.hogback-engine-symbol svg,
+.hogback-resource-symbol svg {
+  display: block;
+  overflow: visible;
+}

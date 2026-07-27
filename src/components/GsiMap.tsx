@@ -21,6 +21,7 @@ import {
   gsiBasemaps,
   gsiOverlays,
   hotshotStyle,
+  oesEngineTypeLabel,
   overlayQueryUrls,
   type GsiBasemapId,
   type GsiOverlayId,
@@ -33,20 +34,20 @@ type OverlayState = Record<
   { enabled: boolean; status: LayerStatus; count: number; error?: string }
 >;
 
-const LEGEND_ITEMS: { color: string; shape: "dot" | "rect"; label: string }[] =
+const LEGEND_ITEMS: { color: string; shape: "dot" | "rect" | "fire"; label: string }[] =
   [
-    { color: "bg-orange-500", shape: "dot", label: "NIFC incidents" },
+    { color: "text-orange-400", shape: "fire", label: "Active fires" },
     {
       color: "bg-orange-500/50 ring-1 ring-red-500",
       shape: "rect",
       label: "Fire perimeters",
     },
     { color: "bg-red-600/70", shape: "rect", label: "Evac order" },
-    { color: "bg-cyan-400", shape: "dot", label: "Fire AVL" },
+    { color: "bg-red-500", shape: "dot", label: "OES engines" },
+    { color: "bg-amber-400", shape: "dot", label: "Fleet AVL" },
     { color: "bg-green-500", shape: "dot", label: "Hotshot / IHC" },
-    { color: "bg-lime-400", shape: "dot", label: "ODF units" },
-    { color: "bg-lime-600", shape: "dot", label: "USFS OR offices" },
-    { color: "bg-yellow-500", shape: "dot", label: "USFS fire facilities" },
+    { color: "bg-emerald-400", shape: "dot", label: "Assigned crews" },
+    { color: "bg-sky-400", shape: "dot", label: "Air bases" },
   ];
 
 function initialOverlayState(): OverlayState {
@@ -71,6 +72,66 @@ function createBasemapLayer(
     attribution: basemap.attribution,
     maxZoom: basemap.maxZoom,
     ...(basemap.subdomains ? { subdomains: basemap.subdomains } : {}),
+  });
+}
+
+function fireMarkerIcon(L: typeof import("leaflet")) {
+  return L.divIcon({
+    className: "hogback-map-symbol",
+    html: `<span class="hogback-fire-symbol" title="Fire" aria-hidden="true">
+      <svg viewBox="0 0 32 40" width="28" height="34" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#ea580c" stroke="#7c2d12" stroke-width="1.2" d="M16 2c1.2 6.5-4.5 9.5-4.8 15.2 0 1.8.6 3.4 1.7 4.7-3.3-1.4-5.6-4.7-5.6-8.6C7.3 7.8 12.2 3.6 16 2zm0 36c-6.4 0-11.5-5-11.5-12.2 0-4.8 2.4-8.2 5.2-11.3 1.2 4.6 4.8 7.2 4.8 11.5 0 .9.7 1.6 1.5 1.6s1.5-.7 1.5-1.6c0-4.8 4.1-7.6 5.2-12.4 3.4 3.2 6.3 7 6.3 12.2C27.5 33 22.4 38 16 38z"/>
+        <path fill="#fbbf24" d="M16 22.5c.7 2.2-.8 3.5-1 5.4.1.7.5 1.2 1 1.6-.9-.3-1.7-1.2-1.7-2.6 0-1.7 1.1-3 1.7-4.4z"/>
+      </svg>
+    </span>`,
+    iconSize: [28, 34],
+    iconAnchor: [14, 32],
+    popupAnchor: [0, -28],
+  });
+}
+
+function engineMarkerIcon(
+  L: typeof import("leaflet"),
+  fill = "#ef4444",
+  label = "E",
+) {
+  return L.divIcon({
+    className: "hogback-map-symbol",
+    html: `<span class="hogback-engine-symbol" style="--engine-fill:${fill}" title="Engine" aria-hidden="true">
+      <svg viewBox="0 0 34 24" width="30" height="22" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="7" width="24" height="11" rx="2" fill="var(--engine-fill)" stroke="#7f1d1d" stroke-width="1.2"/>
+        <path d="M25 10h5l3 4v4h-8z" fill="var(--engine-fill)" stroke="#7f1d1d" stroke-width="1.2"/>
+        <circle cx="9" cy="19" r="3" fill="#111827" stroke="#f8fafc" stroke-width="1"/>
+        <circle cx="24" cy="19" r="3" fill="#111827" stroke="#f8fafc" stroke-width="1"/>
+        <text x="13" y="15" text-anchor="middle" font-size="8" font-weight="700" fill="#fff" font-family="system-ui,sans-serif">${label}</text>
+      </svg>
+    </span>`,
+    iconSize: [30, 22],
+    iconAnchor: [15, 18],
+    popupAnchor: [0, -14],
+  });
+}
+
+function resourceDotIcon(
+  L: typeof import("leaflet"),
+  fill: string,
+  stroke: string,
+  label?: string,
+) {
+  const text = label
+    ? `<text x="12" y="16" text-anchor="middle" font-size="9" font-weight="700" fill="#fff" font-family="system-ui,sans-serif">${label}</text>`
+    : "";
+  return L.divIcon({
+    className: "hogback-map-symbol",
+    html: `<span class="hogback-resource-symbol" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="22" height="22" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="9" fill="${fill}" stroke="${stroke}" stroke-width="2"/>
+        ${text}
+      </svg>
+    </span>`,
+    iconSize: [22, 22],
+    iconAnchor: [11, 11],
+    popupAnchor: [0, -10],
   });
 }
 
@@ -163,16 +224,49 @@ function evacuationPopup(props: Record<string, unknown>): string {
 
 function avlPopup(props: Record<string, unknown>): string {
   const unit = props.UNIT__ || props.OES_ID__ || "Unit";
+  const typeLabel = oesEngineTypeLabel(props.Type);
   return `
     <div style="min-width:200px;font-family:system-ui,sans-serif;font-size:12px;line-height:1.4">
-      <div style="font-weight:600;color:#fff;margin-bottom:4px">AVL Unit ${escapeHtml(unit)}</div>
-      <div style="display:inline-block;margin-bottom:6px;padding:2px 8px;border-radius:999px;background:#06b6d433;color:#67e8f9;font-size:11px;font-weight:600">Fire resource AVL</div>
+      <div style="font-weight:600;color:#fff;margin-bottom:4px">OES ${escapeHtml(unit)}</div>
+      <div style="display:inline-block;margin-bottom:6px;padding:2px 8px;border-radius:999px;background:#ef444433;color:#fca5a5;font-size:11px;font-weight:600">${escapeHtml(typeLabel)}</div>
       <table style="border-collapse:collapse">${[
         popupRow("Assignee", escapeHtml(props.ASSIGNEE || "—")),
         popupRow("Op area", escapeHtml(props.OP_AREA || "—")),
         popupRow("Region", escapeHtml(props.REG || "—")),
-        popupRow("Type", escapeHtml(props.Type || "—")),
         popupRow("Location", escapeHtml(props.LOCATION || "—")),
+      ].join("")}</table>
+    </div>`;
+}
+
+function fleetAvlPopup(props: Record<string, unknown>): string {
+  const unit =
+    props.Description || props.DeviceID || props.Model || "OES apparatus";
+  const vehicle = [props.Year, props.Make, props.Model]
+    .filter(Boolean)
+    .join(" ");
+  return `
+    <div style="min-width:220px;font-family:system-ui,sans-serif;font-size:12px;line-height:1.4">
+      <div style="font-weight:600;color:#fff;margin-bottom:4px">${escapeHtml(unit)}</div>
+      <div style="display:inline-block;margin-bottom:6px;padding:2px 8px;border-radius:999px;background:#f59e0b33;color:#fcd34d;font-size:11px;font-weight:600">Fleet AVL</div>
+      <table style="border-collapse:collapse">${[
+        popupRow("Vehicle", escapeHtml(vehicle || "—")),
+        popupRow("Type", escapeHtml(props.AssetType_Description || "—")),
+        popupRow(
+          "Location",
+          escapeHtml(
+            props.Position_Address ||
+              [props.Position_City, props.Position_Province]
+                .filter(Boolean)
+                .join(", ") ||
+              "—",
+          ),
+        ),
+        popupRow("Updated", escapeHtml(props.LastUpdatedTimeStamp || "—")),
+        popupRow("Speed", escapeHtml(
+          props.Position_Speed != null && props.Position_Speed !== ""
+            ? `${props.Position_Speed}`
+            : "—",
+        )),
       ].join("")}</table>
     </div>`;
 }
@@ -199,6 +293,41 @@ function hotshotPopup(props: Record<string, unknown>): string {
           "Available area",
           escapeHtml(props.available_area || "—"),
         ),
+      ].join("")}</table>
+    </div>`;
+}
+
+function crewPopup(props: Record<string, unknown>): string {
+  const name = props.Assignment_Name || props.Catalog_Item || "Wildland crew";
+  return `
+    <div style="min-width:220px;font-family:system-ui,sans-serif;font-size:12px;line-height:1.4">
+      <div style="font-weight:600;color:#fff;margin-bottom:4px">${escapeHtml(name)}</div>
+      <div style="display:inline-block;margin-bottom:6px;padding:2px 8px;border-radius:999px;background:#34d39933;color:#6ee7b7;font-size:11px;font-weight:600">${escapeHtml(props.Request_Status || "Assigned")}</div>
+      <table style="border-collapse:collapse">${[
+        popupRow("Catalog", escapeHtml(props.Catalog_Item || "—")),
+        popupRow("Incident", escapeHtml(props.Incident_Name || "—")),
+        popupRow("Incident #", escapeHtml(props.Incident_Number || "—")),
+        popupRow("Request #", escapeHtml(props.Request_Number || "—")),
+        popupRow("Agency", escapeHtml(props.Abbreviation || "—")),
+        popupRow("Mob start", formatEpoch(props.Mob_Start)),
+      ].join("")}</table>
+    </div>`;
+}
+
+function aircraftBasePopup(props: Record<string, unknown>): string {
+  const name = props.Airport || props.Designator || "Fire aircraft base";
+  return `
+    <div style="min-width:220px;font-family:system-ui,sans-serif;font-size:12px;line-height:1.4">
+      <div style="font-weight:600;color:#fff;margin-bottom:4px">${escapeHtml(name)}</div>
+      <div style="display:inline-block;margin-bottom:6px;padding:2px 8px;border-radius:999px;background:#38bdf833;color:#7dd3fc;font-size:11px;font-weight:600">${escapeHtml(props.Base_Type || "Aircraft base")}</div>
+      <table style="border-collapse:collapse">${[
+        popupRow("Designator", escapeHtml(props.Designator || "—")),
+        popupRow("State", escapeHtml(props.State || "—")),
+        popupRow("Agency", escapeHtml(props.Agency || "—")),
+        popupRow("Category", escapeHtml(props.Category || "—")),
+        popupRow("Fuel", escapeHtml(props.Fuel || "—")),
+        popupRow("Runway", escapeHtml(props.Runway || "—")),
+        popupRow("Contact", escapeHtml(props.Contact || "—")),
       ].join("")}</table>
     </div>`;
 }
@@ -260,15 +389,10 @@ async function buildOverlayLayer(
   geojson: GeoJSON.FeatureCollection,
 ): Promise<LeafletGeoJSON> {
   if (id === "incidents") {
+    const icon = fireMarkerIcon(L);
     return L.geoJSON(geojson, {
       pointToLayer(_feature, latlng) {
-        return L.circleMarker(latlng, {
-          radius: 6,
-          color: "#9a3412",
-          weight: 1.5,
-          fillColor: "#ea580c",
-          fillOpacity: 0.9,
-        });
+        return L.marker(latlng, { icon, riseOnHover: true });
       },
       onEachFeature(feature, lyr) {
         const props = (feature.properties ?? {}) as Record<string, unknown>;
@@ -321,15 +445,16 @@ async function buildOverlayLayer(
   }
 
   if (id === "avl") {
+    const type1 = engineMarkerIcon(L, "#ef4444", "E1");
+    const type3 = engineMarkerIcon(L, "#f97316", "E3");
+    const hazmat = engineMarkerIcon(L, "#a855f7", "HZ");
     return L.geoJSON(geojson, {
-      pointToLayer(_feature, latlng) {
-        return L.circleMarker(latlng, {
-          radius: 7,
-          color: "#0e7490",
-          weight: 2,
-          fillColor: "#22d3ee",
-          fillOpacity: 0.95,
-        });
+      pointToLayer(feature, latlng) {
+        const props = (feature.properties ?? {}) as Record<string, unknown>;
+        const type = String(props.Type ?? "");
+        const icon =
+          type === "3" ? type3 : /hazmat/i.test(type) ? hazmat : type1;
+        return L.marker(latlng, { icon, riseOnHover: true });
       },
       onEachFeature(feature, lyr) {
         const props = (feature.properties ?? {}) as Record<string, unknown>;
@@ -341,24 +466,79 @@ async function buildOverlayLayer(
     });
   }
 
+  if (id === "fleetAvl") {
+    const icon = engineMarkerIcon(L, "#f59e0b", "AVL");
+    return L.geoJSON(geojson, {
+      pointToLayer(_feature, latlng) {
+        return L.marker(latlng, { icon, riseOnHover: true });
+      },
+      onEachFeature(feature, lyr) {
+        const props = (feature.properties ?? {}) as Record<string, unknown>;
+        lyr.bindPopup(fleetAvlPopup(props), {
+          className: "hogback-gsi-popup",
+          maxWidth: 320,
+        });
+      },
+    });
+  }
+
   if (id === "hotshots") {
+    const available = resourceDotIcon(L, "#22c55e", "#166534", "HS");
+    const assigned = resourceDotIcon(L, "#ef4444", "#991b1b", "HS");
+    const other = resourceDotIcon(L, "#38bdf8", "#0369a1", "HS");
     return L.geoJSON(geojson, {
       pointToLayer(feature, latlng) {
         const props = (feature.properties ?? {}) as Record<string, unknown>;
         const s = hotshotStyle(props.resource_status);
-        return L.circleMarker(latlng, {
-          radius: 8,
-          color: s.stroke,
-          weight: 2,
-          fillColor: s.fill,
-          fillOpacity: 0.95,
-        });
+        const icon =
+          s.fill === "#ef4444"
+            ? assigned
+            : s.fill === "#22c55e"
+              ? available
+              : other;
+        return L.marker(latlng, { icon, riseOnHover: true });
       },
       onEachFeature(feature, lyr) {
         const props = (feature.properties ?? {}) as Record<string, unknown>;
         lyr.bindPopup(hotshotPopup(props), {
           className: "hogback-gsi-popup",
           maxWidth: 320,
+        });
+      },
+    });
+  }
+
+  if (id === "crews") {
+    const atIncident = resourceDotIcon(L, "#34d399", "#047857", "C");
+    const staging = resourceDotIcon(L, "#2dd4bf", "#0f766e", "C");
+    return L.geoJSON(geojson, {
+      pointToLayer(feature, latlng) {
+        const props = (feature.properties ?? {}) as Record<string, unknown>;
+        const status = String(props.Request_Status ?? "");
+        const icon = /incident/i.test(status) ? atIncident : staging;
+        return L.marker(latlng, { icon, riseOnHover: true });
+      },
+      onEachFeature(feature, lyr) {
+        const props = (feature.properties ?? {}) as Record<string, unknown>;
+        lyr.bindPopup(crewPopup(props), {
+          className: "hogback-gsi-popup",
+          maxWidth: 320,
+        });
+      },
+    });
+  }
+
+  if (id === "aircraftBases") {
+    const icon = resourceDotIcon(L, "#38bdf8", "#0369a1", "A");
+    return L.geoJSON(geojson, {
+      pointToLayer(_feature, latlng) {
+        return L.marker(latlng, { icon, riseOnHover: true });
+      },
+      onEachFeature(feature, lyr) {
+        const props = (feature.properties ?? {}) as Record<string, unknown>;
+        lyr.bindPopup(aircraftBasePopup(props), {
+          className: "hogback-gsi-popup",
+          maxWidth: 300,
         });
       },
     });
@@ -701,13 +881,32 @@ export function GsiMap() {
                       key={item.label}
                       className="inline-flex items-center gap-1.5"
                     >
-                      <span
-                        className={
-                          item.shape === "dot"
-                            ? `h-2 w-2 shrink-0 rounded-full ${item.color}`
-                            : `h-2 w-2.5 shrink-0 rounded-sm ${item.color}`
-                        }
-                      />
+                      {item.shape === "fire" ? (
+                        <span
+                          className="inline-flex h-3 w-2.5 shrink-0 items-center justify-center"
+                          aria-hidden
+                        >
+                          <svg
+                            viewBox="0 0 32 40"
+                            width="10"
+                            height="12"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              fill="#ea580c"
+                              d="M16 2c1.2 6.5-4.5 9.5-4.8 15.2 0 1.8.6 3.4 1.7 4.7-3.3-1.4-5.6-4.7-5.6-8.6C7.3 7.8 12.2 3.6 16 2zm0 36c-6.4 0-11.5-5-11.5-12.2 0-4.8 2.4-8.2 5.2-11.3 1.2 4.6 4.8 7.2 4.8 11.5 0 .9.7 1.6 1.5 1.6s1.5-.7 1.5-1.6c0-4.8 4.1-7.6 5.2-12.4 3.4 3.2 6.3 7 6.3 12.2C27.5 33 22.4 38 16 38z"
+                            />
+                          </svg>
+                        </span>
+                      ) : (
+                        <span
+                          className={
+                            item.shape === "dot"
+                              ? `h-2 w-2 shrink-0 rounded-full ${item.color}`
+                              : `h-2 w-2.5 shrink-0 rounded-sm ${item.color}`
+                          }
+                        />
+                      )}
                       {item.label}
                     </span>
                   ))}

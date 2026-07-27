@@ -81,17 +81,33 @@ export const evacuationsUrl =
   "https://services.arcgis.com/BLN4oKB0N1YSgvY8/arcgis/rest/services/CA_EVACUATIONS_CalOESHosted_view/FeatureServer/0";
 
 /**
- * Cal OES Fire Resource AVL — unit locations used on wildland fire Field Maps
- * style operational maps across the West.
+ * Cal OES Fire Resource AVL — OES Type 1 / Type 3 engines and hazmat units
+ * assigned to local fire agencies (Field Maps–style resource layer).
  */
 export const fireResourceAvlUrl =
   "https://services.arcgis.com/BLN4oKB0N1YSgvY8/arcgis/rest/services/Fire_Rescue_Unit_Location/FeatureServer/0";
+
+/**
+ * Cal OES Fire & Rescue fleet telematics AVL — GPS positions for OES engines,
+ * fire trucks, and support apparatus.
+ */
+export const fireFleetAvlUrl =
+  "https://services.arcgis.com/BLN4oKB0N1YSgvY8/arcgis/rest/services/Fire_and_Rescue_Fleet_Layer_08152024/FeatureServer/4";
 
 /**
  * NIFC / NWCC Hotshot & IHC daily locations — USFS wildland fire Type 1 crew
  * resource tracking commonly paired with Field Maps incident maps.
  */
 export const hotshotLocationsUrl = `${WFIGS_BASE}/HotShotIHC_Locations/FeatureServer/0`;
+
+/**
+ * NIFC assigned wildland crews / modules (CrewsMods) — Type 1/2 IA crews,
+ * camp crews, fuels & suppression modules at incidents or preposition.
+ */
+export const assignedCrewsUrl = `${WFIGS_BASE}/CrewsMods/FeatureServer/0`;
+
+/** Interagency fire aircraft bases (air tanker / helibase infrastructure). */
+export const fireAircraftBasesUrl = `${WFIGS_BASE}/Fire_Aircraft_Bases/FeatureServer/0`;
 
 /** Oregon Department of Forestry district / unit offices. */
 export const odfOfficesUrl =
@@ -110,7 +126,10 @@ export type GsiOverlayId =
   | "perimeters"
   | "evacuations"
   | "avl"
+  | "fleetAvl"
   | "hotshots"
+  | "crews"
+  | "aircraftBases"
   | "odfUnits"
   | "usfsOr"
   | "usfsFire";
@@ -160,14 +179,25 @@ export const gsiOverlays: GsiOverlay[] = [
   },
   {
     id: "avl",
-    name: "Fire resource AVL",
-    shortName: "AVL",
+    name: "OES engines & units",
+    shortName: "OES Engines",
     description:
-      "Wildland fire Field Maps–style AVL unit tracking from Cal OES Fire Resource locations (CA engines and assigned units).",
-    sourceLabel: "Cal OES AVL",
+      "Cal OES Type 1 / Type 3 engines and hazmat units assigned to local fire agencies — public firefighting resource AVL.",
+    sourceLabel: "Cal OES Engines",
     sourceHref:
-      "https://www.arcgis.com/home/item.html?id=Fire_Rescue_Unit_Location",
-    defaultOn: false,
+      "https://www.arcgis.com/home/item.html?id=2f84d6479d0d4c61adf84d3922529176",
+    defaultOn: true,
+  },
+  {
+    id: "fleetAvl",
+    name: "OES fleet GPS AVL",
+    shortName: "Fleet AVL",
+    description:
+      "Cal OES Fire & Rescue telematics AVL — live GPS for OES fire trucks, engines, and support apparatus.",
+    sourceLabel: "Cal OES Fleet",
+    sourceHref:
+      "https://www.arcgis.com/home/item.html?id=Fire_and_Rescue_Fleet_Layer_08152024",
+    defaultOn: true,
   },
   {
     id: "hotshots",
@@ -181,6 +211,26 @@ export const gsiOverlays: GsiOverlay[] = [
     defaultOn: true,
   },
   {
+    id: "crews",
+    name: "Assigned wildland crews",
+    shortName: "Crews",
+    description:
+      "NIFC CrewsMods — Type 1/2 IA crews, camp crews, and fuels/suppression modules at incidents or preposition.",
+    sourceLabel: "NIFC CrewsMods",
+    sourceHref: "https://data-nifc.opendata.arcgis.com/",
+    defaultOn: true,
+  },
+  {
+    id: "aircraftBases",
+    name: "Fire aircraft bases",
+    shortName: "Air Bases",
+    description:
+      "Interagency fire aircraft bases used for air tankers, helicopters, and aerial firefighting support.",
+    sourceLabel: "NIFC",
+    sourceHref: "https://data-nifc.opendata.arcgis.com/",
+    defaultOn: false,
+  },
+  {
     id: "odfUnits",
     name: "ODF units",
     shortName: "ODF",
@@ -188,7 +238,7 @@ export const gsiOverlays: GsiOverlay[] = [
       "Oregon Department of Forestry district and unit offices across the state.",
     sourceLabel: "ODF",
     sourceHref: "https://gis.odf.oregon.gov/",
-    defaultOn: true,
+    defaultOn: false,
   },
   {
     id: "usfsOr",
@@ -199,7 +249,7 @@ export const gsiOverlays: GsiOverlay[] = [
     sourceLabel: "USFS EDW",
     sourceHref:
       "https://data.fs.usda.gov/geodata/edw/datasets.php?xmlKeyword=office",
-    defaultOn: true,
+    defaultOn: false,
   },
   {
     id: "usfsFire",
@@ -210,7 +260,7 @@ export const gsiOverlays: GsiOverlay[] = [
     sourceLabel: "OR Fire Stations",
     sourceHref:
       "https://www.arcgis.com/home/item.html?id=OR_Fire_Stations",
-    defaultOn: true,
+    defaultOn: false,
   },
 ];
 
@@ -261,6 +311,23 @@ const AVL_FIELDS = [
   "Type",
 ].join(",");
 
+const FLEET_AVL_FIELDS = [
+  "DeviceID",
+  "Description",
+  "Make",
+  "Model",
+  "Year",
+  "AssetType_Description",
+  "Position_City",
+  "Position_Province",
+  "Position_Address",
+  "Position_Street",
+  "LastUpdatedTimeStamp",
+  "Position_Speed",
+  "IsVisible",
+  "IsDeleted",
+].join(",");
+
 const HOTSHOT_FIELDS = [
   "resource_operational_name",
   "resource_name",
@@ -272,6 +339,30 @@ const HOTSHOT_FIELDS = [
   "DispName",
   "available_area",
   "current_dispatch_unit_identifier",
+].join(",");
+
+const CREW_FIELDS = [
+  "Assignment_Name",
+  "Abbreviation",
+  "Incident_Number",
+  "Incident_Name",
+  "Request_Number",
+  "Catalog_Item",
+  "Request_Status",
+  "Mob_Start",
+].join(",");
+
+const AIRCRAFT_BASE_FIELDS = [
+  "Airport",
+  "Designator",
+  "State",
+  "Category",
+  "Base_Type",
+  "Agency",
+  "Contact",
+  "Fuel",
+  "Runway",
+  "Notes",
 ].join(",");
 
 const ODF_OFFICE_FIELDS = ["OFFICETYPE", "OFFICENAME", "AREANAME"].join(",");
@@ -326,7 +417,19 @@ export const overlayQueryUrls: Record<GsiOverlayId, string> = {
     geometryPrecision: 4,
   }),
   avl: buildFeatureQueryUrl(fireResourceAvlUrl, AVL_FIELDS),
+  fleetAvl: buildFeatureQueryUrl(fireFleetAvlUrl, FLEET_AVL_FIELDS, {
+    where:
+      "IsDeleted = 'False' AND Description NOT LIKE '%removed%' AND Position_Latitude IS NOT NULL AND Position_Latitude <> '0'",
+  }),
   hotshots: buildFeatureQueryUrl(hotshotLocationsUrl, HOTSHOT_FIELDS),
+  crews: buildFeatureQueryUrl(assignedCrewsUrl, CREW_FIELDS, {
+    where:
+      "Request_Status IN ('At Incident','At Preposition (Available)','Reserved','Reassigned')",
+  }),
+  aircraftBases: buildFeatureQueryUrl(
+    fireAircraftBasesUrl,
+    AIRCRAFT_BASE_FIELDS,
+  ),
   odfUnits: buildFeatureQueryUrl(odfOfficesUrl, ODF_OFFICE_FIELDS),
   usfsOr: buildFeatureQueryUrl(usfsOfficesUrl, USFS_OFFICE_FIELDS, {
     where: "state = 'OR'",
@@ -335,6 +438,14 @@ export const overlayQueryUrls: Record<GsiOverlayId, string> = {
     where: "Agency = 'U.S. Forest Service'",
   }),
 };
+
+export function oesEngineTypeLabel(type: unknown): string {
+  const t = String(type ?? "").trim();
+  if (t === "1") return "Type 1 engine";
+  if (t === "3") return "Type 3 engine";
+  if (/hazmat/i.test(t)) return "Hazmat unit";
+  return t || "Fire unit";
+}
 export function formatAcres(value: unknown): string {
   const n = typeof value === "number" ? value : Number(value);
   if (!Number.isFinite(n)) return "—";
