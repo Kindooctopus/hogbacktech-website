@@ -1,6 +1,12 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "hogbacktech-website",
+  // Named hogback-docs-admin so Cloudflare Workers Builds for that Worker
+  // passes the name requirement while Root directory is still the repo root.
+  // The marketing site Worker overrides the name via WRANGLER_CI_OVERRIDE_NAME.
+  // Prefer setting Cloudflare Root directory to hogback-docs/admin for admin,
+  // then restore this name to "hogbacktech-website".
+  // Local website deploys must use: npm run deploy (passes --name).
+  "name": "hogback-docs-admin",
   "compatibility_date": "2026-06-13",
   "assets": {
     "directory": "./out"

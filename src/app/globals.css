@@ -17,6 +17,7 @@
   --color-geo: #3b82a0;
   --color-docs: #5a8f7b;
   --color-forge: #b87333;
+  --color-sat: #4a7c9b;
   --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-barlow), ui-sans-serif, system-ui, sans-serif;
 }

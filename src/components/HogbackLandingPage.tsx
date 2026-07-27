@@ -106,7 +106,7 @@ export function HogbackHero() {
             </div>
 
             {/* Mobile / tablet: compact product links along the bottom */}
-            <div className="absolute inset-x-0 bottom-0 z-10 grid grid-cols-3 gap-1.5 p-2 sm:grid-cols-5 sm:gap-2 sm:p-2.5 md:hidden">
+            <div className="absolute inset-x-0 bottom-0 z-10 grid grid-cols-3 gap-1 p-1.5 sm:grid-cols-6 sm:gap-1.5 sm:p-2 md:hidden">
               {products.map((product) => (
                 <Link
                   key={product.id}
@@ -234,6 +234,19 @@ export function HogbackProducts() {
       ],
       appHref: "/apps/gsi",
     },
+    {
+      id: "sat",
+      name: "Hogback Sat",
+      badge: "Satellite",
+      description:
+        "Near-real-time satellite imagery for wildfire smoke, thermal hotspots, and field situational awareness.",
+      points: [
+        "NASA GIBS live map feed",
+        "True color, fire, and night layers",
+        "Open the app and scrub recent passes",
+      ],
+      appHref: "/apps/sat",
+    },
   ];
 
   return (
@@ -287,7 +300,7 @@ export function HogbackProducts() {
                     href={product.appHref}
                     className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white"
                   >
-                    Open map
+                    {product.id === "sat" ? "Open live feed" : "Open map"}
                     <span aria-hidden="true">↗</span>
                   </Link>
                 ) : null}

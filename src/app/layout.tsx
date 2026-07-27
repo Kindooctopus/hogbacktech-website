@@ -34,6 +34,8 @@ export const metadata: Metadata = {
     "Hogback GSI",
     "NIFC wildfire layers",
     "fire perimeter map",
+    "Hogback Sat",
+    "live satellite imagery",
     "Columbia River Gorge",
     "Oregon technology",
   ],
