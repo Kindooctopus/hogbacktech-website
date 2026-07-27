@@ -3,6 +3,67 @@
 export const defaultMapCenter: [number, number] = [45.5945, -121.1787];
 export const defaultMapZoom = 6;
 
+export type GsiBasemapId = "topo" | "satellite" | "imagery" | "relief";
+
+export type GsiBasemap = {
+  id: GsiBasemapId;
+  name: string;
+  description: string;
+  url: string;
+  attribution: string;
+  maxZoom: number;
+  subdomains?: string;
+};
+
+/**
+ * Free public basemap tiles — Esri / USGS / OpenTopoMap (no API key).
+ * Satellite vs Imagery: World Imagery vs USGS Imagery Only (aerial/ortho).
+ */
+export const gsiBasemaps: GsiBasemap[] = [
+  {
+    id: "topo",
+    name: "Topo",
+    description: "Topographic map with contours, trails, and place labels.",
+    url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+    attribution:
+      'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+    maxZoom: 17,
+    subdomains: "abc",
+  },
+  {
+    id: "satellite",
+    name: "Satellite",
+    description: "Esri World Imagery satellite basemap.",
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    attribution:
+      "Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community",
+    maxZoom: 19,
+  },
+  {
+    id: "imagery",
+    name: "Imagery",
+    description: "USGS Imagery Only — aerial / orthoimagery basemap.",
+    url: "https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}",
+    attribution:
+      'Tiles courtesy of the <a href="https://usgs.gov/">U.S. Geological Survey</a>',
+    maxZoom: 16,
+  },
+  {
+    id: "relief",
+    name: "Relief",
+    description: "Shaded relief / terrain hillshade basemap.",
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}",
+    attribution: "Tiles &copy; Esri &mdash; Source: Esri",
+    maxZoom: 13,
+  },
+];
+
+export const defaultBasemapId: GsiBasemapId = "topo";
+
+export function getBasemap(id: GsiBasemapId): GsiBasemap {
+  return gsiBasemaps.find((b) => b.id === id) ?? gsiBasemaps[0];
+}
+
 const WFIGS_BASE =
   "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services";
 
