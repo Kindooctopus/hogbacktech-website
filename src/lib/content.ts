@@ -123,7 +123,7 @@ export const products = [
       "NIFC WFIGS incident locations",
       "Current fire perimeter overlays",
       "Evacuation order & warning zones",
-      "Fire resource AVL & USFS hotshot/IHC tracking",
+      "ODF units + USFS Oregon offices & fire facilities",
     ],
     accent: "ops",
     pricing: {

@@ -31,7 +31,7 @@ export default function HogbackGsiAppPage() {
             Hogback GSI
           </p>
           <h1 className="truncate font-display text-lg font-semibold text-white sm:text-xl">
-            Fire, evacuation &amp; AVL layers
+            Fire, OR / USFS units &amp; AVL
           </h1>
         </div>
         <div className="flex shrink-0 items-center gap-3 text-sm">
@@ -73,6 +73,24 @@ export default function HogbackGsiAppPage() {
           rel="noreferrer"
         >
           Cal OES
+        </a>
+        ; ODF units from{" "}
+        <a
+          href="https://gis.odf.oregon.gov/"
+          className="text-copper-400 hover:underline"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Oregon Department of Forestry
+        </a>
+        ; USFS Oregon offices from{" "}
+        <a
+          href="https://data.fs.usda.gov/geodata/edw/"
+          className="text-copper-400 hover:underline"
+          target="_blank"
+          rel="noreferrer"
+        >
+          USFS EDW
         </a>
         . Not a substitute for official alerts, dispatch, or Field Maps incident
         systems.

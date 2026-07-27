@@ -170,6 +170,57 @@ function hotshotPopup(props: Record<string, unknown>): string {
     </div>`;
 }
 
+function odfUnitPopup(props: Record<string, unknown>): string {
+  const name = props.OFFICENAME || "ODF office";
+  return `
+    <div style="min-width:200px;font-family:system-ui,sans-serif;font-size:12px;line-height:1.4">
+      <div style="font-weight:600;color:#fff;margin-bottom:4px">${escapeHtml(name)}</div>
+      <div style="display:inline-block;margin-bottom:6px;padding:2px 8px;border-radius:999px;background:#a3e63533;color:#bef264;font-size:11px;font-weight:600">ODF ${escapeHtml(props.OFFICETYPE || "Unit")}</div>
+      <table style="border-collapse:collapse">${[
+        popupRow("Type", escapeHtml(props.OFFICETYPE || "—")),
+        popupRow("Area", escapeHtml(props.AREANAME || "—")),
+      ].join("")}</table>
+    </div>`;
+}
+
+function usfsOfficePopup(props: Record<string, unknown>): string {
+  const name =
+    props.district_name || props.name || props.forest_name || "USFS office";
+  return `
+    <div style="min-width:220px;font-family:system-ui,sans-serif;font-size:12px;line-height:1.4">
+      <div style="font-weight:600;color:#fff;margin-bottom:4px">${escapeHtml(name)}</div>
+      <div style="display:inline-block;margin-bottom:6px;padding:2px 8px;border-radius:999px;background:#84cc1633;color:#a3e635;font-size:11px;font-weight:600">USFS Oregon</div>
+      <table style="border-collapse:collapse">${[
+        popupRow("Forest", escapeHtml(props.forest_name || "—")),
+        popupRow("Office", escapeHtml(props.name || "—")),
+        popupRow(
+          "Location",
+          escapeHtml(
+            [props.street, props.city, props.state].filter(Boolean).join(", ") ||
+              "—",
+          ),
+        ),
+        popupRow("Region", escapeHtml(props.region || "—")),
+        popupRow("Phone", escapeHtml(props.phone || "—")),
+      ].join("")}</table>
+    </div>`;
+}
+
+function usfsFirePopup(props: Record<string, unknown>): string {
+  const name = props.Station || props.Agency || "USFS fire facility";
+  return `
+    <div style="min-width:220px;font-family:system-ui,sans-serif;font-size:12px;line-height:1.4">
+      <div style="font-weight:600;color:#fff;margin-bottom:4px">${escapeHtml(name)}</div>
+      <div style="display:inline-block;margin-bottom:6px;padding:2px 8px;border-radius:999px;background:#eab30833;color:#fde047;font-size:11px;font-weight:600">USFS fire facility</div>
+      <table style="border-collapse:collapse">${[
+        popupRow("Agency", escapeHtml(props.Agency || "—")),
+        popupRow("Type", escapeHtml(props.Facility_Type || "—")),
+        popupRow("County", escapeHtml(props.County || "—")),
+        popupRow("Address", escapeHtml(props.Physical_Address || "—")),
+      ].join("")}</table>
+    </div>`;
+}
+
 async function buildOverlayLayer(
   L: typeof import("leaflet"),
   id: GsiOverlayId,
@@ -257,22 +308,85 @@ async function buildOverlayLayer(
     });
   }
 
-  // hotshots
+  if (id === "hotshots") {
+    return L.geoJSON(geojson, {
+      pointToLayer(feature, latlng) {
+        const props = (feature.properties ?? {}) as Record<string, unknown>;
+        const s = hotshotStyle(props.resource_status);
+        return L.circleMarker(latlng, {
+          radius: 8,
+          color: s.stroke,
+          weight: 2,
+          fillColor: s.fill,
+          fillOpacity: 0.95,
+        });
+      },
+      onEachFeature(feature, lyr) {
+        const props = (feature.properties ?? {}) as Record<string, unknown>;
+        lyr.bindPopup(hotshotPopup(props), {
+          className: "hogback-gsi-popup",
+          maxWidth: 320,
+        });
+      },
+    });
+  }
+
+  if (id === "odfUnits") {
+    return L.geoJSON(geojson, {
+      pointToLayer(_feature, latlng) {
+        return L.circleMarker(latlng, {
+          radius: 7,
+          color: "#3f6212",
+          weight: 2,
+          fillColor: "#a3e635",
+          fillOpacity: 0.95,
+        });
+      },
+      onEachFeature(feature, lyr) {
+        const props = (feature.properties ?? {}) as Record<string, unknown>;
+        lyr.bindPopup(odfUnitPopup(props), {
+          className: "hogback-gsi-popup",
+          maxWidth: 280,
+        });
+      },
+    });
+  }
+
+  if (id === "usfsOr") {
+    return L.geoJSON(geojson, {
+      pointToLayer(_feature, latlng) {
+        return L.circleMarker(latlng, {
+          radius: 6,
+          color: "#365314",
+          weight: 2,
+          fillColor: "#84cc16",
+          fillOpacity: 0.9,
+        });
+      },
+      onEachFeature(feature, lyr) {
+        const props = (feature.properties ?? {}) as Record<string, unknown>;
+        lyr.bindPopup(usfsOfficePopup(props), {
+          className: "hogback-gsi-popup",
+          maxWidth: 320,
+        });
+      },
+    });
+  }
+
+  // usfsFire
   return L.geoJSON(geojson, {
-    pointToLayer(feature, latlng) {
-      const props = (feature.properties ?? {}) as Record<string, unknown>;
-      const s = hotshotStyle(props.resource_status);
+    pointToLayer(_feature, latlng) {
       return L.circleMarker(latlng, {
         radius: 8,
-        color: s.stroke,
+        color: "#a16207",
         weight: 2,
-        fillColor: s.fill,
+        fillColor: "#eab308",
         fillOpacity: 0.95,
       });
     },
     onEachFeature(feature, lyr) {
       const props = (feature.properties ?? {}) as Record<string, unknown>;
-      lyr.bindPopup(hotshotPopup(props), {
+      lyr.bindPopup(usfsFirePopup(props), {
         className: "hogback-gsi-popup",
         maxWidth: 320,
       });
@@ -482,6 +596,18 @@ export function GsiMap() {
           <span className="inline-flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
             Hotshot / IHC
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-lime-400" />
+            ODF units
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-lime-600" />
+            USFS OR offices
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-yellow-500" />
+            USFS fire facilities
           </span>
         </div>
       </div>

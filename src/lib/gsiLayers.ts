@@ -32,12 +32,27 @@ export const fireResourceAvlUrl =
  */
 export const hotshotLocationsUrl = `${WFIGS_BASE}/HotShotIHC_Locations/FeatureServer/0`;
 
+/** Oregon Department of Forestry district / unit offices. */
+export const odfOfficesUrl =
+  "https://gis.odf.oregon.gov/ags3/rest/services/Basemaps/ProtectionMap/MapServer/28";
+
+/** USFS office / ranger-district locations (filter to Oregon). */
+export const usfsOfficesUrl =
+  "https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_FSOfficeLocations_01/MapServer/0";
+
+/** Oregon fire facilities owned/operated by U.S. Forest Service. */
+export const orUsfsFireStationsUrl =
+  "https://services.arcgis.com/uUvqNMGPm7axC2dD/arcgis/rest/services/OR_Fire_Stations/FeatureServer/0";
+
 export type GsiOverlayId =
   | "incidents"
   | "perimeters"
   | "evacuations"
   | "avl"
-  | "hotshots";
+  | "hotshots"
+  | "odfUnits"
+  | "usfsOr"
+  | "usfsFire";
 
 export type GsiOverlay = {
   id: GsiOverlayId;
@@ -87,11 +102,11 @@ export const gsiOverlays: GsiOverlay[] = [
     name: "Fire resource AVL",
     shortName: "AVL",
     description:
-      "Wildland fire Field Maps–style AVL unit tracking from Cal OES Fire Resource locations (engines and assigned units).",
+      "Wildland fire Field Maps–style AVL unit tracking from Cal OES Fire Resource locations (CA engines and assigned units).",
     sourceLabel: "Cal OES AVL",
     sourceHref:
       "https://www.arcgis.com/home/item.html?id=Fire_Rescue_Unit_Location",
-    defaultOn: true,
+    defaultOn: false,
   },
   {
     id: "hotshots",
@@ -102,6 +117,38 @@ export const gsiOverlays: GsiOverlay[] = [
     sourceLabel: "NIFC / USFS",
     sourceHref:
       "https://www.arcgis.com/home/item.html?id=HotShotIHC_Locations",
+    defaultOn: true,
+  },
+  {
+    id: "odfUnits",
+    name: "ODF units",
+    shortName: "ODF",
+    description:
+      "Oregon Department of Forestry district and unit offices across the state.",
+    sourceLabel: "ODF",
+    sourceHref: "https://gis.odf.oregon.gov/",
+    defaultOn: true,
+  },
+  {
+    id: "usfsOr",
+    name: "USFS Oregon offices",
+    shortName: "USFS OR",
+    description:
+      "U.S. Forest Service offices and ranger districts in Oregon (Region 6).",
+    sourceLabel: "USFS EDW",
+    sourceHref:
+      "https://data.fs.usda.gov/geodata/edw/datasets.php?xmlKeyword=office",
+    defaultOn: true,
+  },
+  {
+    id: "usfsFire",
+    name: "USFS OR fire facilities",
+    shortName: "USFS Fire",
+    description:
+      "Oregon fire stations / facilities operated by the U.S. Forest Service.",
+    sourceLabel: "OR Fire Stations",
+    sourceHref:
+      "https://www.arcgis.com/home/item.html?id=OR_Fire_Stations",
     defaultOn: true,
   },
 ];
@@ -166,6 +213,28 @@ const HOTSHOT_FIELDS = [
   "current_dispatch_unit_identifier",
 ].join(",");
 
+const ODF_OFFICE_FIELDS = ["OFFICETYPE", "OFFICENAME", "AREANAME"].join(",");
+
+const USFS_OFFICE_FIELDS = [
+  "name",
+  "street",
+  "city",
+  "state",
+  "region",
+  "forest_name",
+  "district_name",
+  "phone",
+].join(",");
+
+const OR_USFS_FIRE_FIELDS = [
+  "Agency",
+  "Station",
+  "Facility_Type",
+  "Owner_Type",
+  "County",
+  "Physical_Address",
+].join(",");
+
 export function buildFeatureQueryUrl(
   layerUrl: string,
   outFields: string,
@@ -197,8 +266,14 @@ export const overlayQueryUrls: Record<GsiOverlayId, string> = {
   }),
   avl: buildFeatureQueryUrl(fireResourceAvlUrl, AVL_FIELDS),
   hotshots: buildFeatureQueryUrl(hotshotLocationsUrl, HOTSHOT_FIELDS),
+  odfUnits: buildFeatureQueryUrl(odfOfficesUrl, ODF_OFFICE_FIELDS),
+  usfsOr: buildFeatureQueryUrl(usfsOfficesUrl, USFS_OFFICE_FIELDS, {
+    where: "state = 'OR'",
+  }),
+  usfsFire: buildFeatureQueryUrl(orUsfsFireStationsUrl, OR_USFS_FIRE_FIELDS, {
+    where: "Agency = 'U.S. Forest Service'",
+  }),
 };
-
 export function formatAcres(value: unknown): string {
   const n = typeof value === "number" ? value : Number(value);
   if (!Number.isFinite(n)) return "—";
