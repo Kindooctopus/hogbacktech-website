@@ -112,6 +112,25 @@ export const products = [
       setup: "Scoped per project",
     },
   },
+  {
+    id: "gsi",
+    name: "Hogback GSI",
+    subtitle: "Geographic Situational Intelligence",
+    tileImage: "/brand/products/gsi.png",
+    description:
+      "Live wildfire situational awareness — NIFC incidents, fire perimeters, evacuation zones, and Field Maps–style AVL / USFS hotshot tracking on one operational map.",
+    features: [
+      "NIFC WFIGS incident locations",
+      "Current fire perimeter overlays",
+      "Evacuation order & warning zones",
+      "ODF units + USFS Oregon offices & fire facilities",
+    ],
+    accent: "ops",
+    pricing: {
+      tiers: ["Core $1,800/yr", "Standard $3,500/yr", "Pro $7,000/yr"],
+      setup: "$750–$2,500",
+    },
+  },
 ];
 
 export const capabilities = [
@@ -183,4 +202,5 @@ export const roadmap = [
   "AI-powered document search",
   "AI incident summaries",
   "Additional GIS layers",
+  "Expanded multi-state evacuation feeds",
 ];
