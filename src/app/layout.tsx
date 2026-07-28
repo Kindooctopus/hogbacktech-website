@@ -31,6 +31,8 @@ export const metadata: Metadata = {
     "Hogback Geo",
     "Hogback Docs",
     "Hogback Forge",
+    "Hogback Sat",
+    "live satellite imagery",
     "Columbia River Gorge",
     "Oregon technology",
   ],
