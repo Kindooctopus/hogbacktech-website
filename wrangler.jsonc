@@ -6,7 +6,7 @@
   // Prefer setting Cloudflare Root directory to hogback-docs/admin for admin,
   // then restore this name to "hogbacktech-website".
   // Local website deploys must use: npm run deploy (passes --name).
-  "name": "hogback-docs-admin",
+  "name": "hogbacktech-website",
   "compatibility_date": "2026-06-13",
   "assets": {
     "directory": "./out"
