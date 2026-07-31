@@ -109,9 +109,37 @@ export const assignedCrewsUrl = `${WFIGS_BASE}/CrewsMods/FeatureServer/0`;
 /** Interagency fire aircraft bases (air tanker / helibase infrastructure). */
 export const fireAircraftBasesUrl = `${WFIGS_BASE}/Fire_Aircraft_Bases/FeatureServer/0`;
 
-/** Oregon Department of Forestry district / unit offices. */
+/** Oregon Department of Forestry district / unit offices (static facilities). */
 export const odfOfficesUrl =
   "https://gis.odf.oregon.gov/ags3/rest/services/Basemaps/ProtectionMap/MapServer/28";
+
+/**
+ * ODF forest protection unit polygons — district/unit responsibility areas
+ * (Medford, The Dalles, etc.). Not live AVL; shows where ODF units operate.
+ */
+export const odfProtectionUnitsUrl =
+  "https://gis.odf.oregon.gov/ags1/rest/services/Public/ForestProtectionBoundaries/MapServer/1";
+
+/**
+ * ODF Multi-Mission Aircraft airborne intel — heat perimeters mapped in the
+ * last 48 hours (public SOFSA-adjacent feed via ArcGIS utility proxy).
+ */
+export const odfAirborneHeatUrl =
+  "https://utility.arcgis.com/usrsvcs/servers/b9f378fb86254605afea08c104b4ca2b/rest/services/Airborne/airborne_orstate/FeatureServer/2";
+
+/**
+ * NWCC large-fire public information — engine, crew, helicopter, and personnel
+ * counts assigned to Northwest incidents (closest public Oregon engine/crew
+ * resource picture; not continuous GPS AVL).
+ */
+export const nwccLargeFireUrl = `${WFIGS_BASE}/NWCC_Large_Fire_Information_Public_View/FeatureServer/0`;
+
+/**
+ * ODF Codan radio AVL streaming endpoint (engines/vehicles). Requires an ODF
+ * ArcGIS token — kept here for partner/auth integrations; not queried publicly.
+ */
+export const odfCodanAvlUrl =
+  "https://gistest.odf.oregon.gov/gistest/rest/services/Transportation/Transportation_Avl/FeatureServer/0";
 
 /** USFS office / ranger-district locations (filter to Oregon). */
 export const usfsOfficesUrl =
@@ -129,6 +157,9 @@ export type GsiOverlayId =
   | "fleetAvl"
   | "hotshots"
   | "crews"
+  | "nwccResources"
+  | "odfAirborne"
+  | "odfProtection"
   | "aircraftBases"
   | "odfUnits"
   | "usfsOr"
@@ -221,6 +252,36 @@ export const gsiOverlays: GsiOverlay[] = [
     defaultOn: true,
   },
   {
+    id: "nwccResources",
+    name: "NWCC engines & crews",
+    shortName: "NW Engines/Crews",
+    description:
+      "Northwest Coordination Center large-fire resource picture — engines, crews, helicopters, and personnel assigned to NW incidents (including Oregon). Closest public ODF/OR engine & crew counts; not live GPS AVL.",
+    sourceLabel: "NWCC",
+    sourceHref: "https://gacc.nifc.gov/nwcc/",
+    defaultOn: true,
+  },
+  {
+    id: "odfAirborne",
+    name: "ODF MMA heat (48h)",
+    shortName: "ODF Airborne",
+    description:
+      "Oregon Department of Forestry Multi-Mission Aircraft heat perimeters mapped in the last 48 hours — near-real-time IR intel from ODF flights.",
+    sourceLabel: "ODF MMA",
+    sourceHref: "https://www.oregon.gov/odf/",
+    defaultOn: true,
+  },
+  {
+    id: "odfProtection",
+    name: "ODF protection units",
+    shortName: "ODF Units",
+    description:
+      "Oregon Department of Forestry protection unit boundaries (Medford, The Dalles, Sisters, etc.) — where ODF units and engines are based/responsible. Live Codan AVL for individual engines requires ODF auth.",
+    sourceLabel: "ODF GIS",
+    sourceHref: "https://gis.odf.oregon.gov/",
+    defaultOn: true,
+  },
+  {
     id: "aircraftBases",
     name: "Fire aircraft bases",
     shortName: "Air Bases",
@@ -232,10 +293,10 @@ export const gsiOverlays: GsiOverlay[] = [
   },
   {
     id: "odfUnits",
-    name: "ODF units",
-    shortName: "ODF",
+    name: "ODF offices",
+    shortName: "ODF Offices",
     description:
-      "Oregon Department of Forestry district and unit offices across the state.",
+      "Oregon Department of Forestry district and unit office locations (static facilities — not live engine AVL).",
     sourceLabel: "ODF",
     sourceHref: "https://gis.odf.oregon.gov/",
     defaultOn: false,
@@ -352,6 +413,49 @@ const CREW_FIELDS = [
   "Mob_Start",
 ].join(",");
 
+const NWCC_RESOURCE_FIELDS = [
+  "FIRE_NM",
+  "FIRE_NUM",
+  "COMPLEX",
+  "START_DATE",
+  "RPTD_ACRES",
+  "CAUSE",
+  "UNIT_ID",
+  "IMT_TYPE",
+  "INCIWEB",
+  "Location",
+  "Percent_Contained",
+  "Crews",
+  "Engines",
+  "Helicopters",
+  "Num_Personnel",
+  "Structure_Threat",
+  "Incident_Contact",
+  "Fuel_Type",
+  "EditDate",
+].join(",");
+
+const ODF_AIRBORNE_FIELDS = [
+  "type",
+  "description",
+  "created_date",
+  "modify_date",
+  "incident_name",
+  "incident_number",
+  "mission",
+  "autoacres",
+].join(",");
+
+const ODF_PROTECTION_FIELDS = [
+  "ODF_UNIT",
+  "ODF_FPD",
+  "ODF_AREA",
+  "SQMILES",
+  "UNITNUMBER",
+  "DISTNUMBER",
+  "SUB_UNIT",
+].join(",");
+
 const AIRCRAFT_BASE_FIELDS = [
   "Airport",
   "Designator",
@@ -426,6 +530,15 @@ export const overlayQueryUrls: Record<GsiOverlayId, string> = {
     where:
       "Request_Status IN ('At Incident','At Preposition (Available)','Reserved','Reassigned')",
   }),
+  nwccResources: buildFeatureQueryUrl(nwccLargeFireUrl, NWCC_RESOURCE_FIELDS),
+  odfAirborne: buildFeatureQueryUrl(odfAirborneHeatUrl, ODF_AIRBORNE_FIELDS, {
+    geometryPrecision: 4,
+  }),
+  odfProtection: buildFeatureQueryUrl(
+    odfProtectionUnitsUrl,
+    ODF_PROTECTION_FIELDS,
+    { geometryPrecision: 4 },
+  ),
   aircraftBases: buildFeatureQueryUrl(
     fireAircraftBasesUrl,
     AIRCRAFT_BASE_FIELDS,

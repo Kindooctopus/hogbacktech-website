@@ -63,6 +63,17 @@ const LEGEND_ITEMS: { color: string; shape: "dot" | "rect" | "fire"; label: stri
     { color: "bg-amber-400", shape: "dot", label: "Fleet AVL" },
     { color: "bg-green-500", shape: "dot", label: "Hotshot / IHC" },
     { color: "bg-emerald-400", shape: "dot", label: "Assigned crews" },
+    { color: "bg-rose-500", shape: "dot", label: "NW engines/crews" },
+    {
+      color: "bg-violet-500/40 ring-1 ring-violet-400",
+      shape: "rect",
+      label: "ODF airborne heat",
+    },
+    {
+      color: "bg-lime-500/25 ring-1 ring-lime-500",
+      shape: "rect",
+      label: "ODF unit areas",
+    },
     { color: "bg-sky-400", shape: "dot", label: "Air bases" },
   ];
 
@@ -402,6 +413,90 @@ function aircraftBasePopup(props: Record<string, unknown>): string {
     </div>`;
 }
 
+function nwccResourcePopup(props: Record<string, unknown>): string {
+  const name = props.FIRE_NM || "NWCC large fire";
+  const engines = props.Engines ?? "—";
+  const crews = props.Crews ?? "—";
+  const helis = props.Helicopters ?? "—";
+  const people = props.Num_Personnel ?? "—";
+  return `
+    <div style="min-width:240px;font-family:system-ui,sans-serif;font-size:12px;line-height:1.4">
+      <div style="font-weight:600;color:#fff;margin-bottom:4px">${escapeHtml(name)}</div>
+      <div style="display:inline-block;margin-bottom:6px;padding:2px 8px;border-radius:999px;background:#f43f5e33;color:#fda4af;font-size:11px;font-weight:600">NWCC engines &amp; crews</div>
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-bottom:8px">
+        <div style="padding:6px 8px;border-radius:8px;background:#f43f5e22;border:1px solid #f43f5e44">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#fda4af">Engines</div>
+          <div style="font-size:16px;font-weight:700;color:#fff">${escapeHtml(engines)}</div>
+        </div>
+        <div style="padding:6px 8px;border-radius:8px;background:#34d39922;border:1px solid #34d39944">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#6ee7b7">Crews</div>
+          <div style="font-size:16px;font-weight:700;color:#fff">${escapeHtml(crews)}</div>
+        </div>
+        <div style="padding:6px 8px;border-radius:8px;background:#38bdf822;border:1px solid #38bdf844">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#7dd3fc">Helicopters</div>
+          <div style="font-size:16px;font-weight:700;color:#fff">${escapeHtml(helis)}</div>
+        </div>
+        <div style="padding:6px 8px;border-radius:8px;background:#fbbf2422;border:1px solid #fbbf2444">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#fde68a">Personnel</div>
+          <div style="font-size:16px;font-weight:700;color:#fff">${escapeHtml(people)}</div>
+        </div>
+      </div>
+      <table style="border-collapse:collapse">${[
+        popupRow("Unit", escapeHtml(props.UNIT_ID || "—")),
+        popupRow("Location", escapeHtml(props.Location || "—")),
+        popupRow("Size", formatAcres(props.RPTD_ACRES)),
+        popupRow("Contained", formatPercent(props.Percent_Contained)),
+        popupRow("Started", escapeHtml(props.START_DATE || "—")),
+        popupRow("Contact", escapeHtml(props.Incident_Contact || "—")),
+        props.INCIWEB
+          ? popupRow(
+              "InciWeb",
+              `<a href="${escapeHtml(props.INCIWEB)}" target="_blank" rel="noreferrer" style="color:#fda4af">${escapeHtml("Open")}</a>`,
+            )
+          : "",
+      ].join("")}</table>
+    </div>`;
+}
+
+function odfAirbornePopup(props: Record<string, unknown>): string {
+  const name = props.description || props.type || "ODF airborne heat";
+  return `
+    <div style="min-width:220px;font-family:system-ui,sans-serif;font-size:12px;line-height:1.4">
+      <div style="font-weight:600;color:#fff;margin-bottom:4px">${escapeHtml(name)}</div>
+      <div style="display:inline-block;margin-bottom:6px;padding:2px 8px;border-radius:999px;background:#8b5cf633;color:#c4b5fd;font-size:11px;font-weight:600">ODF MMA · last 48h</div>
+      <table style="border-collapse:collapse">${[
+        popupRow("Type", escapeHtml(props.type || "—")),
+        popupRow("Mission", escapeHtml(props.mission || "—")),
+        popupRow("Incident", escapeHtml(props.incident_name || "—")),
+        popupRow("Incident #", escapeHtml(props.incident_number || "—")),
+        popupRow("Mapped", formatEpoch(props.created_date)),
+        popupRow("Updated", formatEpoch(props.modify_date)),
+      ].join("")}</table>
+    </div>`;
+}
+
+function odfProtectionPopup(props: Record<string, unknown>): string {
+  const name = props.ODF_UNIT || "ODF protection unit";
+  return `
+    <div style="min-width:220px;font-family:system-ui,sans-serif;font-size:12px;line-height:1.4">
+      <div style="font-weight:600;color:#fff;margin-bottom:4px">${escapeHtml(name)}</div>
+      <div style="display:inline-block;margin-bottom:6px;padding:2px 8px;border-radius:999px;background:#a3e63533;color:#bef264;font-size:11px;font-weight:600">ODF protection unit</div>
+      <table style="border-collapse:collapse">${[
+        popupRow("District", escapeHtml(props.ODF_FPD || "—")),
+        popupRow("Area", escapeHtml(props.ODF_AREA || "—")),
+        popupRow("Unit #", escapeHtml(props.UNITNUMBER || "—")),
+        popupRow(
+          "Sq miles",
+          Number.isFinite(Number(props.SQMILES))
+            ? `${Math.round(Number(props.SQMILES)).toLocaleString()}`
+            : "—",
+        ),
+        popupRow("Sub-unit", escapeHtml(props.SUB_UNIT || "—")),
+      ].join("")}</table>
+      <p style="margin:8px 0 0;color:#94a3b8;font-size:11px">Live ODF engine AVL (Codan) is auth-gated — unit areas show responsibility, not GPS apparatus.</p>
+    </div>`;
+}
+
 function odfUnitPopup(props: Record<string, unknown>): string {
   const name = props.OFFICENAME || "ODF office";
   return `
@@ -593,6 +688,58 @@ async function buildOverlayLayer(
         lyr.bindPopup(crewPopup(props), {
           className: "hogback-gsi-popup",
           maxWidth: 320,
+        });
+      },
+    });
+  }
+
+  if (id === "nwccResources") {
+    const icon = engineMarkerIcon(L, "#f43f5e", "NW");
+    return L.geoJSON(geojson, {
+      pointToLayer(_feature, latlng) {
+        return L.marker(latlng, { icon, riseOnHover: true });
+      },
+      onEachFeature(feature, lyr) {
+        const props = (feature.properties ?? {}) as Record<string, unknown>;
+        lyr.bindPopup(nwccResourcePopup(props), {
+          className: "hogback-gsi-popup",
+          maxWidth: 340,
+        });
+      },
+    });
+  }
+
+  if (id === "odfAirborne") {
+    return L.geoJSON(geojson, {
+      style: {
+        color: "#7c3aed",
+        weight: 2,
+        fillColor: "#8b5cf6",
+        fillOpacity: 0.28,
+      },
+      onEachFeature(feature, lyr) {
+        const props = (feature.properties ?? {}) as Record<string, unknown>;
+        lyr.bindPopup(odfAirbornePopup(props), {
+          className: "hogback-gsi-popup",
+          maxWidth: 320,
+        });
+      },
+    });
+  }
+
+  if (id === "odfProtection") {
+    return L.geoJSON(geojson, {
+      style: {
+        color: "#65a30d",
+        weight: 1.5,
+        fillColor: "#a3e635",
+        fillOpacity: 0.08,
+      },
+      onEachFeature(feature, lyr) {
+        const props = (feature.properties ?? {}) as Record<string, unknown>;
+        lyr.bindPopup(odfProtectionPopup(props), {
+          className: "hogback-gsi-popup",
+          maxWidth: 300,
         });
       },
     });

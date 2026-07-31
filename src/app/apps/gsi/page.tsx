@@ -4,13 +4,13 @@ import { HogbackMapAppShell } from "@/components/HogbackMapAppShell";
 import { company } from "@/lib/content";
 
 export const metadata: Metadata = {
-  title: "Hogback GSI — NIFC Fire, Evacuation & AVL Layers",
+  title: "Hogback GSI — NIFC Fire, ODF Units & AVL Layers",
   description:
-    "Geographic situational intelligence with NIFC WFIGS incidents, fire perimeters, evacuations, Cal OES fire resource AVL, and USFS hotshot/IHC tracking.",
+    "Geographic situational intelligence with NIFC incidents, NWCC engine/crew counts, ODF protection units, ODF MMA airborne heat, evacuations, and fire resource AVL.",
   openGraph: {
     title: `Hogback GSI | ${company.name}`,
     description:
-      "NIFC incidents, fire perimeters, evacuations, Field Maps–style AVL, and USFS hotshot overlays on one map.",
+      "Oregon-focused fire SI: NWCC engines & crews, ODF unit areas, MMA airborne heat, NIFC layers, and AVL overlays.",
     images: [
       {
         url: "/brand/products/gsi.png",
@@ -27,7 +27,7 @@ export default function HogbackGsiAppPage() {
     <HogbackMapAppShell
       activeApp="gsi"
       eyebrow="Hogback GSI"
-      title="Fire, OR / USFS units & AVL"
+      title="Fire, ODF units, engines & AVL"
       footer={
         <>
           <strong className="font-medium text-slate-400">
@@ -42,6 +42,15 @@ export default function HogbackGsiAppPage() {
           >
             NIFC / USFS
           </a>
+          ; NW engine/crew counts from{" "}
+          <a
+            href="https://gacc.nifc.gov/nwcc/"
+            className="text-copper-400 hover:underline"
+            target="_blank"
+            rel="noreferrer"
+          >
+            NWCC
+          </a>
           ; evacuations and fire resource AVL from{" "}
           <a
             href="https://www.caloes.ca.gov/"
@@ -51,7 +60,7 @@ export default function HogbackGsiAppPage() {
           >
             Cal OES
           </a>
-          ; ODF units from{" "}
+          ; ODF protection units, offices, and MMA airborne from{" "}
           <a
             href="https://gis.odf.oregon.gov/"
             className="text-copper-400 hover:underline"
@@ -60,17 +69,9 @@ export default function HogbackGsiAppPage() {
           >
             Oregon Department of Forestry
           </a>
-          ; USFS Oregon offices from{" "}
-          <a
-            href="https://data.fs.usda.gov/geodata/edw/"
-            className="text-copper-400 hover:underline"
-            target="_blank"
-            rel="noreferrer"
-          >
-            USFS EDW
-          </a>
-          . Not a substitute for official alerts, dispatch, or Field Maps
-          incident systems.
+          . Live ODF Codan AVL for individual engines requires agency auth and
+          is not on this public map. Not a substitute for official alerts,
+          dispatch, or Field Maps.
         </>
       }
     >

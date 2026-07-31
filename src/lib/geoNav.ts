@@ -121,6 +121,7 @@ export function featureDisplayName(
     props.IncidentName,
     props.poly_IncidentName,
     props.attr_IncidentName,
+    props.FIRE_NM,
     props.ZONE_NAME,
     props.UNIT__,
     props.OES_ID__,
@@ -132,10 +133,13 @@ export function featureDisplayName(
     props.Catalog_Item,
     props.Airport,
     props.Designator,
+    props.ODF_UNIT,
     props.OFFICENAME,
     props.district_name,
     props.name,
     props.Station,
+    props.description,
+    props.type,
   ];
   for (const value of candidates) {
     if (value != null && String(value).trim()) return String(value);
