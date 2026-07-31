@@ -106,7 +106,7 @@ export function HogbackHero() {
             </div>
 
             {/* Mobile / tablet: compact product links along the bottom */}
-            <div className="absolute inset-x-0 bottom-0 z-10 grid grid-cols-5 gap-1 p-1.5 sm:gap-1.5 sm:p-2 md:hidden">
+            <div className="absolute inset-x-0 bottom-0 z-10 grid grid-cols-3 gap-1 p-1.5 sm:grid-cols-6 sm:gap-1.5 sm:p-2 md:hidden">
               {products.map((product) => (
                 <Link
                   key={product.id}
@@ -164,7 +164,14 @@ export function HogbackHero() {
 }
 
 export function HogbackProducts() {
-  const productCards = [
+  const productCards: {
+    id: string;
+    name: string;
+    badge: string;
+    description: string;
+    points: string[];
+    appHref?: string;
+  }[] = [
     {
       id: "ops",
       name: "Hogback Ops",
@@ -185,9 +192,10 @@ export function HogbackProducts() {
         "Location‑aware tools for fleets, apparatus, and field units—so you always know what's moving and why.",
       points: [
         "Fleet and asset visibility",
-        "Route and coverage insights",
+        "Topo, satellite, imagery & relief basemaps",
         "Supports mixed public & contract fleets",
       ],
+      appHref: "/apps/geo",
     },
     {
       id: "docs",
@@ -214,6 +222,19 @@ export function HogbackProducts() {
       ],
     },
     {
+      id: "gsi",
+      name: "Hogback GSI",
+      badge: "Wildfire Intelligence",
+      description:
+        "NIFC incidents, fire perimeters, evacuations, and Field Maps–style AVL / USFS hotshot tracking — geographic situational intelligence when the map matters.",
+      points: [
+        "Live NIFC WFIGS incident feed",
+        "ODF units and USFS Oregon offices",
+        "USFS fire facilities and hotshot/IHC crews",
+      ],
+      appHref: "/apps/gsi",
+    },
+    {
       id: "sat",
       name: "Hogback Sat",
       badge: "Satellite",
@@ -224,6 +245,7 @@ export function HogbackProducts() {
         "True color, fire, and night layers",
         "Open the app and scrub recent passes",
       ],
+      appHref: "/apps/sat",
     },
   ];
 
@@ -273,15 +295,15 @@ export function HogbackProducts() {
                   Learn about {product.name}
                   <span aria-hidden="true">↗</span>
                 </Link>
-                {product.id === "sat" && (
+                {product.appHref ? (
                   <Link
-                    href="/apps/sat"
-                    className="inline-flex items-center gap-2 text-sm text-white hover:text-copper-300"
+                    href={product.appHref}
+                    className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white"
                   >
-                    Open live feed
+                    {product.id === "sat" ? "Open live feed" : "Open map"}
                     <span aria-hidden="true">↗</span>
                   </Link>
-                )}
+                ) : null}
               </div>
             </article>
           ))}
