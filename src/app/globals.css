@@ -166,3 +166,19 @@ body {
     opacity: 0.95;
   }
 }
+
+/* Flat-hold compass flashlight (wedge toward phone top / "ahead") */
+.hogback-flat-flashlight {
+  background: conic-gradient(
+    from -22deg at 50% 50%,
+    transparent 0deg,
+    rgba(245, 158, 11, 0.08) 2deg,
+    rgba(245, 158, 11, 0.28) 18deg,
+    rgba(245, 158, 11, 0.08) 34deg,
+    transparent 36deg,
+    transparent 360deg
+  );
+  border-radius: 9999px;
+  mix-blend-mode: screen;
+  opacity: 0.95;
+}

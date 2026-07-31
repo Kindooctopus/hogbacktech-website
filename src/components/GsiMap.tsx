@@ -14,6 +14,7 @@ import {
   CompassArView,
   readCompassHeading,
   requestOrientationPermission,
+  type HoldMode,
 } from "@/components/CompassArView";
 import { MapSearchBox } from "@/components/MapSearchBox";
 import {
@@ -694,6 +695,8 @@ export function GsiMap() {
   const [userLocation, setUserLocation] = useState<LatLng | null>(null);
   const [heading, setHeading] = useState<number | null>(null);
   const [headingAccuracy, setHeadingAccuracy] = useState<number | null>(null);
+  const [holdMode, setHoldMode] = useState<HoldMode>("upright");
+  const [holdModeLocked, setHoldModeLocked] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [locating, setLocating] = useState(false);
   const [didCenterOnUser, setDidCenterOnUser] = useState(false);
@@ -923,6 +926,7 @@ export function GsiMap() {
       if (!reading) return;
       setHeading(reading.heading);
       setHeadingAccuracy(reading.accuracy);
+      if (!holdModeLocked) setHoldMode(reading.holdMode);
     }
 
     window.addEventListener("deviceorientationabsolute", onOrientation, true);
@@ -935,7 +939,7 @@ export function GsiMap() {
       );
       window.removeEventListener("deviceorientation", onOrientation, true);
     };
-  }, [arOpen]);
+  }, [arOpen, holdModeLocked]);
 
   useEffect(() => {
     if (!ready || !mapRef.current || !userLocation) return;
@@ -1112,6 +1116,7 @@ export function GsiMap() {
 
   async function openAr() {
     setLayersOpen(false);
+    setHoldModeLocked(false);
     const allowed = await requestOrientationPermission();
     if (!allowed) {
       setLocationError(
@@ -1313,10 +1318,18 @@ export function GsiMap() {
         )}
         <CompassArView
           open={arOpen}
-          onClose={() => setArOpen(false)}
+          onClose={() => {
+            setArOpen(false);
+            setHoldModeLocked(false);
+          }}
           userLocation={userLocation}
           heading={heading}
           headingAccuracy={headingAccuracy}
+          holdMode={holdMode}
+          onHoldModeChange={(mode) => {
+            setHoldMode(mode);
+            setHoldModeLocked(true);
+          }}
           targets={arTargets}
           onManualHeading={setHeading}
         />
