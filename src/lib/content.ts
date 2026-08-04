@@ -121,7 +121,7 @@ export const products = [
       "Live wildfire situational awareness — NIFC incidents, fire perimeters, evacuation zones, and Field Maps–style AVL / USFS hotshot tracking on one operational map.",
     features: [
       "NIFC WFIGS incident locations",
-      "Current fire perimeter overlays",
+      "VIIRS, MODIS & Landsat heat signatures",
       "Evacuation order & warning zones",
       "ODF units + USFS Oregon offices & fire facilities",
     ],

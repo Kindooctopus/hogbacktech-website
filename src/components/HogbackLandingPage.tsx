@@ -227,7 +227,7 @@ export function HogbackProducts() {
       description:
         "NIFC incidents, fire perimeters, evacuations, and Field Maps–style AVL / USFS hotshot tracking — geographic situational intelligence when the map matters.",
       points: [
-        "Live NIFC WFIGS incident feed",
+        "Live VIIRS / MODIS / Landsat heat feeds",
         "ODF units and USFS Oregon offices",
         "USFS fire facilities and hotshot/IHC crews",
       ],

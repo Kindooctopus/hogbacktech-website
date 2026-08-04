@@ -4,13 +4,13 @@ import { GsiMap } from "@/components/GsiMap";
 import { company } from "@/lib/content";
 
 export const metadata: Metadata = {
-  title: "Hogback GSI — NIFC Fire, Evacuation & AVL Layers",
+  title: "Hogback GSI — Fire Heat Signatures & Unit Layers",
   description:
-    "Geographic situational intelligence with NIFC WFIGS incidents, fire perimeters, evacuations, Cal OES fire resource AVL, and USFS hotshot/IHC tracking.",
+    "Geographic situational intelligence with NIFC incidents, VIIRS/MODIS/Landsat heat signatures, evacuations, and Oregon / USFS unit layers.",
   openGraph: {
     title: `Hogback GSI | ${company.name}`,
     description:
-      "NIFC incidents, fire perimeters, evacuations, Field Maps–style AVL, and USFS hotshot overlays on one map.",
+      "Live VIIRS, MODIS, and Landsat heat signatures with NIFC fire and Oregon unit overlays.",
     images: [
       {
         url: "/brand/products/gsi.png",
@@ -31,7 +31,7 @@ export default function HogbackGsiAppPage() {
             Hogback GSI
           </p>
           <h1 className="truncate font-display text-lg font-semibold text-white sm:text-xl">
-            Fire, OR / USFS units &amp; AVL
+            Heat signatures, OR / USFS units &amp; fire layers
           </h1>
         </div>
         <div className="flex shrink-0 items-center gap-3 text-sm">
@@ -92,7 +92,16 @@ export default function HogbackGsiAppPage() {
         >
           USFS EDW
         </a>
-        . Not a substitute for official alerts, dispatch, or Field Maps incident
+        ; heat signatures from{" "}
+        <a
+          href="https://www.earthdata.nasa.gov/data/tools/firms"
+          className="text-copper-400 hover:underline"
+          target="_blank"
+          rel="noreferrer"
+        >
+          NASA FIRMS
+        </a>{" "}
+        (VIIRS / MODIS / Landsat). Not a substitute for official alerts, dispatch, or Field Maps incident
         systems.
       </footer>
     </div>

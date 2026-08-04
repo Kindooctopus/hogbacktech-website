@@ -14,11 +14,17 @@ import {
   evacuationStyle,
   formatAcres,
   formatEpoch,
+  formatFrp,
+  formatHoursOld,
   formatPercent,
+  getOverlayQueryUrl,
   gsiOverlays,
+  heatOverlayIds,
+  heatPointStyle,
   hotshotStyle,
-  overlayQueryUrls,
+  isHeatOverlay,
   type GsiOverlayId,
+  type MapBBox,
 } from "@/lib/gsiLayers";
 
 type LayerStatus = "idle" | "loading" | "ready" | "error";
@@ -221,6 +227,56 @@ function usfsFirePopup(props: Record<string, unknown>): string {
     </div>`;
 }
 
+function heatPopup(
+  props: Record<string, unknown>,
+  sensor: "viirs" | "modis" | "landsat",
+): string {
+  const label =
+    sensor === "viirs" ? "VIIRS" : sensor === "modis" ? "MODIS" : "Landsat";
+  const brightness =
+    props.bright_ti4 ?? props.BRIGHTNESS ?? props.brightness ?? "—";
+  const frp = props.frp ?? props.FRP;
+  const confidence = props.confidence ?? props.CONFIDENCE ?? "—";
+  const satellite = props.satellite ?? props.SATELLITE ?? "—";
+  const daynight = props.daynight ?? props.DAYNIGHT ?? "—";
+  const hours = props.hours_old ?? props.HOURS_OLD;
+  const acq = props.acq_date ?? props.ACQ_DATE;
+  return `
+    <div style="min-width:210px;font-family:system-ui,sans-serif;font-size:12px;line-height:1.4">
+      <div style="font-weight:600;color:#fff;margin-bottom:4px">${label} heat signature</div>
+      <div style="display:inline-block;margin-bottom:6px;padding:2px 8px;border-radius:999px;background:#fb718533;color:#fda4af;font-size:11px;font-weight:600">Thermal hotspot</div>
+      <table style="border-collapse:collapse">${[
+        popupRow("Satellite", escapeHtml(satellite)),
+        popupRow("Brightness", escapeHtml(brightness)),
+        popupRow("FRP", formatFrp(frp)),
+        popupRow("Confidence", escapeHtml(confidence)),
+        popupRow("Day/Night", escapeHtml(daynight)),
+        popupRow("Age", formatHoursOld(hours)),
+        popupRow("Acquired", formatEpoch(acq)),
+        sensor === "landsat"
+          ? popupRow(
+              "Path/Row",
+              escapeHtml(
+                [props.path, props.row].filter(Boolean).join(" / ") || "—",
+              ),
+            )
+          : "",
+      ]
+        .filter(Boolean)
+        .join("")}</table>
+    </div>`;
+}
+
+function mapBoundsToBBox(map: LeafletMap): MapBBox {
+  const b = map.getBounds();
+  return {
+    west: b.getWest(),
+    south: b.getSouth(),
+    east: b.getEast(),
+    north: b.getNorth(),
+  };
+}
+
 async function buildOverlayLayer(
   L: typeof import("leaflet"),
   id: GsiOverlayId,
@@ -373,22 +429,48 @@ async function buildOverlayLayer(
     });
   }
 
-  // usfsFire
+  if (id === "usfsFire") {
+    return L.geoJSON(geojson, {
+      pointToLayer(_feature, latlng) {
+        return L.circleMarker(latlng, {
+          radius: 8,
+          color: "#a16207",
+          weight: 2,
+          fillColor: "#eab308",
+          fillOpacity: 0.95,
+        });
+      },
+      onEachFeature(feature, lyr) {
+        const props = (feature.properties ?? {}) as Record<string, unknown>;
+        lyr.bindPopup(usfsFirePopup(props), {
+          className: "hogback-gsi-popup",
+          maxWidth: 320,
+        });
+      },
+    });
+  }
+
+  const sensor =
+    id === "viirs" ? "viirs" : id === "modis" ? "modis" : "landsat";
+
   return L.geoJSON(geojson, {
-    pointToLayer(_feature, latlng) {
+    pointToLayer(feature, latlng) {
+      const props = (feature.properties ?? {}) as Record<string, unknown>;
+      const frp = props.frp ?? props.FRP;
+      const s = heatPointStyle(frp, sensor);
       return L.circleMarker(latlng, {
-        radius: 8,
-        color: "#a16207",
-        weight: 2,
-        fillColor: "#eab308",
-        fillOpacity: 0.95,
+        radius: s.radius,
+        color: s.stroke,
+        weight: 1.5,
+        fillColor: s.fill,
+        fillOpacity: 0.85,
       });
     },
     onEachFeature(feature, lyr) {
       const props = (feature.properties ?? {}) as Record<string, unknown>;
-      lyr.bindPopup(usfsFirePopup(props), {
+      lyr.bindPopup(heatPopup(props, sensor), {
         className: "hogback-gsi-popup",
-        maxWidth: 320,
+        maxWidth: 300,
       });
     },
   });
@@ -467,8 +549,10 @@ export function GsiMap() {
     if (!ready || !mapRef.current) return;
 
     let cancelled = false;
+    let moveTimer: ReturnType<typeof setTimeout> | null = null;
+    const map = mapRef.current;
 
-    async function loadOverlay(id: GsiOverlayId) {
+    async function loadOverlay(id: GsiOverlayId, bbox?: MapBBox | null) {
       const L = await import("leaflet");
       const group = groupsRef.current[id];
       if (!group || cancelled) return;
@@ -476,7 +560,7 @@ export function GsiMap() {
       setLayerMeta(id, { status: "loading", error: undefined });
 
       try {
-        const res = await fetch(overlayQueryUrls[id]);
+        const res = await fetch(getOverlayQueryUrl(id, bbox));
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const geojson = (await res.json()) as GeoJSON.FeatureCollection;
         if (cancelled) return;
@@ -496,13 +580,35 @@ export function GsiMap() {
       }
     }
 
-    void (async () => {
-      await Promise.all(gsiOverlays.map((o) => loadOverlay(o.id)));
+    async function loadAll() {
+      const bbox = mapBoundsToBBox(map);
+      await Promise.all(
+        gsiOverlays.map((o) =>
+          loadOverlay(o.id, isHeatOverlay(o.id) ? bbox : null),
+        ),
+      );
       if (!cancelled) setLastRefresh(new Date());
-    })();
+    }
+
+    function reloadHeatLayers() {
+      const bbox = mapBoundsToBBox(map);
+      void Promise.all(heatOverlayIds.map((id) => loadOverlay(id, bbox)));
+    }
+
+    function onMoveEnd() {
+      if (moveTimer) clearTimeout(moveTimer);
+      moveTimer = setTimeout(() => {
+        reloadHeatLayers();
+      }, 450);
+    }
+
+    void loadAll();
+    map.on("moveend", onMoveEnd);
 
     return () => {
       cancelled = true;
+      map.off("moveend", onMoveEnd);
+      if (moveTimer) clearTimeout(moveTimer);
     };
   }, [ready, refreshToken, setLayerMeta]);
 
@@ -608,6 +714,18 @@ export function GsiMap() {
           <span className="inline-flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-full bg-yellow-500" />
             USFS fire facilities
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
+            VIIRS heat
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-orange-500" />
+            MODIS heat
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-yellow-300" />
+            Landsat heat
           </span>
         </div>
       </div>
