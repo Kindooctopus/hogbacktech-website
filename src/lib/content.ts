@@ -65,8 +65,8 @@ export const products = [
     features: [
       "Geo map with live NIFC fire & perimeter layers",
       "VIIRS, MODIS & Landsat heat signatures",
+      "Surface wind lines & speed (mph)",
       "Evacuations, engines, crews & unit locations",
-      "Topo, satellite, imagery & relief basemaps",
     ],
     accent: "geo",
     pricing: {

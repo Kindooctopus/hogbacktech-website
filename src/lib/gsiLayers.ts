@@ -150,13 +150,24 @@ export type GsiOverlayId =
   | "usfsFire"
   | "viirs"
   | "modis"
-  | "landsat";
+  | "landsat"
+  | "wind";
 
 /** Heat signature layers that should requery against the current map viewport. */
 export const heatOverlayIds: GsiOverlayId[] = ["viirs", "modis", "landsat"];
 
 export function isHeatOverlay(id: GsiOverlayId): boolean {
   return heatOverlayIds.includes(id);
+}
+
+/**
+ * Overlays that reload against the current viewport on pan/zoom
+ * (heat signatures + surface wind).
+ */
+export const viewportOverlayIds: GsiOverlayId[] = [...heatOverlayIds, "wind"];
+
+export function isViewportOverlay(id: GsiOverlayId): boolean {
+  return viewportOverlayIds.includes(id);
 }
 
 export type GsiOverlay = {
@@ -316,6 +327,16 @@ export const gsiOverlays: GsiOverlay[] = [
     sourceLabel: "FIRMS / Landsat",
     sourceHref:
       "https://firms.modaps.eosdis.nasa.gov/content/usfs/active_fire/",
+    defaultOn: true,
+  },
+  {
+    id: "wind",
+    name: "Surface wind",
+    shortName: "Wind",
+    description:
+      "10 m surface wind direction lines and speed (mph) from Open-Meteo — refreshes for the current map view.",
+    sourceLabel: "Open-Meteo",
+    sourceHref: "https://open-meteo.com/",
     defaultOn: true,
   },
 ];
@@ -558,6 +579,8 @@ export const overlayQueryUrls: Record<GsiOverlayId, string> = {
   landsat: buildFeatureQueryUrl(firmsCombinedHotspotsUrl, LANDSAT_FIELDS, {
     where: "source = 'fires_landsat_24hrs'",
   }),
+  // Client-fetched via Open-Meteo in GsiMap (not an ArcGIS FeatureServer).
+  wind: "",
 };
 
 /** Resolve the query URL for an overlay, applying map bounds for heat feeds. */

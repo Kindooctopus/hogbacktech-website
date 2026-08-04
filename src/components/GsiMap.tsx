@@ -39,15 +39,22 @@ import {
   getOverlayQueryUrl,
   gsiBasemaps,
   gsiOverlays,
-  heatOverlayIds,
   heatPointStyle,
   hotshotStyle,
-  isHeatOverlay,
+  isViewportOverlay,
   oesEngineTypeLabel,
+  viewportOverlayIds,
   type GsiBasemapId,
   type GsiOverlayId,
   type MapBBox,
 } from "@/lib/gsiLayers";
+import {
+  fetchSurfaceWindGeoJSON,
+  formatWindFrom,
+  formatWindSpeed,
+  windShaftLengthPx,
+  windStyle,
+} from "@/lib/surfaceWind";
 
 type LayerStatus = "idle" | "loading" | "ready" | "error";
 
@@ -73,6 +80,7 @@ const LEGEND_ITEMS: { color: string; shape: "dot" | "rect" | "fire"; label: stri
     { color: "bg-rose-400", shape: "dot", label: "VIIRS heat" },
     { color: "bg-orange-500", shape: "dot", label: "MODIS heat" },
     { color: "bg-yellow-300", shape: "dot", label: "Landsat heat" },
+    { color: "bg-sky-300", shape: "dot", label: "Surface wind" },
   ];
 
 function initialOverlayState(): OverlayState {
@@ -104,6 +112,9 @@ function targetsFromGeoJSON(
   id: GsiOverlayId,
   geojson: GeoJSON.FeatureCollection,
 ): ArTarget[] {
+  // Wind grid samples would flood the AR compass — skip them.
+  if (id === "wind") return [];
+
   const overlay = gsiOverlays.find((o) => o.id === id);
   const kind = overlay?.shortName ?? id;
   const targets: ArTarget[] = [];
@@ -166,6 +177,39 @@ function fireMarkerIcon(L: typeof import("leaflet")) {
     iconSize: [28, 34],
     iconAnchor: [14, 32],
     popupAnchor: [0, -28],
+  });
+}
+
+function windMarkerIcon(
+  L: typeof import("leaflet"),
+  props: Record<string, unknown>,
+) {
+  const speed = Number(props.speedMph);
+  const toDeg = Number(props.toDeg);
+  const style = windStyle(speed);
+  const shaft = windShaftLengthPx(speed);
+  const box = Math.max(48, shaft + 18);
+  const cx = box / 2;
+  const tipY = 6;
+  const baseY = tipY + shaft;
+  const head = Math.max(5, Math.min(9, shaft * 0.18));
+  const speedLabel = Number.isFinite(speed) ? `${Math.round(speed)}` : "—";
+
+  return L.divIcon({
+    className: "hogback-map-symbol hogback-wind-symbol",
+    html: `<div class="hogback-wind-marker" style="width:${box}px;height:${box + 14}px" title="${escapeHtml(formatWindSpeed(speed))} from ${escapeHtml(formatWindFrom(props.fromDeg))}">
+      <div class="hogback-wind-shaft" style="width:${box}px;height:${box}px;transform:rotate(${Number.isFinite(toDeg) ? toDeg : 0}deg)">
+        <svg viewBox="0 0 ${box} ${box}" width="${box}" height="${box}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <line x1="${cx}" y1="${baseY}" x2="${cx}" y2="${tipY + head}" stroke="${style.stroke}" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M ${cx} ${tipY} L ${cx - head} ${tipY + head * 1.4} L ${cx + head} ${tipY + head * 1.4} Z" fill="${style.fill}" stroke="${style.stroke}" stroke-width="1"/>
+          <circle cx="${cx}" cy="${baseY}" r="2.5" fill="${style.fill}" stroke="${style.stroke}" stroke-width="1"/>
+        </svg>
+      </div>
+      <span class="hogback-wind-speed" style="color:${style.fill}">${speedLabel}<small>mph</small></span>
+    </div>`,
+    iconSize: [box, box + 14],
+    iconAnchor: [box / 2, box / 2],
+    popupAnchor: [0, -(box / 2)],
   });
 }
 
@@ -458,6 +502,25 @@ function usfsFirePopup(props: Record<string, unknown>): string {
         popupRow("Type", escapeHtml(props.Facility_Type || "—")),
         popupRow("County", escapeHtml(props.County || "—")),
         popupRow("Address", escapeHtml(props.Physical_Address || "—")),
+      ].join("")}</table>
+    </div>`;
+}
+
+function windPopup(props: Record<string, unknown>): string {
+  const style = windStyle(props.speedMph);
+  return `
+    <div style="min-width:200px;font-family:system-ui,sans-serif;font-size:12px;line-height:1.4">
+      <div style="font-weight:600;color:#fff;margin-bottom:4px">Surface wind</div>
+      <div style="display:inline-block;margin-bottom:6px;padding:2px 8px;border-radius:999px;background:#38bdf833;color:${style.fill};font-size:11px;font-weight:600">${escapeHtml(style.label)}</div>
+      <table style="border-collapse:collapse">${[
+        popupRow("Speed", formatWindSpeed(props.speedMph)),
+        popupRow("From", formatWindFrom(props.fromDeg)),
+        popupRow(
+          "Gusts",
+          props.gustMph == null ? "—" : formatWindSpeed(props.gustMph),
+        ),
+        popupRow("Height", "10 m AGL"),
+        popupRow("Source", "Open-Meteo"),
       ].join("")}</table>
     </div>`;
 }
@@ -761,6 +824,26 @@ async function buildOverlayLayer(
     });
   }
 
+  if (id === "wind") {
+    return L.geoJSON(geojson, {
+      pointToLayer(feature, latlng) {
+        const props = (feature.properties ?? {}) as Record<string, unknown>;
+        return L.marker(latlng, {
+          icon: windMarkerIcon(L, props),
+          interactive: true,
+          keyboard: false,
+        });
+      },
+      onEachFeature(feature, lyr) {
+        const props = (feature.properties ?? {}) as Record<string, unknown>;
+        lyr.bindPopup(windPopup(props), {
+          className: "hogback-gsi-popup",
+          maxWidth: 280,
+        });
+      },
+    });
+  }
+
   return L.geoJSON(geojson);
 }
 
@@ -913,9 +996,15 @@ export function GsiMap() {
       setLayerMeta(id, { status: "loading", error: undefined });
 
       try {
-        const res = await fetch(getOverlayQueryUrl(id, bbox));
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const geojson = (await res.json()) as GeoJSON.FeatureCollection;
+        let geojson: GeoJSON.FeatureCollection;
+        if (id === "wind") {
+          const bounds = bbox ?? mapBoundsToBBox(map);
+          geojson = await fetchSurfaceWindGeoJSON(bounds, map.getZoom());
+        } else {
+          const res = await fetch(getOverlayQueryUrl(id, bbox));
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          geojson = (await res.json()) as GeoJSON.FeatureCollection;
+        }
         if (cancelled) return;
 
         group.clearLayers();
@@ -939,7 +1028,7 @@ export function GsiMap() {
       const bbox = mapBoundsToBBox(map);
       await Promise.all(
         gsiOverlays.map((o) =>
-          loadOverlay(o.id, isHeatOverlay(o.id) ? bbox : null),
+          loadOverlay(o.id, isViewportOverlay(o.id) ? bbox : null),
         ),
       );
       if (!cancelled) {
@@ -948,19 +1037,19 @@ export function GsiMap() {
       }
     }
 
-    function reloadHeatLayers() {
+    function reloadViewportLayers() {
       const bbox = mapBoundsToBBox(map);
-      void Promise.all(heatOverlayIds.map((id) => loadOverlay(id, bbox))).then(
-        () => {
-          if (!cancelled) setTargetsVersion((n) => n + 1);
-        },
-      );
+      void Promise.all(
+        viewportOverlayIds.map((id) => loadOverlay(id, bbox)),
+      ).then(() => {
+        if (!cancelled) setTargetsVersion((n) => n + 1);
+      });
     }
 
     function onMoveEnd() {
       if (moveTimer) clearTimeout(moveTimer);
       moveTimer = setTimeout(() => {
-        reloadHeatLayers();
+        reloadViewportLayers();
       }, 450);
     }
 
@@ -1149,15 +1238,20 @@ export function GsiMap() {
       const nextEnabled = !prev[id].enabled;
       if (nextEnabled) {
         group.addTo(map);
-        if (isHeatOverlay(id)) {
+        if (isViewportOverlay(id)) {
           const bbox = mapBoundsToBBox(map);
           void (async () => {
             const L = await import("leaflet");
             setLayerMeta(id, { status: "loading", error: undefined });
             try {
-              const res = await fetch(getOverlayQueryUrl(id, bbox));
-              if (!res.ok) throw new Error(`HTTP ${res.status}`);
-              const geojson = (await res.json()) as GeoJSON.FeatureCollection;
+              let geojson: GeoJSON.FeatureCollection;
+              if (id === "wind") {
+                geojson = await fetchSurfaceWindGeoJSON(bbox, map.getZoom());
+              } else {
+                const res = await fetch(getOverlayQueryUrl(id, bbox));
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                geojson = (await res.json()) as GeoJSON.FeatureCollection;
+              }
               group.clearLayers();
               const layer = await buildOverlayLayer(L, id, geojson);
               layer.addTo(group);

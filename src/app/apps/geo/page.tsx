@@ -26,7 +26,7 @@ export default function HogbackGeoAppPage() {
   return (
     <HogbackMapAppShell
       eyebrow="Hogback Geo"
-      title="Geo map — fire layers, heat & AVL"
+      title="Geo map — fire, heat, wind & AVL"
       footer={
         <>
           <strong className="font-medium text-slate-400">
@@ -70,8 +70,17 @@ export default function HogbackGeoAppPage() {
           </a>
           . Basemaps from OpenTopoMap, Esri, and USGS. Satellite heat
           signatures from NASA FIRMS / Esri Living Atlas (VIIRS, MODIS,
-          Landsat). Not a substitute for official alerts, dispatch, or Field
-          Maps incident systems.
+          Landsat). Surface wind from{" "}
+          <a
+            href="https://open-meteo.com/"
+            className="text-copper-400 hover:underline"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Open-Meteo
+          </a>
+          . Not a substitute for official alerts, dispatch, or Field Maps
+          incident systems.
         </>
       }
     >

@@ -138,6 +138,41 @@ body {
   overflow: visible;
 }
 
+.hogback-wind-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
+  line-height: 0;
+}
+
+.hogback-wind-shaft {
+  transform-origin: center center;
+  line-height: 0;
+}
+
+.hogback-wind-shaft svg {
+  display: block;
+  overflow: visible;
+}
+
+.hogback-wind-speed {
+  margin-top: -2px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+  white-space: nowrap;
+}
+
+.hogback-wind-speed small {
+  margin-left: 1px;
+  font-size: 8px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
 /* AR compass direction flashlight */
 .hogback-ar-flashlight {
   width: min(70vw, 280px);
