@@ -4,13 +4,13 @@ import { HogbackMapAppShell } from "@/components/HogbackMapAppShell";
 import { company } from "@/lib/content";
 
 export const metadata: Metadata = {
-  title: "Hogback Geo — Fire Layers & Situational Map",
+  title: "Hogback Geo — Fire Layers & Satellite Heat Map",
   description:
-    "The Hogback Geo map — topo, satellite, imagery, and relief basemaps with live NIFC fire layers, perimeters, evacuations, AVL, and unit locations.",
+    "The Hogback Geo map — topo, satellite, imagery, and relief basemaps with live NIFC fire layers, VIIRS/MODIS/Landsat heat signatures, evacuations, AVL, and unit locations.",
   openGraph: {
     title: `Hogback Geo map | ${company.name}`,
     description:
-      "Live fire layers, AVL, and GIS overlays on topo / satellite / imagery / relief basemaps — the Hogback Geo map.",
+      "Live fire layers, satellite heat signatures, AVL, and GIS overlays — the Hogback Geo map.",
     images: [
       {
         url: "/brand/products/geo.png",
@@ -26,7 +26,7 @@ export default function HogbackGeoAppPage() {
   return (
     <HogbackMapAppShell
       eyebrow="Hogback Geo"
-      title="Geo map — fire layers, units & AVL"
+      title="Geo map — fire layers, heat & AVL"
       footer={
         <>
           <strong className="font-medium text-slate-400">
@@ -68,8 +68,10 @@ export default function HogbackGeoAppPage() {
           >
             USFS EDW
           </a>
-          . Basemaps from OpenTopoMap, Esri, and USGS. Not a substitute for
-          official alerts, dispatch, or Field Maps incident systems.
+          . Basemaps from OpenTopoMap, Esri, and USGS. Satellite heat
+          signatures from NASA FIRMS / Esri Living Atlas (VIIRS, MODIS,
+          Landsat). Not a substitute for official alerts, dispatch, or Field
+          Maps incident systems.
         </>
       }
     >

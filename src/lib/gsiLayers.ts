@@ -121,6 +121,21 @@ export const usfsOfficesUrl =
 export const orUsfsFireStationsUrl =
   "https://services.arcgis.com/uUvqNMGPm7axC2dD/arcgis/rest/services/OR_Fire_Stations/FeatureServer/0";
 
+/** Esri Living Atlas — VIIRS thermal hotspots / fire activity (global NRT). */
+export const viirsHotspotsUrl =
+  "https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Satellite_VIIRS_Thermal_Hotspots_and_Fire_Activity/FeatureServer/0";
+
+/** Esri Living Atlas — MODIS thermal hotspots (last 48 hours). */
+export const modisHotspotsUrl =
+  "https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/MODIS_Thermal_v1/FeatureServer/0";
+
+/**
+ * Combined FIRMS hotspot feed including Landsat 24h detections
+ * (also carries MODIS / NOAA-20 / NOAA-21 VIIRS).
+ */
+export const firmsCombinedHotspotsUrl =
+  "https://services.arcgis.com/txWDfZ2LIgzmw5Ts/arcgis/rest/services/firms_hotspots_combined/FeatureServer/0";
+
 export type GsiOverlayId =
   | "incidents"
   | "perimeters"
@@ -132,7 +147,17 @@ export type GsiOverlayId =
   | "aircraftBases"
   | "odfUnits"
   | "usfsOr"
-  | "usfsFire";
+  | "usfsFire"
+  | "viirs"
+  | "modis"
+  | "landsat";
+
+/** Heat signature layers that should requery against the current map viewport. */
+export const heatOverlayIds: GsiOverlayId[] = ["viirs", "modis", "landsat"];
+
+export function isHeatOverlay(id: GsiOverlayId): boolean {
+  return heatOverlayIds.includes(id);
+}
 
 export type GsiOverlay = {
   id: GsiOverlayId;
@@ -262,6 +287,37 @@ export const gsiOverlays: GsiOverlay[] = [
       "https://www.arcgis.com/home/item.html?id=OR_Fire_Stations",
     defaultOn: false,
   },
+  {
+    id: "viirs",
+    name: "VIIRS heat signatures",
+    shortName: "VIIRS",
+    description:
+      "Live VIIRS 375m thermal hotspots (S-NPP / NOAA) from Esri Living Atlas — last ~48 hours in the current map view.",
+    sourceLabel: "FIRMS / VIIRS",
+    sourceHref: "https://www.earthdata.nasa.gov/data/tools/firms",
+    defaultOn: true,
+  },
+  {
+    id: "modis",
+    name: "MODIS heat signatures",
+    shortName: "MODIS",
+    description:
+      "Live MODIS thermal hotspots (Aqua / Terra) from Esri Living Atlas — last ~48 hours in the current map view.",
+    sourceLabel: "FIRMS / MODIS",
+    sourceHref: "https://www.earthdata.nasa.gov/data/tools/firms",
+    defaultOn: true,
+  },
+  {
+    id: "landsat",
+    name: "Landsat heat signatures",
+    shortName: "Landsat",
+    description:
+      "Live Landsat 30m active-fire heat detections from FIRMS — last ~24 hours in the current map view.",
+    sourceLabel: "FIRMS / Landsat",
+    sourceHref:
+      "https://firms.modaps.eosdis.nasa.gov/content/usfs/active_fire/",
+    defaultOn: true,
+  },
 ];
 
 const INCIDENT_FIELDS = [
@@ -387,10 +443,60 @@ const OR_USFS_FIRE_FIELDS = [
   "Physical_Address",
 ].join(",");
 
+const VIIRS_FIELDS = [
+  "bright_ti4",
+  "bright_ti5",
+  "acq_date",
+  "acq_time",
+  "satellite",
+  "confidence",
+  "frp",
+  "daynight",
+  "hours_old",
+].join(",");
+
+const MODIS_FIELDS = [
+  "BRIGHTNESS",
+  "BRIGHT_T31",
+  "SATELLITE",
+  "CONFIDENCE",
+  "FRP",
+  "ACQ_DATE",
+  "DAYNIGHT",
+  "HOURS_OLD",
+].join(",");
+
+const LANDSAT_FIELDS = [
+  "source",
+  "latitude",
+  "longitude",
+  "brightness",
+  "confidence",
+  "frp",
+  "satellite",
+  "acq_date",
+  "acq_time",
+  "daynight",
+  "path",
+  "row",
+].join(",");
+
+export type MapBBox = {
+  west: number;
+  south: number;
+  east: number;
+  north: number;
+};
+
 export function buildFeatureQueryUrl(
   layerUrl: string,
   outFields: string,
-  options?: { where?: string; geometryPrecision?: number },
+  options?: {
+    where?: string;
+    geometryPrecision?: number;
+    bbox?: MapBBox;
+    resultRecordCount?: number;
+  },
 ): string {
   const params = new URLSearchParams({
     where: options?.where ?? "1=1",
@@ -398,10 +504,17 @@ export function buildFeatureQueryUrl(
     returnGeometry: "true",
     outSR: "4326",
     f: "geojson",
-    resultRecordCount: "2000",
+    resultRecordCount: String(options?.resultRecordCount ?? 2000),
   });
   if (options?.geometryPrecision != null) {
     params.set("geometryPrecision", String(options.geometryPrecision));
+  }
+  if (options?.bbox) {
+    const { west, south, east, north } = options.bbox;
+    params.set("geometry", `${west},${south},${east},${north}`);
+    params.set("geometryType", "esriGeometryEnvelope");
+    params.set("inSR", "4326");
+    params.set("spatialRel", "esriSpatialRelIntersects");
   }
   return `${layerUrl}/query?${params.toString()}`;
 }
@@ -437,7 +550,42 @@ export const overlayQueryUrls: Record<GsiOverlayId, string> = {
   usfsFire: buildFeatureQueryUrl(orUsfsFireStationsUrl, OR_USFS_FIRE_FIELDS, {
     where: "Agency = 'U.S. Forest Service'",
   }),
+  // Heat layers require a viewport bbox — placeholders replaced by getOverlayQueryUrl()
+  viirs: buildFeatureQueryUrl(viirsHotspotsUrl, VIIRS_FIELDS, {
+    where: "hours_old <= 48",
+  }),
+  modis: buildFeatureQueryUrl(modisHotspotsUrl, MODIS_FIELDS),
+  landsat: buildFeatureQueryUrl(firmsCombinedHotspotsUrl, LANDSAT_FIELDS, {
+    where: "source = 'fires_landsat_24hrs'",
+  }),
 };
+
+/** Resolve the query URL for an overlay, applying map bounds for heat feeds. */
+export function getOverlayQueryUrl(
+  id: GsiOverlayId,
+  bbox?: MapBBox | null,
+): string {
+  if (!isHeatOverlay(id)) return overlayQueryUrls[id];
+
+  if (id === "viirs") {
+    return buildFeatureQueryUrl(viirsHotspotsUrl, VIIRS_FIELDS, {
+      where: "hours_old <= 48",
+      bbox: bbox ?? undefined,
+      resultRecordCount: 2000,
+    });
+  }
+  if (id === "modis") {
+    return buildFeatureQueryUrl(modisHotspotsUrl, MODIS_FIELDS, {
+      bbox: bbox ?? undefined,
+      resultRecordCount: 2000,
+    });
+  }
+  return buildFeatureQueryUrl(firmsCombinedHotspotsUrl, LANDSAT_FIELDS, {
+    where: "source = 'fires_landsat_24hrs'",
+    bbox: bbox ?? undefined,
+    resultRecordCount: 2000,
+  });
+}
 
 export function oesEngineTypeLabel(type: unknown): string {
   const t = String(type ?? "").trim();
@@ -508,4 +656,37 @@ export function hotshotStyle(status: unknown): HotshotStyle {
     return { fill: "#94a3b8", stroke: "#475569" };
   }
   return { fill: "#38bdf8", stroke: "#0369a1" };
+}
+
+export type HeatStyle = { fill: string; stroke: string; radius: number };
+
+/** Style heat points by fire radiative power (MW) when available. */
+export function heatPointStyle(
+  frp: unknown,
+  sensor: "viirs" | "modis" | "landsat",
+): HeatStyle {
+  const n = typeof frp === "number" ? frp : Number(frp);
+  const base =
+    sensor === "viirs"
+      ? { fill: "#fb7185", stroke: "#9f1239" }
+      : sensor === "modis"
+        ? { fill: "#f97316", stroke: "#9a3412" }
+        : { fill: "#facc15", stroke: "#a16207" };
+  if (!Number.isFinite(n) || n <= 0) return { ...base, radius: 4 };
+  if (n >= 50) return { ...base, radius: 8 };
+  if (n >= 15) return { ...base, radius: 6 };
+  return { ...base, radius: 5 };
+}
+
+export function formatFrp(value: unknown): string {
+  const n = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(n)) return "—";
+  return `${n.toFixed(1)} MW`;
+}
+
+export function formatHoursOld(value: unknown): string {
+  const n = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(n)) return "—";
+  if (n < 1) return "< 1 hr";
+  return `${Math.round(n)} hr`;
 }

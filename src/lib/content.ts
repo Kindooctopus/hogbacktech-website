@@ -64,9 +64,9 @@ export const products = [
       "Real-time tracking and intelligence for fleet operators, utilities, public works, and public safety — Cradlepoint integrations plus the Geo map with live fire layers, AVL, and GIS overlays.",
     features: [
       "Geo map with live NIFC fire & perimeter layers",
+      "VIIRS, MODIS & Landsat heat signatures",
       "Evacuations, engines, crews & unit locations",
       "Topo, satellite, imagery & relief basemaps",
-      "Cradlepoint NetCloud & geofencing",
     ],
     accent: "geo",
     pricing: {

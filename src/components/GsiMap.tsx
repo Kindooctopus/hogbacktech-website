@@ -32,15 +32,21 @@ import {
   evacuationStyle,
   formatAcres,
   formatEpoch,
+  formatFrp,
+  formatHoursOld,
   formatPercent,
   getBasemap,
+  getOverlayQueryUrl,
   gsiBasemaps,
   gsiOverlays,
+  heatOverlayIds,
+  heatPointStyle,
   hotshotStyle,
+  isHeatOverlay,
   oesEngineTypeLabel,
-  overlayQueryUrls,
   type GsiBasemapId,
   type GsiOverlayId,
+  type MapBBox,
 } from "@/lib/gsiLayers";
 
 type LayerStatus = "idle" | "loading" | "ready" | "error";
@@ -64,6 +70,9 @@ const LEGEND_ITEMS: { color: string; shape: "dot" | "rect" | "fire"; label: stri
     { color: "bg-green-500", shape: "dot", label: "Hotshot / IHC" },
     { color: "bg-emerald-400", shape: "dot", label: "Assigned crews" },
     { color: "bg-sky-400", shape: "dot", label: "Air bases" },
+    { color: "bg-rose-400", shape: "dot", label: "VIIRS heat" },
+    { color: "bg-orange-500", shape: "dot", label: "MODIS heat" },
+    { color: "bg-yellow-300", shape: "dot", label: "Landsat heat" },
   ];
 
 function initialOverlayState(): OverlayState {
@@ -453,6 +462,56 @@ function usfsFirePopup(props: Record<string, unknown>): string {
     </div>`;
 }
 
+function heatPopup(
+  props: Record<string, unknown>,
+  sensor: "viirs" | "modis" | "landsat",
+): string {
+  const label =
+    sensor === "viirs" ? "VIIRS" : sensor === "modis" ? "MODIS" : "Landsat";
+  const brightness =
+    props.bright_ti4 ?? props.BRIGHTNESS ?? props.brightness ?? "—";
+  const frp = props.frp ?? props.FRP;
+  const confidence = props.confidence ?? props.CONFIDENCE ?? "—";
+  const satellite = props.satellite ?? props.SATELLITE ?? "—";
+  const daynight = props.daynight ?? props.DAYNIGHT ?? "—";
+  const hours = props.hours_old ?? props.HOURS_OLD;
+  const acq = props.acq_date ?? props.ACQ_DATE;
+  return `
+    <div style="min-width:210px;font-family:system-ui,sans-serif;font-size:12px;line-height:1.4">
+      <div style="font-weight:600;color:#fff;margin-bottom:4px">${label} heat signature</div>
+      <div style="display:inline-block;margin-bottom:6px;padding:2px 8px;border-radius:999px;background:#fb718533;color:#fda4af;font-size:11px;font-weight:600">Thermal hotspot</div>
+      <table style="border-collapse:collapse">${[
+        popupRow("Satellite", escapeHtml(satellite)),
+        popupRow("Brightness", escapeHtml(brightness)),
+        popupRow("FRP", formatFrp(frp)),
+        popupRow("Confidence", escapeHtml(confidence)),
+        popupRow("Day/Night", escapeHtml(daynight)),
+        popupRow("Age", formatHoursOld(hours)),
+        popupRow("Acquired", formatEpoch(acq)),
+        sensor === "landsat"
+          ? popupRow(
+              "Path/Row",
+              escapeHtml(
+                [props.path, props.row].filter(Boolean).join(" / ") || "—",
+              ),
+            )
+          : "",
+      ]
+        .filter(Boolean)
+        .join("")}</table>
+    </div>`;
+}
+
+function mapBoundsToBBox(map: LeafletMap): MapBBox {
+  const b = map.getBounds();
+  return {
+    west: b.getWest(),
+    south: b.getSouth(),
+    east: b.getEast(),
+    north: b.getNorth(),
+  };
+}
+
 async function buildOverlayLayer(
   L: typeof import("leaflet"),
   id: GsiOverlayId,
@@ -656,25 +715,53 @@ async function buildOverlayLayer(
     });
   }
 
-  // usfsFire
-  return L.geoJSON(geojson, {
-    pointToLayer(_feature, latlng) {
-      return L.circleMarker(latlng, {
-        radius: 8,
-        color: "#a16207",
-        weight: 2,
-        fillColor: "#eab308",
-        fillOpacity: 0.95,
-      });
-    },
-    onEachFeature(feature, lyr) {
-      const props = (feature.properties ?? {}) as Record<string, unknown>;
-      lyr.bindPopup(usfsFirePopup(props), {
-        className: "hogback-gsi-popup",
-        maxWidth: 320,
-      });
-    },
-  });
+  if (id === "usfsFire") {
+    return L.geoJSON(geojson, {
+      pointToLayer(_feature, latlng) {
+        return L.circleMarker(latlng, {
+          radius: 8,
+          color: "#a16207",
+          weight: 2,
+          fillColor: "#eab308",
+          fillOpacity: 0.95,
+        });
+      },
+      onEachFeature(feature, lyr) {
+        const props = (feature.properties ?? {}) as Record<string, unknown>;
+        lyr.bindPopup(usfsFirePopup(props), {
+          className: "hogback-gsi-popup",
+          maxWidth: 320,
+        });
+      },
+    });
+  }
+
+  if (id === "viirs" || id === "modis" || id === "landsat") {
+    const sensor = id;
+    return L.geoJSON(geojson, {
+      pointToLayer(feature, latlng) {
+        const props = (feature.properties ?? {}) as Record<string, unknown>;
+        const frp = props.frp ?? props.FRP;
+        const s = heatPointStyle(frp, sensor);
+        return L.circleMarker(latlng, {
+          radius: s.radius,
+          color: s.stroke,
+          weight: 1.5,
+          fillColor: s.fill,
+          fillOpacity: 0.85,
+        });
+      },
+      onEachFeature(feature, lyr) {
+        const props = (feature.properties ?? {}) as Record<string, unknown>;
+        lyr.bindPopup(heatPopup(props, sensor), {
+          className: "hogback-gsi-popup",
+          maxWidth: 300,
+        });
+      },
+    });
+  }
+
+  return L.geoJSON(geojson);
 }
 
 export function GsiMap() {
@@ -815,8 +902,10 @@ export function GsiMap() {
     if (!ready || !mapRef.current) return;
 
     let cancelled = false;
+    let moveTimer: ReturnType<typeof setTimeout> | null = null;
+    const map = mapRef.current;
 
-    async function loadOverlay(id: GsiOverlayId) {
+    async function loadOverlay(id: GsiOverlayId, bbox?: MapBBox | null) {
       const L = await import("leaflet");
       const group = groupsRef.current[id];
       if (!group || cancelled) return;
@@ -824,7 +913,7 @@ export function GsiMap() {
       setLayerMeta(id, { status: "loading", error: undefined });
 
       try {
-        const res = await fetch(overlayQueryUrls[id]);
+        const res = await fetch(getOverlayQueryUrl(id, bbox));
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const geojson = (await res.json()) as GeoJSON.FeatureCollection;
         if (cancelled) return;
@@ -846,16 +935,42 @@ export function GsiMap() {
       }
     }
 
-    void (async () => {
-      await Promise.all(gsiOverlays.map((o) => loadOverlay(o.id)));
+    async function loadAll() {
+      const bbox = mapBoundsToBBox(map);
+      await Promise.all(
+        gsiOverlays.map((o) =>
+          loadOverlay(o.id, isHeatOverlay(o.id) ? bbox : null),
+        ),
+      );
       if (!cancelled) {
         setLastRefresh(new Date());
         setTargetsVersion((n) => n + 1);
       }
-    })();
+    }
+
+    function reloadHeatLayers() {
+      const bbox = mapBoundsToBBox(map);
+      void Promise.all(heatOverlayIds.map((id) => loadOverlay(id, bbox))).then(
+        () => {
+          if (!cancelled) setTargetsVersion((n) => n + 1);
+        },
+      );
+    }
+
+    function onMoveEnd() {
+      if (moveTimer) clearTimeout(moveTimer);
+      moveTimer = setTimeout(() => {
+        reloadHeatLayers();
+      }, 450);
+    }
+
+    void loadAll();
+    map.on("moveend", onMoveEnd);
 
     return () => {
       cancelled = true;
+      map.off("moveend", onMoveEnd);
+      if (moveTimer) clearTimeout(moveTimer);
     };
   }, [ready, refreshToken, setLayerMeta]);
 
@@ -1032,8 +1147,37 @@ export function GsiMap() {
 
     setOverlayState((prev) => {
       const nextEnabled = !prev[id].enabled;
-      if (nextEnabled) group.addTo(map);
-      else map.removeLayer(group);
+      if (nextEnabled) {
+        group.addTo(map);
+        if (isHeatOverlay(id)) {
+          const bbox = mapBoundsToBBox(map);
+          void (async () => {
+            const L = await import("leaflet");
+            setLayerMeta(id, { status: "loading", error: undefined });
+            try {
+              const res = await fetch(getOverlayQueryUrl(id, bbox));
+              if (!res.ok) throw new Error(`HTTP ${res.status}`);
+              const geojson = (await res.json()) as GeoJSON.FeatureCollection;
+              group.clearLayers();
+              const layer = await buildOverlayLayer(L, id, geojson);
+              layer.addTo(group);
+              featuresRef.current[id] = targetsFromGeoJSON(id, geojson);
+              setLayerMeta(id, {
+                status: "ready",
+                count: geojson.features?.length ?? 0,
+              });
+              setTargetsVersion((n) => n + 1);
+            } catch (err) {
+              const message =
+                err instanceof Error ? err.message : "Failed to load layer";
+              featuresRef.current[id] = [];
+              setLayerMeta(id, { status: "error", error: message, count: 0 });
+            }
+          })();
+        }
+      } else {
+        map.removeLayer(group);
+      }
       return {
         ...prev,
         [id]: { ...prev[id], enabled: nextEnabled },
