@@ -189,9 +189,9 @@ export function HogbackProducts() {
       name: "Hogback Geo",
       badge: "Fleet & Field",
       description:
-        "Location‑aware tools for fleets, apparatus, and field units—so you always know what's moving and why.",
+        "Location‑aware tools for fleets, apparatus, and field units—plus the Geo map with live fire layers, AVL, and GIS overlays.",
       points: [
-        "Fleet and asset visibility",
+        "Geo map with NIFC fire & perimeter layers",
         "Topo, satellite, imagery & relief basemaps",
         "Supports mixed public & contract fleets",
       ],
@@ -220,19 +220,6 @@ export function HogbackProducts() {
         "Purpose‑built internal tools",
         "Long‑term partnership, not one‑off code",
       ],
-    },
-    {
-      id: "gsi",
-      name: "Hogback GSI",
-      badge: "Wildfire Intelligence",
-      description:
-        "NIFC incidents, fire perimeters, evacuations, and Field Maps–style AVL / USFS hotshot tracking — geographic situational intelligence when the map matters.",
-      points: [
-        "Live NIFC WFIGS incident feed",
-        "ODF units and USFS Oregon offices",
-        "USFS fire facilities and hotshot/IHC crews",
-      ],
-      appHref: "/apps/gsi",
     },
     {
       id: "sat",
@@ -300,7 +287,11 @@ export function HogbackProducts() {
                     href={product.appHref}
                     className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white"
                   >
-                    {product.id === "sat" ? "Open live feed" : "Open map"}
+                    {product.id === "sat"
+                      ? "Open live feed"
+                      : product.id === "geo"
+                        ? "Open Geo map"
+                        : "Open map"}
                     <span aria-hidden="true">↗</span>
                   </Link>
                 ) : null}

@@ -4,32 +4,30 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-/**
- * Legacy /apps/gsi route — the fire-layers map is now the Geo map at /apps/geo.
- */
-export default function GsiToGeoRedirectPage() {
+/** Legacy product page — wildfire layers ship in Hogback Geo / the Geo map. */
+export default function GsiProductRedirectPage() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace("/apps/geo");
+    router.replace("/products/geo");
   }, [router]);
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-navy-950 px-6 text-center text-slate-300">
+    <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-[#0a111a] px-6 text-center text-slate-300">
       <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-copper-400">
         Hogback Geo
       </p>
       <h1 className="font-display text-2xl font-semibold text-white">
-        Opening the Geo map…
+        Redirecting to Hogback Geo…
       </h1>
       <p className="max-w-md text-sm text-slate-400">
-        The fire-layers map is now the Hogback Geo map.
+        Fire layers and situational overlays are part of the Geo map.
       </p>
       <Link
-        href="/apps/geo"
+        href="/products/geo"
         className="rounded-full bg-copper-500 px-5 py-2 text-sm font-semibold text-navy-950 hover:bg-copper-400"
       >
-        Open Geo map
+        View Hogback Geo
       </Link>
     </div>
   );

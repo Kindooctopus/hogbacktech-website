@@ -1,4 +1,4 @@
-/** Hogback GSI — NIFC / WFIGS wildfire + evacuation + AVL overlay sources. */
+/** Hogback Geo map — NIFC / WFIGS wildfire + evacuation + AVL overlay sources. */
 
 export const defaultMapCenter: [number, number] = [45.5945, -121.1787];
 export const defaultMapZoom = 6;

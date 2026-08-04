@@ -1308,7 +1308,7 @@ export function GsiMap() {
         />
         {!ready && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-navy-950 text-sm text-slate-400">
-            Loading GSI map…
+            Loading Geo map…
           </div>
         )}
         {ready && !userLocation && !locationError && (

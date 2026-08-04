@@ -1,45 +1,20 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-export type HogbackMapAppId = "geo" | "gsi";
-
-const APP_TABS: {
-  id: HogbackMapAppId;
-  href: string;
-  label: string;
-  productHref: string;
-}[] = [
-  {
-    id: "geo",
-    href: "/apps/geo",
-    label: "Geo",
-    productHref: "/products/geo",
-  },
-  {
-    id: "gsi",
-    href: "/apps/gsi",
-    label: "GSI",
-    productHref: "/products/gsi",
-  },
-];
-
 type HogbackMapAppShellProps = {
-  activeApp: HogbackMapAppId;
   title: string;
-  eyebrow: string;
+  eyebrow?: string;
   children: ReactNode;
   footer: ReactNode;
 };
 
+/** Shell for the Hogback Geo map (`/apps/geo`). */
 export function HogbackMapAppShell({
-  activeApp,
   title,
-  eyebrow,
+  eyebrow = "Hogback Geo",
   children,
   footer,
 }: HogbackMapAppShellProps) {
-  const active = APP_TABS.find((tab) => tab.id === activeApp) ?? APP_TABS[0];
-
   return (
     <div className="flex h-dvh flex-col bg-navy-950 text-slate-300">
       <header className="z-20 border-b border-white/10 bg-navy-950/95 backdrop-blur-sm">
@@ -54,7 +29,7 @@ export function HogbackMapAppShell({
           </div>
           <div className="flex shrink-0 items-center gap-3 text-sm">
             <Link
-              href={active.productHref}
+              href="/products/geo"
               className="hidden text-slate-400 transition hover:text-white sm:inline"
             >
               Product
@@ -67,29 +42,6 @@ export function HogbackMapAppShell({
             </Link>
           </div>
         </div>
-
-        <nav
-          aria-label="Hogback map apps"
-          className="flex gap-1 px-4 pb-2 sm:px-6"
-        >
-          {APP_TABS.map((tab) => {
-            const isActive = tab.id === activeApp;
-            return (
-              <Link
-                key={tab.id}
-                href={tab.href}
-                aria-current={isActive ? "page" : undefined}
-                className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
-                  isActive
-                    ? "bg-copper-500/20 text-copper-300"
-                    : "text-slate-400 hover:bg-white/5 hover:text-white"
-                }`}
-              >
-                Hogback {tab.label}
-              </Link>
-            );
-          })}
-        </nav>
       </header>
 
       <main className="min-h-0 flex-1">{children}</main>

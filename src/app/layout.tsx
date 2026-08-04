@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     "Hogback Geo",
     "Hogback Docs",
     "Hogback Forge",
-    "Hogback GSI",
+    "Geo map",
     "NIFC wildfire layers",
     "fire perimeter map",
     "Hogback Sat",
