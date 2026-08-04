@@ -121,6 +121,10 @@ export const usfsOfficesUrl =
 export const orUsfsFireStationsUrl =
   "https://services.arcgis.com/uUvqNMGPm7axC2dD/arcgis/rest/services/OR_Fire_Stations/FeatureServer/0";
 
+/** USGS National Map GNIS — populated places (cities, towns, communities). */
+export const populatedPlacesUrl =
+  "https://carto.nationalmap.gov/arcgis/rest/services/geonames/MapServer/3";
+
 /** Esri Living Atlas — VIIRS thermal hotspots / fire activity (global NRT). */
 export const viirsHotspotsUrl =
   "https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Satellite_VIIRS_Thermal_Hotspots_and_Fire_Activity/FeatureServer/0";
@@ -140,6 +144,11 @@ export type GsiOverlayId =
   | "incidents"
   | "perimeters"
   | "evacuations"
+  | "wind"
+  | "places"
+  | "viirs"
+  | "modis"
+  | "landsat"
   | "avl"
   | "fleetAvl"
   | "hotshots"
@@ -147,11 +156,7 @@ export type GsiOverlayId =
   | "aircraftBases"
   | "odfUnits"
   | "usfsOr"
-  | "usfsFire"
-  | "viirs"
-  | "modis"
-  | "landsat"
-  | "wind";
+  | "usfsFire";
 
 /** Heat signature layers that should requery against the current map viewport. */
 export const heatOverlayIds: GsiOverlayId[] = ["viirs", "modis", "landsat"];
@@ -162,9 +167,13 @@ export function isHeatOverlay(id: GsiOverlayId): boolean {
 
 /**
  * Overlays that reload against the current viewport on pan/zoom
- * (heat signatures + surface wind).
+ * (heat signatures, surface wind, place labels).
  */
-export const viewportOverlayIds: GsiOverlayId[] = [...heatOverlayIds, "wind"];
+export const viewportOverlayIds: GsiOverlayId[] = [
+  ...heatOverlayIds,
+  "wind",
+  "places",
+];
 
 export function isViewportOverlay(id: GsiOverlayId): boolean {
   return viewportOverlayIds.includes(id);
@@ -211,6 +220,57 @@ export const gsiOverlays: GsiOverlay[] = [
       "Active evacuation orders, warnings, and advisories from Cal OES (California statewide feed).",
     sourceLabel: "Cal OES",
     sourceHref: "https://www.caloes.ca.gov/",
+    defaultOn: true,
+  },
+  {
+    id: "wind",
+    name: "Surface wind",
+    shortName: "Surface Wind",
+    description:
+      "10 m surface wind direction lines and speed (mph) from Open-Meteo — refreshes for the current map view.",
+    sourceLabel: "Open-Meteo",
+    sourceHref: "https://open-meteo.com/",
+    defaultOn: true,
+  },
+  {
+    id: "places",
+    name: "Cities & communities",
+    shortName: "Cities / Communities",
+    description:
+      "City, town, and community name labels from USGS GNIS populated places — refreshes for the current map view.",
+    sourceLabel: "USGS GNIS",
+    sourceHref: "https://www.usgs.gov/tools/geographic-names-information-system-gnis",
+    defaultOn: true,
+  },
+  {
+    id: "viirs",
+    name: "VIIRS heat signatures",
+    shortName: "VIIRS heat",
+    description:
+      "Live VIIRS 375m thermal hotspots (S-NPP / NOAA) from Esri Living Atlas — last ~48 hours in the current map view.",
+    sourceLabel: "FIRMS / VIIRS",
+    sourceHref: "https://www.earthdata.nasa.gov/data/tools/firms",
+    defaultOn: true,
+  },
+  {
+    id: "modis",
+    name: "MODIS heat signatures",
+    shortName: "MODIS heat",
+    description:
+      "Live MODIS thermal hotspots (Aqua / Terra) from Esri Living Atlas — last ~48 hours in the current map view.",
+    sourceLabel: "FIRMS / MODIS",
+    sourceHref: "https://www.earthdata.nasa.gov/data/tools/firms",
+    defaultOn: true,
+  },
+  {
+    id: "landsat",
+    name: "Landsat heat signatures",
+    shortName: "Landsat heat",
+    description:
+      "Live Landsat 30m active-fire heat detections from FIRMS — last ~24 hours in the current map view.",
+    sourceLabel: "FIRMS / Landsat",
+    sourceHref:
+      "https://firms.modaps.eosdis.nasa.gov/content/usfs/active_fire/",
     defaultOn: true,
   },
   {
@@ -297,47 +357,6 @@ export const gsiOverlays: GsiOverlay[] = [
     sourceHref:
       "https://www.arcgis.com/home/item.html?id=OR_Fire_Stations",
     defaultOn: false,
-  },
-  {
-    id: "viirs",
-    name: "VIIRS heat signatures",
-    shortName: "VIIRS",
-    description:
-      "Live VIIRS 375m thermal hotspots (S-NPP / NOAA) from Esri Living Atlas — last ~48 hours in the current map view.",
-    sourceLabel: "FIRMS / VIIRS",
-    sourceHref: "https://www.earthdata.nasa.gov/data/tools/firms",
-    defaultOn: true,
-  },
-  {
-    id: "modis",
-    name: "MODIS heat signatures",
-    shortName: "MODIS",
-    description:
-      "Live MODIS thermal hotspots (Aqua / Terra) from Esri Living Atlas — last ~48 hours in the current map view.",
-    sourceLabel: "FIRMS / MODIS",
-    sourceHref: "https://www.earthdata.nasa.gov/data/tools/firms",
-    defaultOn: true,
-  },
-  {
-    id: "landsat",
-    name: "Landsat heat signatures",
-    shortName: "Landsat",
-    description:
-      "Live Landsat 30m active-fire heat detections from FIRMS — last ~24 hours in the current map view.",
-    sourceLabel: "FIRMS / Landsat",
-    sourceHref:
-      "https://firms.modaps.eosdis.nasa.gov/content/usfs/active_fire/",
-    defaultOn: true,
-  },
-  {
-    id: "wind",
-    name: "Surface wind",
-    shortName: "Wind",
-    description:
-      "10 m surface wind direction lines and speed (mph) from Open-Meteo — refreshes for the current map view.",
-    sourceLabel: "Open-Meteo",
-    sourceHref: "https://open-meteo.com/",
-    defaultOn: true,
   },
 ];
 
@@ -502,6 +521,13 @@ const LANDSAT_FIELDS = [
   "row",
 ].join(",");
 
+const PLACE_FIELDS = [
+  "gaz_name",
+  "state_alpha",
+  "county_name",
+  "gaz_featureclass",
+].join(",");
+
 export type MapBBox = {
   west: number;
   south: number;
@@ -571,7 +597,7 @@ export const overlayQueryUrls: Record<GsiOverlayId, string> = {
   usfsFire: buildFeatureQueryUrl(orUsfsFireStationsUrl, OR_USFS_FIRE_FIELDS, {
     where: "Agency = 'U.S. Forest Service'",
   }),
-  // Heat layers require a viewport bbox — placeholders replaced by getOverlayQueryUrl()
+  // Heat / places require a viewport bbox — placeholders replaced by getOverlayQueryUrl()
   viirs: buildFeatureQueryUrl(viirsHotspotsUrl, VIIRS_FIELDS, {
     where: "hours_old <= 48",
   }),
@@ -579,16 +605,17 @@ export const overlayQueryUrls: Record<GsiOverlayId, string> = {
   landsat: buildFeatureQueryUrl(firmsCombinedHotspotsUrl, LANDSAT_FIELDS, {
     where: "source = 'fires_landsat_24hrs'",
   }),
+  places: buildFeatureQueryUrl(populatedPlacesUrl, PLACE_FIELDS),
   // Client-fetched via Open-Meteo in GsiMap (not an ArcGIS FeatureServer).
   wind: "",
 };
 
-/** Resolve the query URL for an overlay, applying map bounds for heat feeds. */
+/** Resolve the query URL for an overlay, applying map bounds for viewport feeds. */
 export function getOverlayQueryUrl(
   id: GsiOverlayId,
   bbox?: MapBBox | null,
 ): string {
-  if (!isHeatOverlay(id)) return overlayQueryUrls[id];
+  if (id === "wind") return overlayQueryUrls.wind;
 
   if (id === "viirs") {
     return buildFeatureQueryUrl(viirsHotspotsUrl, VIIRS_FIELDS, {
@@ -603,11 +630,32 @@ export function getOverlayQueryUrl(
       resultRecordCount: 2000,
     });
   }
-  return buildFeatureQueryUrl(firmsCombinedHotspotsUrl, LANDSAT_FIELDS, {
-    where: "source = 'fires_landsat_24hrs'",
-    bbox: bbox ?? undefined,
-    resultRecordCount: 2000,
-  });
+  if (id === "landsat") {
+    return buildFeatureQueryUrl(firmsCombinedHotspotsUrl, LANDSAT_FIELDS, {
+      where: "source = 'fires_landsat_24hrs'",
+      bbox: bbox ?? undefined,
+      resultRecordCount: 2000,
+    });
+  }
+  if (id === "places") {
+    return buildFeatureQueryUrl(populatedPlacesUrl, PLACE_FIELDS, {
+      bbox: bbox ?? undefined,
+      resultRecordCount: 250,
+    });
+  }
+
+  return overlayQueryUrls[id];
+}
+
+/** Clean USGS GNIS place names for map labels. */
+export function placeDisplayName(gazName: unknown): string {
+  let name = String(gazName ?? "").trim();
+  if (!name) return "Place";
+  name = name.replace(/^City of\s+/i, "");
+  name = name.replace(/^Town of\s+/i, "");
+  name = name.replace(/\s+Census Designated Place$/i, "");
+  name = name.replace(/\s+CDP$/i, "");
+  return name;
 }
 
 export function oesEngineTypeLabel(type: unknown): string {

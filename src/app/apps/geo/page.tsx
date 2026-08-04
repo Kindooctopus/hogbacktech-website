@@ -70,7 +70,7 @@ export default function HogbackGeoAppPage() {
           </a>
           . Basemaps from OpenTopoMap, Esri, and USGS. Satellite heat
           signatures from NASA FIRMS / Esri Living Atlas (VIIRS, MODIS,
-          Landsat). Surface wind from{" "}
+          Landsat)          . Surface wind from{" "}
           <a
             href="https://open-meteo.com/"
             className="text-copper-400 hover:underline"
@@ -78,6 +78,15 @@ export default function HogbackGeoAppPage() {
             rel="noreferrer"
           >
             Open-Meteo
+          </a>
+          ; city/community labels from{" "}
+          <a
+            href="https://www.usgs.gov/tools/geographic-names-information-system-gnis"
+            className="text-copper-400 hover:underline"
+            target="_blank"
+            rel="noreferrer"
+          >
+            USGS GNIS
           </a>
           . Not a substitute for official alerts, dispatch, or Field Maps
           incident systems.

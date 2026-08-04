@@ -43,6 +43,7 @@ import {
   hotshotStyle,
   isViewportOverlay,
   oesEngineTypeLabel,
+  placeDisplayName,
   viewportOverlayIds,
   type GsiBasemapId,
   type GsiOverlayId,
@@ -81,6 +82,7 @@ const LEGEND_ITEMS: { color: string; shape: "dot" | "rect" | "fire"; label: stri
     { color: "bg-orange-500", shape: "dot", label: "MODIS heat" },
     { color: "bg-yellow-300", shape: "dot", label: "Landsat heat" },
     { color: "bg-sky-300", shape: "dot", label: "Surface wind" },
+    { color: "bg-white", shape: "dot", label: "City / community" },
   ];
 
 function initialOverlayState(): OverlayState {
@@ -112,8 +114,8 @@ function targetsFromGeoJSON(
   id: GsiOverlayId,
   geojson: GeoJSON.FeatureCollection,
 ): ArTarget[] {
-  // Wind grid samples would flood the AR compass — skip them.
-  if (id === "wind") return [];
+  // Dense grids would flood the AR compass — skip them.
+  if (id === "wind" || id === "places") return [];
 
   const overlay = gsiOverlays.find((o) => o.id === id);
   const kind = overlay?.shortName ?? id;
@@ -525,6 +527,69 @@ function windPopup(props: Record<string, unknown>): string {
     </div>`;
 }
 
+function placePopup(props: Record<string, unknown>): string {
+  const name = placeDisplayName(props.gaz_name);
+  return `
+    <div style="min-width:180px;font-family:system-ui,sans-serif;font-size:12px;line-height:1.4">
+      <div style="font-weight:600;color:#fff;margin-bottom:4px">${escapeHtml(name)}</div>
+      <div style="display:inline-block;margin-bottom:6px;padding:2px 8px;border-radius:999px;background:#e2e8f033;color:#e2e8f0;font-size:11px;font-weight:600">Community</div>
+      <table style="border-collapse:collapse">${[
+        popupRow("State", escapeHtml(props.state_alpha || "—")),
+        popupRow("County", escapeHtml(props.county_name || "—")),
+        popupRow("Type", escapeHtml(props.gaz_featureclass || "—")),
+        popupRow("Source", "USGS GNIS"),
+      ].join("")}</table>
+    </div>`;
+}
+
+function placeLabelIcon(
+  L: typeof import("leaflet"),
+  props: Record<string, unknown>,
+) {
+  const name = placeDisplayName(props.gaz_name);
+  return L.divIcon({
+    className: "hogback-map-symbol hogback-place-symbol",
+    html: `<span class="hogback-place-label" title="${escapeHtml(name)}">${escapeHtml(name)}</span>`,
+    iconSize: [0, 0],
+    iconAnchor: [0, 0],
+    popupAnchor: [0, -8],
+  });
+}
+
+/** Collapse USGS MultiPoint place geometries to a single label point. */
+function normalizePlaceGeoJSON(
+  geojson: GeoJSON.FeatureCollection,
+): GeoJSON.FeatureCollection {
+  const features: GeoJSON.Feature[] = [];
+  for (const feature of geojson.features ?? []) {
+    const geometry = feature.geometry;
+    if (!geometry) continue;
+
+    if (geometry.type === "Point") {
+      features.push(feature);
+      continue;
+    }
+
+    if (geometry.type === "MultiPoint" && geometry.coordinates.length > 0) {
+      let x = 0;
+      let y = 0;
+      for (const [lng, lat] of geometry.coordinates) {
+        x += lng;
+        y += lat;
+      }
+      const n = geometry.coordinates.length;
+      features.push({
+        ...feature,
+        geometry: {
+          type: "Point",
+          coordinates: [x / n, y / n],
+        },
+      });
+    }
+  }
+  return { type: "FeatureCollection", features };
+}
+
 function heatPopup(
   props: Record<string, unknown>,
   sensor: "viirs" | "modis" | "landsat",
@@ -832,6 +897,7 @@ async function buildOverlayLayer(
           icon: windMarkerIcon(L, props),
           interactive: true,
           keyboard: false,
+          zIndexOffset: 400,
         });
       },
       onEachFeature(feature, lyr) {
@@ -839,6 +905,28 @@ async function buildOverlayLayer(
         lyr.bindPopup(windPopup(props), {
           className: "hogback-gsi-popup",
           maxWidth: 280,
+        });
+      },
+    });
+  }
+
+  if (id === "places") {
+    const places = normalizePlaceGeoJSON(geojson);
+    return L.geoJSON(places, {
+      pointToLayer(feature, latlng) {
+        const props = (feature.properties ?? {}) as Record<string, unknown>;
+        return L.marker(latlng, {
+          icon: placeLabelIcon(L, props),
+          interactive: true,
+          keyboard: false,
+          zIndexOffset: 250,
+        });
+      },
+      onEachFeature(feature, lyr) {
+        const props = (feature.properties ?? {}) as Record<string, unknown>;
+        lyr.bindPopup(placePopup(props), {
+          className: "hogback-gsi-popup",
+          maxWidth: 260,
         });
       },
     });
@@ -1004,6 +1092,7 @@ export function GsiMap() {
           const res = await fetch(getOverlayQueryUrl(id, bbox));
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           geojson = (await res.json()) as GeoJSON.FeatureCollection;
+          if (id === "places") geojson = normalizePlaceGeoJSON(geojson);
         }
         if (cancelled) return;
 
@@ -1251,6 +1340,7 @@ export function GsiMap() {
                 const res = await fetch(getOverlayQueryUrl(id, bbox));
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 geojson = (await res.json()) as GeoJSON.FeatureCollection;
+                if (id === "places") geojson = normalizePlaceGeoJSON(geojson);
               }
               group.clearLayers();
               const layer = await buildOverlayLayer(L, id, geojson);
@@ -1416,41 +1506,55 @@ export function GsiMap() {
             <div
               role="listbox"
               aria-label="Overlay filters"
-              className="absolute left-0 top-full z-30 mt-1 w-[min(100vw-1.5rem,20rem)] rounded-lg border border-white/10 bg-navy-900 py-1 shadow-xl shadow-black/40"
+              className="absolute left-0 top-full z-30 mt-1 flex max-h-[min(70dvh,32rem)] w-[min(100vw-1.5rem,22rem)] flex-col overflow-hidden rounded-lg border border-white/10 bg-navy-900 shadow-xl shadow-black/40"
             >
-              {gsiOverlays.map((overlay) => {
-                const state = overlayState[overlay.id];
-                const active = state.enabled;
-                return (
-                  <label
-                    key={overlay.id}
-                    className="flex cursor-pointer items-start gap-2.5 px-3 py-2 text-sm hover:bg-white/5"
-                    title={overlay.description}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={active}
-                      onChange={() => toggleOverlay(overlay.id)}
-                      className="mt-1 h-3.5 w-3.5 shrink-0 accent-copper-500"
-                    />
-                    <span className="min-w-0 flex-1">
-                      <span className="block font-medium text-white">
-                        {overlay.shortName}
+              <div className="border-b border-white/10 px-3 py-2">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-copper-400">
+                  Scroll for all layers
+                </p>
+                <p className="text-[11px] text-slate-500">
+                  Surface Wind &amp; Cities are near the top
+                </p>
+              </div>
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain py-1">
+                {gsiOverlays.map((overlay) => {
+                  const state = overlayState[overlay.id];
+                  const active = state.enabled;
+                  const emphasize =
+                    overlay.id === "wind" || overlay.id === "places";
+                  return (
+                    <label
+                      key={overlay.id}
+                      className={`flex cursor-pointer items-start gap-2.5 px-3 py-2 text-sm hover:bg-white/5 ${
+                        emphasize ? "bg-copper-500/10" : ""
+                      }`}
+                      title={overlay.description}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={active}
+                        onChange={() => toggleOverlay(overlay.id)}
+                        className="mt-1 h-3.5 w-3.5 shrink-0 accent-copper-500"
+                      />
+                      <span className="min-w-0 flex-1">
+                        <span className="block font-medium text-white">
+                          {overlay.shortName}
+                        </span>
+                        <span className="mt-0.5 block text-[11px] text-slate-500">
+                          {state.status === "loading" && "Loading…"}
+                          {state.status === "ready" &&
+                            `${state.count.toLocaleString()} features`}
+                          {state.status === "error" &&
+                            (state.error || "Error")}
+                          {state.status === "idle" && "—"}
+                        </span>
                       </span>
-                      <span className="mt-0.5 block text-[11px] text-slate-500">
-                        {state.status === "loading" && "Loading…"}
-                        {state.status === "ready" &&
-                          `${state.count.toLocaleString()} features`}
-                        {state.status === "error" &&
-                          (state.error || "Error")}
-                        {state.status === "idle" && "—"}
-                      </span>
-                    </span>
-                  </label>
-                );
-              })}
+                    </label>
+                  );
+                })}
+              </div>
 
-              <div className="mt-1 border-t border-white/10 px-3 py-2">
+              <div className="border-t border-white/10 px-3 py-2">
                 <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                   Legend
                 </p>
