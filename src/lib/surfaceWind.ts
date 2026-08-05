@@ -41,20 +41,21 @@ export function buildWindGrid(
   const spanLng = Math.max(bbox.east - bbox.west, 0.05);
   const spanLat = Math.max(bbox.north - bbox.south, 0.05);
 
-  let cols = 4;
+  // Slightly denser grid so arrows read as a wind field.
+  let cols = 5;
   let rows = 4;
   if (zoom >= 11) {
+    cols = 9;
+    rows = 8;
+  } else if (zoom >= 9) {
     cols = 8;
     rows = 7;
-  } else if (zoom >= 9) {
+  } else if (zoom >= 7) {
     cols = 7;
     rows = 6;
-  } else if (zoom >= 7) {
+  } else if (zoom >= 5) {
     cols = 6;
     rows = 5;
-  } else if (zoom >= 5) {
-    cols = 5;
-    rows = 4;
   }
 
   while (cols * rows > MAX_SAMPLES) {
@@ -153,28 +154,83 @@ export async function fetchSurfaceWindGeoJSON(
   return surfaceWindToGeoJSON(samples);
 }
 
-export function windStyle(speedMph: unknown): WindStyle {
-  const n = typeof speedMph === "number" ? speedMph : Number(speedMph);
-  if (!Number.isFinite(n) || n < 5) {
-    return { stroke: "#67e8f9", fill: "#a5f3fc", label: "Light" };
-  }
-  if (n < 12) {
-    return { stroke: "#38bdf8", fill: "#7dd3fc", label: "Moderate" };
-  }
-  if (n < 20) {
-    return { stroke: "#fbbf24", fill: "#fde68a", label: "Breezy" };
-  }
-  if (n < 30) {
-    return { stroke: "#f97316", fill: "#fdba74", label: "Strong" };
-  }
-  return { stroke: "#ef4444", fill: "#fca5a5", label: "High" };
+/** Graduated mph color stops (cyan → lime → yellow → orange → red). */
+const WIND_COLOR_STOPS: { mph: number; rgb: [number, number, number] }[] = [
+  { mph: 0, rgb: [103, 232, 249] },
+  { mph: 8, rgb: [56, 189, 248] },
+  { mph: 15, rgb: [163, 230, 53] },
+  { mph: 25, rgb: [250, 204, 21] },
+  { mph: 35, rgb: [249, 115, 22] },
+  { mph: 50, rgb: [239, 68, 68] },
+];
+
+function lerpChannel(a: number, b: number, t: number): number {
+  return Math.round(a + (b - a) * t);
 }
 
-/** Shaft length in screen px — longer = faster. */
+/** Continuous color for a given wind speed (mph). */
+export function windSpeedColor(speedMph: unknown): string {
+  const n = typeof speedMph === "number" ? speedMph : Number(speedMph);
+  const speed = Number.isFinite(n) ? Math.max(0, n) : 0;
+  const stops = WIND_COLOR_STOPS;
+
+  if (speed <= stops[0].mph) {
+    const [r, g, b] = stops[0].rgb;
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+  const last = stops[stops.length - 1];
+  if (speed >= last.mph) {
+    const [r, g, b] = last.rgb;
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+
+  for (let i = 0; i < stops.length - 1; i++) {
+    const a = stops[i];
+    const b = stops[i + 1];
+    if (speed >= a.mph && speed <= b.mph) {
+      const t = (speed - a.mph) / (b.mph - a.mph);
+      return `rgb(${lerpChannel(a.rgb[0], b.rgb[0], t)}, ${lerpChannel(a.rgb[1], b.rgb[1], t)}, ${lerpChannel(a.rgb[2], b.rgb[2], t)})`;
+    }
+  }
+
+  const [r, g, b] = last.rgb;
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+/** CSS linear-gradient matching the mph chart (for legend). */
+export const windSpeedLegendGradient =
+  "linear-gradient(90deg, rgb(103,232,249) 0%, rgb(56,189,248) 16%, rgb(163,230,53) 30%, rgb(250,204,21) 50%, rgb(249,115,22) 70%, rgb(239,68,68) 100%)";
+
+export function windStyle(speedMph: unknown): WindStyle {
+  const n = typeof speedMph === "number" ? speedMph : Number(speedMph);
+  const color = windSpeedColor(n);
+  if (!Number.isFinite(n) || n < 5) {
+    return { stroke: color, fill: color, label: "Light" };
+  }
+  if (n < 12) {
+    return { stroke: color, fill: color, label: "Moderate" };
+  }
+  if (n < 20) {
+    return { stroke: color, fill: color, label: "Breezy" };
+  }
+  if (n < 30) {
+    return { stroke: color, fill: color, label: "Strong" };
+  }
+  return { stroke: color, fill: color, label: "High" };
+}
+
+/** Compact shaft length in screen px — longer = faster. */
 export function windShaftLengthPx(speedMph: unknown): number {
   const n = typeof speedMph === "number" ? speedMph : Number(speedMph);
-  if (!Number.isFinite(n)) return 22;
-  return Math.max(18, Math.min(44, 16 + n * 0.9));
+  if (!Number.isFinite(n)) return 16;
+  return Math.max(12, Math.min(28, 11 + n * 0.55));
+}
+
+/** Animation duration (seconds) — faster wind = faster flow. */
+export function windFlowDurationSec(speedMph: unknown): number {
+  const n = typeof speedMph === "number" ? speedMph : Number(speedMph);
+  if (!Number.isFinite(n) || n <= 0) return 2.4;
+  return Math.max(0.45, Math.min(2.2, 2.1 - n * 0.035));
 }
 
 export function formatWindSpeed(value: unknown): string {

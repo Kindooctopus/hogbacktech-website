@@ -53,7 +53,10 @@ import {
   fetchSurfaceWindGeoJSON,
   formatWindFrom,
   formatWindSpeed,
+  windFlowDurationSec,
   windShaftLengthPx,
+  windSpeedColor,
+  windSpeedLegendGradient,
   windStyle,
 } from "@/lib/surfaceWind";
 
@@ -81,7 +84,6 @@ const LEGEND_ITEMS: { color: string; shape: "dot" | "rect" | "fire"; label: stri
     { color: "bg-rose-400", shape: "dot", label: "VIIRS heat" },
     { color: "bg-orange-500", shape: "dot", label: "MODIS heat" },
     { color: "bg-yellow-300", shape: "dot", label: "Landsat heat" },
-    { color: "bg-sky-300", shape: "dot", label: "Surface wind" },
     { color: "bg-white", shape: "dot", label: "City / community" },
   ];
 
@@ -188,28 +190,31 @@ function windMarkerIcon(
 ) {
   const speed = Number(props.speedMph);
   const toDeg = Number(props.toDeg);
-  const style = windStyle(speed);
+  const color = windSpeedColor(speed);
   const shaft = windShaftLengthPx(speed);
-  const box = Math.max(48, shaft + 18);
+  const duration = windFlowDurationSec(speed);
+  // Tight box: badge at center, shaft radiates in blow-to direction.
+  const box = Math.max(34, shaft + 16);
   const cx = box / 2;
-  const tipY = 6;
-  const baseY = tipY + shaft;
-  const head = Math.max(5, Math.min(9, shaft * 0.18));
+  const cy = box / 2;
+  const tipY = 2;
+  const shaftStart = cy - 7;
+  const head = Math.max(4, Math.min(7, shaft * 0.22));
   const speedLabel = Number.isFinite(speed) ? `${Math.round(speed)}` : "—";
+  const rotate = Number.isFinite(toDeg) ? toDeg : 0;
 
   return L.divIcon({
     className: "hogback-map-symbol hogback-wind-symbol",
-    html: `<div class="hogback-wind-marker" style="width:${box}px;height:${box + 14}px" title="${escapeHtml(formatWindSpeed(speed))} from ${escapeHtml(formatWindFrom(props.fromDeg))}">
-      <div class="hogback-wind-shaft" style="width:${box}px;height:${box}px;transform:rotate(${Number.isFinite(toDeg) ? toDeg : 0}deg)">
+    html: `<div class="hogback-wind-marker" style="width:${box}px;height:${box}px;--wind-color:${color};--wind-duration:${duration}s" title="${escapeHtml(formatWindSpeed(speed))} from ${escapeHtml(formatWindFrom(props.fromDeg))}">
+      <div class="hogback-wind-shaft" style="width:${box}px;height:${box}px;transform:rotate(${rotate}deg)">
         <svg viewBox="0 0 ${box} ${box}" width="${box}" height="${box}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <line x1="${cx}" y1="${baseY}" x2="${cx}" y2="${tipY + head}" stroke="${style.stroke}" stroke-width="2.5" stroke-linecap="round"/>
-          <path d="M ${cx} ${tipY} L ${cx - head} ${tipY + head * 1.4} L ${cx + head} ${tipY + head * 1.4} Z" fill="${style.fill}" stroke="${style.stroke}" stroke-width="1"/>
-          <circle cx="${cx}" cy="${baseY}" r="2.5" fill="${style.fill}" stroke="${style.stroke}" stroke-width="1"/>
+          <line class="hogback-wind-flow" x1="${cx}" y1="${shaftStart}" x2="${cx}" y2="${tipY + head}" stroke="${color}" stroke-width="2.25" stroke-linecap="round"/>
+          <path d="M ${cx} ${tipY} L ${cx - head} ${tipY + head * 1.35} L ${cx + head} ${tipY + head * 1.35} Z" fill="${color}" stroke="${color}" stroke-width="0.75"/>
         </svg>
       </div>
-      <span class="hogback-wind-speed" style="color:${style.fill}">${speedLabel}<small>mph</small></span>
+      <span class="hogback-wind-badge" style="background:${color}">${speedLabel}</span>
     </div>`,
-    iconSize: [box, box + 14],
+    iconSize: [box, box],
     iconAnchor: [box / 2, box / 2],
     popupAnchor: [0, -(box / 2)],
   });
@@ -510,10 +515,13 @@ function usfsFirePopup(props: Record<string, unknown>): string {
 
 function windPopup(props: Record<string, unknown>): string {
   const style = windStyle(props.speedMph);
+  const color = windSpeedColor(props.speedMph);
   return `
     <div style="min-width:200px;font-family:system-ui,sans-serif;font-size:12px;line-height:1.4">
       <div style="font-weight:600;color:#fff;margin-bottom:4px">Surface wind</div>
-      <div style="display:inline-block;margin-bottom:6px;padding:2px 8px;border-radius:999px;background:#38bdf833;color:${style.fill};font-size:11px;font-weight:600">${escapeHtml(style.label)}</div>
+      <div style="display:inline-block;margin-bottom:6px;padding:2px 8px;border-radius:999px;background:${color}33;color:${color};font-size:11px;font-weight:600">${escapeHtml(style.label)} · ${escapeHtml(formatWindSpeed(props.speedMph))}</div>
+      <div style="margin:0 0 8px;height:8px;border-radius:999px;background:${windSpeedLegendGradient};border:1px solid rgba(255,255,255,0.15)"></div>
+      <div style="display:flex;justify-content:space-between;margin:-4px 0 8px;font-size:9px;color:#94a3b8"><span>0</span><span>15</span><span>30</span><span>50+ mph</span></div>
       <table style="border-collapse:collapse">${[
         popupRow("Speed", formatWindSpeed(props.speedMph)),
         popupRow("From", formatWindFrom(props.fromDeg)),
@@ -1558,6 +1566,22 @@ export function GsiMap() {
                 <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                   Legend
                 </p>
+                <div className="mb-2">
+                  <p className="mb-1 text-[11px] text-slate-400">
+                    Surface wind (mph)
+                  </p>
+                  <div
+                    className="h-2 rounded-full border border-white/15"
+                    style={{ background: windSpeedLegendGradient }}
+                    aria-hidden
+                  />
+                  <div className="mt-0.5 flex justify-between text-[9px] text-slate-500">
+                    <span>0</span>
+                    <span>15</span>
+                    <span>30</span>
+                    <span>50+</span>
+                  </div>
+                </div>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] text-slate-400">
                   {LEGEND_ITEMS.map((item) => (
                     <span

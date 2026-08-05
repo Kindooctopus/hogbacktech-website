@@ -139,15 +139,15 @@ body {
 }
 
 .hogback-wind-marker {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  position: relative;
   pointer-events: auto;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
   line-height: 0;
 }
 
 .hogback-wind-shaft {
+  position: absolute;
+  inset: 0;
   transform-origin: center center;
   line-height: 0;
 }
@@ -157,20 +157,44 @@ body {
   overflow: visible;
 }
 
-.hogback-wind-speed {
-  margin-top: -2px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
-  white-space: nowrap;
+.hogback-wind-flow {
+  stroke-dasharray: 3 5;
+  animation: hogback-wind-flow var(--wind-duration, 1.2s) linear infinite;
 }
 
-.hogback-wind-speed small {
-  margin-left: 1px;
-  font-size: 8px;
-  font-weight: 600;
-  opacity: 0.9;
+.hogback-wind-badge {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  display: inline-flex;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  transform: translate(-50%, -50%);
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  border-radius: 999px;
+  border: 1px solid rgba(10, 17, 26, 0.55);
+  color: #0a111a;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+
+@keyframes hogback-wind-flow {
+  to {
+    stroke-dashoffset: -16;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hogback-wind-flow {
+    animation: none;
+    stroke-dasharray: none;
+  }
 }
 
 .hogback-place-symbol {
