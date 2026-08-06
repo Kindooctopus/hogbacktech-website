@@ -28,7 +28,7 @@ type OpenMeteoCurrent = {
 const OPEN_METEO_FORECAST = "https://api.open-meteo.com/v1/forecast";
 
 /** Max grid samples per Open-Meteo multi-location request. */
-const MAX_SAMPLES = 64;
+const MAX_SAMPLES = 96;
 
 /**
  * Build a viewport grid sized to zoom — denser when zoomed in,
@@ -41,21 +41,21 @@ export function buildWindGrid(
   const spanLng = Math.max(bbox.east - bbox.west, 0.05);
   const spanLat = Math.max(bbox.north - bbox.south, 0.05);
 
-  // Slightly denser grid so arrows read as a wind field.
-  let cols = 5;
-  let rows = 4;
+  // Dense wind field — more samples so direction reads clearly.
+  let cols = 7;
+  let rows = 6;
   if (zoom >= 11) {
-    cols = 9;
+    cols = 12;
     rows = 8;
   } else if (zoom >= 9) {
+    cols = 11;
+    rows = 8;
+  } else if (zoom >= 7) {
+    cols = 10;
+    rows = 7;
+  } else if (zoom >= 5) {
     cols = 8;
     rows = 7;
-  } else if (zoom >= 7) {
-    cols = 7;
-    rows = 6;
-  } else if (zoom >= 5) {
-    cols = 6;
-    rows = 5;
   }
 
   while (cols * rows > MAX_SAMPLES) {
@@ -63,8 +63,8 @@ export function buildWindGrid(
     else rows -= 1;
   }
 
-  const padLng = spanLng * 0.08;
-  const padLat = spanLat * 0.08;
+  const padLng = spanLng * 0.04;
+  const padLat = spanLat * 0.04;
   const west = bbox.west + padLng;
   const east = bbox.east - padLng;
   const south = bbox.south + padLat;
@@ -222,15 +222,15 @@ export function windStyle(speedMph: unknown): WindStyle {
 /** Streamline length in screen px — longer = faster / clearer as a line. */
 export function windShaftLengthPx(speedMph: unknown): number {
   const n = typeof speedMph === "number" ? speedMph : Number(speedMph);
-  if (!Number.isFinite(n)) return 24;
-  return Math.max(20, Math.min(40, 18 + n * 0.65));
+  if (!Number.isFinite(n)) return 30;
+  return Math.max(26, Math.min(52, 24 + n * 0.85));
 }
 
 /** Animation duration (seconds) — faster wind = faster flow. */
 export function windFlowDurationSec(speedMph: unknown): number {
   const n = typeof speedMph === "number" ? speedMph : Number(speedMph);
-  if (!Number.isFinite(n) || n <= 0) return 2.4;
-  return Math.max(0.45, Math.min(2.2, 2.1 - n * 0.035));
+  if (!Number.isFinite(n) || n <= 0) return 2.6;
+  return Math.max(0.55, Math.min(2.4, 2.3 - n * 0.032));
 }
 
 export function formatWindSpeed(value: unknown): string {

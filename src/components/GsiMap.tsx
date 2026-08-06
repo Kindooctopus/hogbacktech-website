@@ -193,12 +193,12 @@ function windMarkerIcon(
   const color = windSpeedColor(speed);
   const shaft = windShaftLengthPx(speed);
   const duration = windFlowDurationSec(speed);
-  // Short mph-colored streaks that fade in, travel with the wind, then fade out.
-  const box = Math.max(40, shaft + 18);
-  const streakLen = Math.max(10, Math.min(18, shaft * 0.42));
+  // Longer travel path so wind direction is obvious; denser staggered streaks.
+  const travel = Math.max(28, Math.min(56, shaft * 1.15));
+  const box = Math.max(56, travel + 24);
+  const streakLen = Math.max(12, Math.min(22, shaft * 0.38));
   const strokeW = Math.max(1.5, Math.min(2.5, 1.25 + (Number.isFinite(speed) ? speed : 0) * 0.03));
   const rotate = Number.isFinite(toDeg) ? toDeg : 0;
-  const travel = Math.max(14, Math.min(26, shaft * 0.7));
 
   return L.divIcon({
     className: "hogback-map-symbol hogback-wind-symbol",
@@ -206,6 +206,7 @@ function windMarkerIcon(
       <span class="hogback-wind-streak hogback-wind-streak-1" aria-hidden="true"></span>
       <span class="hogback-wind-streak hogback-wind-streak-2" aria-hidden="true"></span>
       <span class="hogback-wind-streak hogback-wind-streak-3" aria-hidden="true"></span>
+      <span class="hogback-wind-streak hogback-wind-streak-4" aria-hidden="true"></span>
     </div>`,
     iconSize: [box, box],
     iconAnchor: [box / 2, box / 2],

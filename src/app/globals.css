@@ -167,42 +167,50 @@ body {
 }
 
 .hogback-wind-streak-2 {
-  animation-delay: calc(var(--wind-duration, 1.2s) / -3);
-  width: calc(var(--wind-stroke, 2px) * 0.85);
-  height: calc(var(--wind-streak, 12px) * 0.85);
-  margin-left: calc(var(--wind-stroke, 2px) * -0.425);
-  margin-top: calc(var(--wind-streak, 12px) * -0.425);
+  animation-delay: calc(var(--wind-duration, 1.2s) / -4);
+  width: calc(var(--wind-stroke, 2px) * 0.9);
+  height: calc(var(--wind-streak, 12px) * 0.9);
+  margin-left: calc(var(--wind-stroke, 2px) * -0.45);
+  margin-top: calc(var(--wind-streak, 12px) * -0.45);
 }
 
 .hogback-wind-streak-3 {
-  animation-delay: calc(var(--wind-duration, 1.2s) * -2 / 3);
-  width: calc(var(--wind-stroke, 2px) * 0.7);
-  height: calc(var(--wind-streak, 12px) * 0.7);
-  margin-left: calc(var(--wind-stroke, 2px) * -0.35);
-  margin-top: calc(var(--wind-streak, 12px) * -0.35);
+  animation-delay: calc(var(--wind-duration, 1.2s) * -2 / 4);
+  width: calc(var(--wind-stroke, 2px) * 0.78);
+  height: calc(var(--wind-streak, 12px) * 0.78);
+  margin-left: calc(var(--wind-stroke, 2px) * -0.39);
+  margin-top: calc(var(--wind-streak, 12px) * -0.39);
 }
 
-/* Appear upwind → travel with wind → disappear downwind. */
+.hogback-wind-streak-4 {
+  animation-delay: calc(var(--wind-duration, 1.2s) * -3 / 4);
+  width: calc(var(--wind-stroke, 2px) * 0.65);
+  height: calc(var(--wind-streak, 12px) * 0.65);
+  margin-left: calc(var(--wind-stroke, 2px) * -0.325);
+  margin-top: calc(var(--wind-streak, 12px) * -0.325);
+}
+
+/* Appear upwind → travel farther with wind → disappear downwind. */
 @keyframes hogback-wind-streak {
   0% {
     opacity: 0;
-    transform: translateY(calc(var(--wind-travel, 18px) * 0.55)) scaleY(0.55);
+    transform: translateY(calc(var(--wind-travel, 36px) * 0.5)) scaleY(0.45);
   }
-  18% {
+  12% {
     opacity: 0.95;
-    transform: translateY(calc(var(--wind-travel, 18px) * 0.28)) scaleY(1);
+    transform: translateY(calc(var(--wind-travel, 36px) * 0.32)) scaleY(1);
   }
-  55% {
-    opacity: 0.85;
-    transform: translateY(calc(var(--wind-travel, 18px) * -0.15)) scaleY(1);
+  50% {
+    opacity: 0.9;
+    transform: translateY(0) scaleY(1);
   }
-  82% {
-    opacity: 0.25;
-    transform: translateY(calc(var(--wind-travel, 18px) * -0.45)) scaleY(0.75);
+  78% {
+    opacity: 0.35;
+    transform: translateY(calc(var(--wind-travel, 36px) * -0.38)) scaleY(0.8);
   }
   100% {
     opacity: 0;
-    transform: translateY(calc(var(--wind-travel, 18px) * -0.6)) scaleY(0.4);
+    transform: translateY(calc(var(--wind-travel, 36px) * -0.5)) scaleY(0.35);
   }
 }
 
@@ -214,7 +222,8 @@ body {
   }
 
   .hogback-wind-streak-2,
-  .hogback-wind-streak-3 {
+  .hogback-wind-streak-3,
+  .hogback-wind-streak-4 {
     display: none;
   }
 }
