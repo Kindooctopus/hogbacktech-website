@@ -125,6 +125,10 @@ export const orUsfsFireStationsUrl =
 export const populatedPlacesUrl =
   "https://carto.nationalmap.gov/arcgis/rest/services/geonames/MapServer/3";
 
+/** USGS National Map GNIS — incorporated places (cities/towns) for far zoom. */
+export const incorporatedPlacesUrl =
+  "https://carto.nationalmap.gov/arcgis/rest/services/geonames/MapServer/1";
+
 /** Esri Living Atlas — VIIRS thermal hotspots / fire activity (global NRT). */
 export const viirsHotspotsUrl =
   "https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Satellite_VIIRS_Thermal_Hotspots_and_Fire_Activity/FeatureServer/0";
@@ -237,7 +241,7 @@ export const gsiOverlays: GsiOverlay[] = [
     name: "Cities & communities",
     shortName: "Cities / Communities",
     description:
-      "City, town, and community name labels from USGS GNIS populated places — refreshes for the current map view.",
+      "City, town, and community name labels from USGS GNIS — sparse when zoomed out, denser mid-zoom, hidden at street-level zoom.",
     sourceLabel: "USGS GNIS",
     sourceHref: "https://www.usgs.gov/tools/geographic-names-information-system-gnis",
     defaultOn: true,
@@ -638,6 +642,7 @@ export function getOverlayQueryUrl(
     });
   }
   if (id === "places") {
+    // Zoom-aware count is applied in getPlacesQueryUrl() / thinPlaceLabels().
     return buildFeatureQueryUrl(populatedPlacesUrl, PLACE_FIELDS, {
       bbox: bbox ?? undefined,
       resultRecordCount: 250,
@@ -645,6 +650,149 @@ export function getOverlayQueryUrl(
   }
 
   return overlayQueryUrls[id];
+}
+
+/**
+ * Place label density by zoom:
+ * - zoomed out: few labels (major places only)
+ * - mid zoom: more communities
+ * - furthest in (>= 15): hide tags entirely
+ */
+export function placeLabelPolicy(zoom: number): {
+  hide: boolean;
+  maxLabels: number;
+  useIncorporatedOnly: boolean;
+  fetchLimit: number;
+} {
+  if (zoom >= 15) {
+    return {
+      hide: true,
+      maxLabels: 0,
+      useIncorporatedOnly: false,
+      fetchLimit: 0,
+    };
+  }
+  if (zoom >= 13) {
+    return {
+      hide: false,
+      maxLabels: 140,
+      useIncorporatedOnly: false,
+      fetchLimit: 300,
+    };
+  }
+  if (zoom >= 11) {
+    return {
+      hide: false,
+      maxLabels: 90,
+      useIncorporatedOnly: false,
+      fetchLimit: 220,
+    };
+  }
+  if (zoom >= 9) {
+    return {
+      hide: false,
+      maxLabels: 45,
+      useIncorporatedOnly: false,
+      fetchLimit: 140,
+    };
+  }
+  if (zoom >= 7) {
+    return {
+      hide: false,
+      maxLabels: 18,
+      useIncorporatedOnly: true,
+      fetchLimit: 80,
+    };
+  }
+  return {
+    hide: false,
+    maxLabels: 8,
+    useIncorporatedOnly: true,
+    fetchLimit: 40,
+  };
+}
+
+/** Build the ArcGIS query for place labels at the current zoom. */
+export function getPlacesQueryUrl(
+  bbox: MapBBox | null | undefined,
+  zoom: number,
+): string | null {
+  const policy = placeLabelPolicy(zoom);
+  if (policy.hide || policy.fetchLimit <= 0) return null;
+
+  const layerUrl = policy.useIncorporatedOnly
+    ? incorporatedPlacesUrl
+    : populatedPlacesUrl;
+
+  return buildFeatureQueryUrl(layerUrl, PLACE_FIELDS, {
+    bbox: bbox ?? undefined,
+    resultRecordCount: policy.fetchLimit,
+  });
+}
+
+/**
+ * Spatially thin place labels so names don't stack when zoomed out.
+ * Prefers shorter / “City of …” names as a weak major-place heuristic.
+ */
+export function thinPlaceLabels(
+  geojson: GeoJSON.FeatureCollection,
+  bbox: MapBBox,
+  zoom: number,
+): GeoJSON.FeatureCollection {
+  const policy = placeLabelPolicy(zoom);
+  if (policy.hide || policy.maxLabels <= 0) {
+    return { type: "FeatureCollection", features: [] };
+  }
+
+  const spanLng = Math.max(bbox.east - bbox.west, 0.001);
+  const spanLat = Math.max(bbox.north - bbox.south, 0.001);
+  // Coarser cells when zoomed out → fewer labels survive.
+  const cells =
+    zoom >= 13 ? 14 : zoom >= 11 ? 11 : zoom >= 9 ? 8 : zoom >= 7 ? 5 : 3;
+  const cellW = spanLng / cells;
+  const cellH = spanLat / cells;
+
+  type Ranked = {
+    feature: GeoJSON.Feature;
+    lng: number;
+    lat: number;
+    score: number;
+  };
+
+  const ranked: Ranked[] = [];
+  for (const feature of geojson.features ?? []) {
+    const geometry = feature.geometry;
+    if (!geometry || geometry.type !== "Point") continue;
+    const [lng, lat] = geometry.coordinates;
+    if (!Number.isFinite(lng) || !Number.isFinite(lat)) continue;
+    const props = (feature.properties ?? {}) as Record<string, unknown>;
+    const name = placeDisplayName(props.gaz_name);
+    const featureClass = String(props.gaz_featureclass ?? "").toLowerCase();
+    let score = 0;
+    if (featureClass.includes("civil") || /^city of\s+/i.test(String(props.gaz_name ?? ""))) {
+      score += 40;
+    }
+    if (featureClass.includes("populated")) score += 10;
+    // Shorter names tend to be primary towns vs long subdivisions.
+    score += Math.max(0, 24 - name.length);
+    ranked.push({ feature, lng, lat, score });
+  }
+
+  ranked.sort((a, b) => b.score - a.score);
+
+  const used = new Set<string>();
+  const kept: GeoJSON.Feature[] = [];
+  for (const item of ranked) {
+    if (kept.length >= policy.maxLabels) break;
+    const col = Math.floor((item.lng - bbox.west) / cellW);
+    const row = Math.floor((item.lat - bbox.south) / cellH);
+    const key = `${col}:${row}`;
+    if (used.has(key)) continue;
+    used.add(key);
+    kept.push(item.feature);
+  }
+
+  return { type: "FeatureCollection", features: kept };
 }
 
 /** Clean USGS GNIS place names for map labels. */

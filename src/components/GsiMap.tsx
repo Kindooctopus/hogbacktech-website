@@ -37,6 +37,7 @@ import {
   formatPercent,
   getBasemap,
   getOverlayQueryUrl,
+  getPlacesQueryUrl,
   gsiBasemaps,
   gsiOverlays,
   heatPointStyle,
@@ -44,6 +45,8 @@ import {
   isViewportOverlay,
   oesEngineTypeLabel,
   placeDisplayName,
+  placeLabelPolicy,
+  thinPlaceLabels,
   viewportOverlayIds,
   type GsiBasemapId,
   type GsiOverlayId,
@@ -1091,11 +1094,36 @@ export function GsiMap() {
         if (id === "wind") {
           const bounds = bbox ?? mapBoundsToBBox(map);
           geojson = await fetchSurfaceWindGeoJSON(bounds, map.getZoom());
+        } else if (id === "places") {
+          const bounds = bbox ?? mapBoundsToBBox(map);
+          const zoom = map.getZoom();
+          const policy = placeLabelPolicy(zoom);
+          if (policy.hide) {
+            group.clearLayers();
+            featuresRef.current[id] = [];
+            setLayerMeta(id, { status: "ready", count: 0 });
+            return;
+          }
+          const placesUrl = getPlacesQueryUrl(bounds, zoom);
+          if (!placesUrl) {
+            group.clearLayers();
+            featuresRef.current[id] = [];
+            setLayerMeta(id, { status: "ready", count: 0 });
+            return;
+          }
+          const res = await fetch(placesUrl);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          geojson = thinPlaceLabels(
+            normalizePlaceGeoJSON(
+              (await res.json()) as GeoJSON.FeatureCollection,
+            ),
+            bounds,
+            zoom,
+          );
         } else {
           const res = await fetch(getOverlayQueryUrl(id, bbox));
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           geojson = (await res.json()) as GeoJSON.FeatureCollection;
-          if (id === "places") geojson = normalizePlaceGeoJSON(geojson);
         }
         if (cancelled) return;
 
@@ -1339,11 +1367,36 @@ export function GsiMap() {
               let geojson: GeoJSON.FeatureCollection;
               if (id === "wind") {
                 geojson = await fetchSurfaceWindGeoJSON(bbox, map.getZoom());
+              } else if (id === "places") {
+                const zoom = map.getZoom();
+                const policy = placeLabelPolicy(zoom);
+                if (policy.hide) {
+                  group.clearLayers();
+                  featuresRef.current[id] = [];
+                  setLayerMeta(id, { status: "ready", count: 0 });
+                  setTargetsVersion((n) => n + 1);
+                  return;
+                }
+                const placesUrl = getPlacesQueryUrl(bbox, zoom);
+                if (!placesUrl) {
+                  group.clearLayers();
+                  featuresRef.current[id] = [];
+                  setLayerMeta(id, { status: "ready", count: 0 });
+                  return;
+                }
+                const res = await fetch(placesUrl);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                geojson = thinPlaceLabels(
+                  normalizePlaceGeoJSON(
+                    (await res.json()) as GeoJSON.FeatureCollection,
+                  ),
+                  bbox,
+                  zoom,
+                );
               } else {
                 const res = await fetch(getOverlayQueryUrl(id, bbox));
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 geojson = (await res.json()) as GeoJSON.FeatureCollection;
-                if (id === "places") geojson = normalizePlaceGeoJSON(geojson);
               }
               group.clearLayers();
               const layer = await buildOverlayLayer(L, id, geojson);
