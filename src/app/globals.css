@@ -141,59 +141,81 @@ body {
 .hogback-wind-marker {
   position: relative;
   pointer-events: auto;
-  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.35));
-  line-height: 0;
-  overflow: visible;
-}
-
-.hogback-wind-shaft {
-  position: absolute;
-  inset: 0;
   transform-origin: center center;
   line-height: 0;
-  animation: hogback-wind-drift var(--wind-duration, 1.2s) linear infinite;
-}
-
-.hogback-wind-shaft svg {
-  display: block;
   overflow: visible;
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.4));
 }
 
-.hogback-wind-flow {
-  stroke-dasharray: 7 9;
-  animation: hogback-wind-flow var(--wind-duration, 1.2s) linear infinite;
+.hogback-wind-streak {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--wind-stroke, 2px);
+  height: var(--wind-streak, 12px);
+  margin-left: calc(var(--wind-stroke, 2px) / -2);
+  margin-top: calc(var(--wind-streak, 12px) / -2);
+  border-radius: 999px;
+  background: var(--wind-color, #67e8f9);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: hogback-wind-streak var(--wind-duration, 1.2s) linear infinite;
 }
 
-.hogback-wind-flow-b {
-  stroke-dasharray: 4 12;
-  animation-duration: calc(var(--wind-duration, 1.2s) * 0.85);
-  animation-delay: -0.2s;
+.hogback-wind-streak-1 {
+  animation-delay: 0s;
 }
 
-@keyframes hogback-wind-flow {
-  to {
-    stroke-dashoffset: -32;
-  }
+.hogback-wind-streak-2 {
+  animation-delay: calc(var(--wind-duration, 1.2s) / -3);
+  width: calc(var(--wind-stroke, 2px) * 0.85);
+  height: calc(var(--wind-streak, 12px) * 0.85);
+  margin-left: calc(var(--wind-stroke, 2px) * -0.425);
+  margin-top: calc(var(--wind-streak, 12px) * -0.425);
 }
 
-/* Drift the line segment along its axis (wind blow-to direction). */
-@keyframes hogback-wind-drift {
+.hogback-wind-streak-3 {
+  animation-delay: calc(var(--wind-duration, 1.2s) * -2 / 3);
+  width: calc(var(--wind-stroke, 2px) * 0.7);
+  height: calc(var(--wind-streak, 12px) * 0.7);
+  margin-left: calc(var(--wind-stroke, 2px) * -0.35);
+  margin-top: calc(var(--wind-streak, 12px) * -0.35);
+}
+
+/* Appear upwind → travel with wind → disappear downwind. */
+@keyframes hogback-wind-streak {
   0% {
-    translate: 0 calc(var(--wind-drift, 8px) * 0.55);
+    opacity: 0;
+    transform: translateY(calc(var(--wind-travel, 18px) * 0.55)) scaleY(0.55);
+  }
+  18% {
+    opacity: 0.95;
+    transform: translateY(calc(var(--wind-travel, 18px) * 0.28)) scaleY(1);
+  }
+  55% {
+    opacity: 0.85;
+    transform: translateY(calc(var(--wind-travel, 18px) * -0.15)) scaleY(1);
+  }
+  82% {
+    opacity: 0.25;
+    transform: translateY(calc(var(--wind-travel, 18px) * -0.45)) scaleY(0.75);
   }
   100% {
-    translate: 0 calc(var(--wind-drift, 8px) * -0.55);
+    opacity: 0;
+    transform: translateY(calc(var(--wind-travel, 18px) * -0.6)) scaleY(0.4);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hogback-wind-shaft {
+  .hogback-wind-streak {
     animation: none;
+    opacity: 0.85;
+    transform: none;
   }
 
-  .hogback-wind-flow {
-    animation: none;
-    stroke-dasharray: 8 4;
+  .hogback-wind-streak-2,
+  .hogback-wind-streak-3 {
+    display: none;
   }
 }
 
