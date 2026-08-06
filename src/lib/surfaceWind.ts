@@ -219,11 +219,11 @@ export function windStyle(speedMph: unknown): WindStyle {
   return { stroke: color, fill: color, label: "High" };
 }
 
-/** Line length in screen px — longer = faster. */
+/** Streamline length in screen px — longer = faster / clearer as a line. */
 export function windShaftLengthPx(speedMph: unknown): number {
   const n = typeof speedMph === "number" ? speedMph : Number(speedMph);
-  if (!Number.isFinite(n)) return 18;
-  return Math.max(14, Math.min(32, 13 + n * 0.5));
+  if (!Number.isFinite(n)) return 24;
+  return Math.max(20, Math.min(40, 18 + n * 0.65));
 }
 
 /** Animation duration (seconds) — faster wind = faster flow. */

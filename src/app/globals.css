@@ -141,7 +141,7 @@ body {
 .hogback-wind-marker {
   position: relative;
   pointer-events: auto;
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.35));
   line-height: 0;
   overflow: visible;
 }
@@ -159,28 +159,30 @@ body {
   overflow: visible;
 }
 
-.hogback-wind-ghost {
-  pointer-events: none;
+.hogback-wind-flow {
+  stroke-dasharray: 7 9;
+  animation: hogback-wind-flow var(--wind-duration, 1.2s) linear infinite;
 }
 
-.hogback-wind-flow {
-  stroke-dasharray: 2 7;
-  animation: hogback-wind-flow var(--wind-duration, 1.2s) linear infinite;
+.hogback-wind-flow-b {
+  stroke-dasharray: 4 12;
+  animation-duration: calc(var(--wind-duration, 1.2s) * 0.85);
+  animation-delay: -0.2s;
 }
 
 @keyframes hogback-wind-flow {
   to {
-    stroke-dashoffset: -18;
+    stroke-dashoffset: -32;
   }
 }
 
 /* Drift the line segment along its axis (wind blow-to direction). */
 @keyframes hogback-wind-drift {
   0% {
-    translate: 0 calc(var(--wind-drift, 6px) * 0.5);
+    translate: 0 calc(var(--wind-drift, 8px) * 0.55);
   }
   100% {
-    translate: 0 calc(var(--wind-drift, 6px) * -0.5);
+    translate: 0 calc(var(--wind-drift, 8px) * -0.55);
   }
 }
 
@@ -191,7 +193,7 @@ body {
 
   .hogback-wind-flow {
     animation: none;
-    stroke-dasharray: none;
+    stroke-dasharray: 8 4;
   }
 }
 

@@ -193,23 +193,23 @@ function windMarkerIcon(
   const color = windSpeedColor(speed);
   const shaft = windShaftLengthPx(speed);
   const duration = windFlowDurationSec(speed);
-  // Line-only marker: animated strokes traveling in the blow-to direction.
-  const box = Math.max(28, shaft + 10);
+  // Elongated animated streamlines — never circular "dots".
+  const box = Math.max(36, shaft + 14);
   const cx = box / 2;
   const cy = box / 2;
   const half = shaft / 2;
   const y1 = cy + half;
   const y2 = cy - half;
   const rotate = Number.isFinite(toDeg) ? toDeg : 0;
-  const strokeW = Math.max(1.5, Math.min(2.75, 1.4 + (Number.isFinite(speed) ? speed : 0) * 0.03));
+  const strokeW = Math.max(1.25, Math.min(2.25, 1.15 + (Number.isFinite(speed) ? speed : 0) * 0.025));
 
   return L.divIcon({
     className: "hogback-map-symbol hogback-wind-symbol",
-    html: `<div class="hogback-wind-marker" style="width:${box}px;height:${box}px;--wind-color:${color};--wind-duration:${duration}s;--wind-drift:${Math.max(4, Math.min(10, half * 0.45))}px" title="${escapeHtml(formatWindSpeed(speed))} from ${escapeHtml(formatWindFrom(props.fromDeg))}">
+    html: `<div class="hogback-wind-marker" style="width:${box}px;height:${box}px;--wind-color:${color};--wind-duration:${duration}s;--wind-drift:${Math.max(6, Math.min(14, half * 0.55))}px" title="${escapeHtml(formatWindSpeed(speed))} from ${escapeHtml(formatWindFrom(props.fromDeg))}">
       <div class="hogback-wind-shaft" style="width:${box}px;height:${box}px;transform:rotate(${rotate}deg)">
         <svg viewBox="0 0 ${box} ${box}" width="${box}" height="${box}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <line class="hogback-wind-ghost" x1="${cx}" y1="${y1}" x2="${cx}" y2="${y2}" stroke="${color}" stroke-width="${strokeW}" stroke-linecap="round" opacity="0.28"/>
-          <line class="hogback-wind-flow" x1="${cx}" y1="${y1}" x2="${cx}" y2="${y2}" stroke="${color}" stroke-width="${strokeW}" stroke-linecap="round"/>
+          <line class="hogback-wind-flow hogback-wind-flow-a" x1="${cx}" y1="${y1}" x2="${cx}" y2="${y2}" stroke="${color}" stroke-width="${strokeW}" stroke-linecap="butt"/>
+          <line class="hogback-wind-flow hogback-wind-flow-b" x1="${cx}" y1="${y1}" x2="${cx}" y2="${y2}" stroke="${color}" stroke-width="${Math.max(1, strokeW - 0.4)}" stroke-linecap="butt" opacity="0.55"/>
         </svg>
       </div>
     </div>`,
@@ -881,10 +881,10 @@ async function buildOverlayLayer(
         return L.circleMarker(latlng, {
           radius: s.radius,
           color: s.stroke,
-          weight: 1,
-          opacity: 0.35,
+          weight: 0.75,
+          opacity: 0.18,
           fillColor: s.fill,
-          fillOpacity: 0.22,
+          fillOpacity: 0.08,
         });
       },
       onEachFeature(feature, lyr) {

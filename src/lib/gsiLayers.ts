@@ -743,10 +743,10 @@ export function heatPointStyle(
       : sensor === "modis"
         ? { fill: "#f97316", stroke: "#9a3412" }
         : { fill: "#facc15", stroke: "#a16207" };
-  if (!Number.isFinite(n) || n <= 0) return { ...base, radius: 4 };
-  if (n >= 50) return { ...base, radius: 8 };
-  if (n >= 15) return { ...base, radius: 6 };
-  return { ...base, radius: 5 };
+  if (!Number.isFinite(n) || n <= 0) return { ...base, radius: 3 };
+  if (n >= 50) return { ...base, radius: 5 };
+  if (n >= 15) return { ...base, radius: 4 };
+  return { ...base, radius: 3.5 };
 }
 
 export function formatFrp(value: unknown): string {
