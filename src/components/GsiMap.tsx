@@ -193,20 +193,20 @@ function windMarkerIcon(
   const color = windSpeedColor(speed);
   const shaft = windShaftLengthPx(speed);
   const duration = windFlowDurationSec(speed);
-  // Longer travel path so wind direction is obvious; denser staggered streaks.
-  const travel = Math.max(28, Math.min(56, shaft * 1.15));
-  const box = Math.max(56, travel + 24);
-  const streakLen = Math.max(12, Math.min(22, shaft * 0.38));
-  const strokeW = Math.max(1.5, Math.min(2.5, 1.25 + (Number.isFinite(speed) ? speed : 0) * 0.03));
+  // Comet streaks: bright head points downwind, faded trail behind —
+  // travel far so direction is obvious (no stretch/squash).
+  const travel = Math.max(40, Math.min(72, shaft * 1.45));
+  const box = Math.max(72, travel + 28);
+  const streakLen = Math.max(16, Math.min(28, shaft * 0.48));
+  const strokeW = Math.max(2, Math.min(3.25, 1.75 + (Number.isFinite(speed) ? speed : 0) * 0.04));
   const rotate = Number.isFinite(toDeg) ? toDeg : 0;
 
   return L.divIcon({
     className: "hogback-map-symbol hogback-wind-symbol",
     html: `<div class="hogback-wind-marker" style="width:${box}px;height:${box}px;--wind-color:${color};--wind-duration:${duration}s;--wind-travel:${travel}px;--wind-streak:${streakLen}px;--wind-stroke:${strokeW}px;transform:rotate(${rotate}deg)" title="${escapeHtml(formatWindSpeed(speed))} from ${escapeHtml(formatWindFrom(props.fromDeg))}">
-      <span class="hogback-wind-streak hogback-wind-streak-1" aria-hidden="true"></span>
-      <span class="hogback-wind-streak hogback-wind-streak-2" aria-hidden="true"></span>
-      <span class="hogback-wind-streak hogback-wind-streak-3" aria-hidden="true"></span>
-      <span class="hogback-wind-streak hogback-wind-streak-4" aria-hidden="true"></span>
+      <span class="hogback-wind-streak hogback-wind-streak-1" aria-hidden="true"><span class="hogback-wind-head"></span></span>
+      <span class="hogback-wind-streak hogback-wind-streak-2" aria-hidden="true"><span class="hogback-wind-head"></span></span>
+      <span class="hogback-wind-streak hogback-wind-streak-3" aria-hidden="true"><span class="hogback-wind-head"></span></span>
     </div>`,
     iconSize: [box, box],
     iconAnchor: [box / 2, box / 2],

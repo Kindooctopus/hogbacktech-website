@@ -222,15 +222,15 @@ export function windStyle(speedMph: unknown): WindStyle {
 /** Streamline length in screen px — longer = faster / clearer as a line. */
 export function windShaftLengthPx(speedMph: unknown): number {
   const n = typeof speedMph === "number" ? speedMph : Number(speedMph);
-  if (!Number.isFinite(n)) return 30;
-  return Math.max(26, Math.min(52, 24 + n * 0.85));
+  if (!Number.isFinite(n)) return 34;
+  return Math.max(30, Math.min(58, 28 + n * 0.9));
 }
 
-/** Animation duration (seconds) — faster wind = faster flow. */
+/** Animation duration (seconds) — slightly slower so travel direction reads. */
 export function windFlowDurationSec(speedMph: unknown): number {
   const n = typeof speedMph === "number" ? speedMph : Number(speedMph);
-  if (!Number.isFinite(n) || n <= 0) return 2.6;
-  return Math.max(0.55, Math.min(2.4, 2.3 - n * 0.032));
+  if (!Number.isFinite(n) || n <= 0) return 2.8;
+  return Math.max(0.7, Math.min(2.6, 2.5 - n * 0.028));
 }
 
 export function formatWindSpeed(value: unknown): string {

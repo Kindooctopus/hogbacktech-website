@@ -144,22 +144,39 @@ body {
   transform-origin: center center;
   line-height: 0;
   overflow: visible;
-  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.45));
 }
 
+/* Comet trail: transparent upwind → solid downwind tip (top after rotate). */
 .hogback-wind-streak {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: var(--wind-stroke, 2px);
-  height: var(--wind-streak, 12px);
-  margin-left: calc(var(--wind-stroke, 2px) / -2);
-  margin-top: calc(var(--wind-streak, 12px) / -2);
-  border-radius: 999px;
-  background: var(--wind-color, #67e8f9);
+  width: var(--wind-stroke, 2.5px);
+  height: var(--wind-streak, 20px);
+  margin-left: calc(var(--wind-stroke, 2.5px) / -2);
+  margin-top: calc(var(--wind-streak, 20px) / -2);
+  border-radius: 1px;
+  background: linear-gradient(
+    to top,
+    transparent 0%,
+    color-mix(in srgb, var(--wind-color, #67e8f9) 35%, transparent) 45%,
+    var(--wind-color, #67e8f9) 100%
+  );
   opacity: 0;
   will-change: transform, opacity;
-  animation: hogback-wind-streak var(--wind-duration, 1.2s) linear infinite;
+  animation: hogback-wind-streak var(--wind-duration, 1.4s) linear infinite;
+}
+
+.hogback-wind-head {
+  position: absolute;
+  left: 50%;
+  top: -1px;
+  width: calc(var(--wind-stroke, 2.5px) * 2.4);
+  height: calc(var(--wind-stroke, 2.5px) * 2.4);
+  margin-left: calc(var(--wind-stroke, 2.5px) * -1.2);
+  background: var(--wind-color, #67e8f9);
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
 }
 
 .hogback-wind-streak-1 {
@@ -167,63 +184,50 @@ body {
 }
 
 .hogback-wind-streak-2 {
-  animation-delay: calc(var(--wind-duration, 1.2s) / -4);
-  width: calc(var(--wind-stroke, 2px) * 0.9);
-  height: calc(var(--wind-streak, 12px) * 0.9);
-  margin-left: calc(var(--wind-stroke, 2px) * -0.45);
-  margin-top: calc(var(--wind-streak, 12px) * -0.45);
+  animation-delay: calc(var(--wind-duration, 1.4s) / -3);
+  width: calc(var(--wind-stroke, 2.5px) * 0.9);
+  height: calc(var(--wind-streak, 20px) * 0.92);
+  margin-left: calc(var(--wind-stroke, 2.5px) * -0.45);
+  margin-top: calc(var(--wind-streak, 20px) * -0.46);
 }
 
 .hogback-wind-streak-3 {
-  animation-delay: calc(var(--wind-duration, 1.2s) * -2 / 4);
-  width: calc(var(--wind-stroke, 2px) * 0.78);
-  height: calc(var(--wind-streak, 12px) * 0.78);
-  margin-left: calc(var(--wind-stroke, 2px) * -0.39);
-  margin-top: calc(var(--wind-streak, 12px) * -0.39);
+  animation-delay: calc(var(--wind-duration, 1.4s) * -2 / 3);
+  width: calc(var(--wind-stroke, 2.5px) * 0.78);
+  height: calc(var(--wind-streak, 20px) * 0.82);
+  margin-left: calc(var(--wind-stroke, 2.5px) * -0.39);
+  margin-top: calc(var(--wind-streak, 20px) * -0.41);
 }
 
-.hogback-wind-streak-4 {
-  animation-delay: calc(var(--wind-duration, 1.2s) * -3 / 4);
-  width: calc(var(--wind-stroke, 2px) * 0.65);
-  height: calc(var(--wind-streak, 12px) * 0.65);
-  margin-left: calc(var(--wind-stroke, 2px) * -0.325);
-  margin-top: calc(var(--wind-streak, 12px) * -0.325);
-}
-
-/* Appear upwind → travel farther with wind → disappear downwind. */
+/* Translate only — no scaleY (that caused the inchworm look). */
 @keyframes hogback-wind-streak {
   0% {
     opacity: 0;
-    transform: translateY(calc(var(--wind-travel, 36px) * 0.5)) scaleY(0.45);
+    transform: translateY(calc(var(--wind-travel, 48px) * 0.5));
   }
-  12% {
-    opacity: 0.95;
-    transform: translateY(calc(var(--wind-travel, 36px) * 0.32)) scaleY(1);
+  10% {
+    opacity: 1;
+    transform: translateY(calc(var(--wind-travel, 48px) * 0.38));
   }
-  50% {
-    opacity: 0.9;
-    transform: translateY(0) scaleY(1);
-  }
-  78% {
-    opacity: 0.35;
-    transform: translateY(calc(var(--wind-travel, 36px) * -0.38)) scaleY(0.8);
+  88% {
+    opacity: 1;
+    transform: translateY(calc(var(--wind-travel, 48px) * -0.38));
   }
   100% {
     opacity: 0;
-    transform: translateY(calc(var(--wind-travel, 36px) * -0.5)) scaleY(0.35);
+    transform: translateY(calc(var(--wind-travel, 48px) * -0.5));
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .hogback-wind-streak {
     animation: none;
-    opacity: 0.85;
+    opacity: 0.9;
     transform: none;
   }
 
   .hogback-wind-streak-2,
-  .hogback-wind-streak-3,
-  .hogback-wind-streak-4 {
+  .hogback-wind-streak-3 {
     display: none;
   }
 }
