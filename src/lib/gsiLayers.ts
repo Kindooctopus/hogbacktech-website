@@ -129,6 +129,10 @@ export const populatedPlacesUrl =
 export const incorporatedPlacesUrl =
   "https://carto.nationalmap.gov/arcgis/rest/services/geonames/MapServer/1";
 
+/** USA places with census population (points) — used to prioritize labels. */
+export const usaPlacesPopulationUrl =
+  "https://services5.arcgis.com/bDCD6wpjQP5q0bHM/arcgis/rest/services/USA_Places/FeatureServer/0";
+
 /** Esri Living Atlas — VIIRS thermal hotspots / fire activity (global NRT). */
 export const viirsHotspotsUrl =
   "https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/Satellite_VIIRS_Thermal_Hotspots_and_Fire_Activity/FeatureServer/0";
@@ -241,9 +245,9 @@ export const gsiOverlays: GsiOverlay[] = [
     name: "Cities & communities",
     shortName: "Cities / Communities",
     description:
-      "City, town, and community name labels from USGS GNIS — sparse when zoomed out, denser mid-zoom, hidden at street-level zoom.",
-    sourceLabel: "USGS GNIS",
-    sourceHref: "https://www.usgs.gov/tools/geographic-names-information-system-gnis",
+      "City and community labels prioritized by population — major cities when zoomed out, more places mid-zoom, hidden at street level.",
+    sourceLabel: "USA Places / Census",
+    sourceHref: "https://www.census.gov/",
     defaultOn: true,
   },
   {
@@ -526,10 +530,11 @@ const LANDSAT_FIELDS = [
 ].join(",");
 
 const PLACE_FIELDS = [
-  "gaz_name",
-  "state_alpha",
-  "county_name",
-  "gaz_featureclass",
+  "NAME",
+  "ST",
+  "POPULATION",
+  "CLASS",
+  "STATE_NAME",
 ].join(",");
 
 export type MapBBox = {
@@ -547,6 +552,7 @@ export function buildFeatureQueryUrl(
     geometryPrecision?: number;
     bbox?: MapBBox;
     resultRecordCount?: number;
+    orderByFields?: string;
   },
 ): string {
   const params = new URLSearchParams({
@@ -566,6 +572,9 @@ export function buildFeatureQueryUrl(
     params.set("geometryType", "esriGeometryEnvelope");
     params.set("inSR", "4326");
     params.set("spatialRel", "esriSpatialRelIntersects");
+  }
+  if (options?.orderByFields) {
+    params.set("orderByFields", options.orderByFields);
   }
   return `${layerUrl}/query?${params.toString()}`;
 }
@@ -609,7 +618,11 @@ export const overlayQueryUrls: Record<GsiOverlayId, string> = {
   landsat: buildFeatureQueryUrl(firmsCombinedHotspotsUrl, LANDSAT_FIELDS, {
     where: "source = 'fires_landsat_24hrs'",
   }),
-  places: buildFeatureQueryUrl(populatedPlacesUrl, PLACE_FIELDS),
+  places: buildFeatureQueryUrl(usaPlacesPopulationUrl, PLACE_FIELDS, {
+    where: "POPULATION > 0",
+    resultRecordCount: 250,
+    orderByFields: "POPULATION DESC",
+  }),
   // Client-fetched via Open-Meteo in GsiMap (not an ArcGIS FeatureServer).
   wind: "",
 };
@@ -642,10 +655,12 @@ export function getOverlayQueryUrl(
     });
   }
   if (id === "places") {
-    // Zoom-aware count is applied in getPlacesQueryUrl() / thinPlaceLabels().
-    return buildFeatureQueryUrl(populatedPlacesUrl, PLACE_FIELDS, {
+    // Zoom/population-aware query is applied in getPlacesQueryUrl().
+    return buildFeatureQueryUrl(usaPlacesPopulationUrl, PLACE_FIELDS, {
+      where: "POPULATION > 0",
       bbox: bbox ?? undefined,
       resultRecordCount: 250,
+      orderByFields: "POPULATION DESC",
     });
   }
 
@@ -653,30 +668,25 @@ export function getOverlayQueryUrl(
 }
 
 /**
- * Place label density by zoom:
- * - zoomed out: few labels (major places only)
- * - mid zoom: more communities
+ * Place label density by zoom, prioritized by population:
+ * - zoomed out: highest-population cities only
+ * - mid zoom: more communities (lower pop floor)
  * - furthest in (>= 15): hide tags entirely
  */
 export function placeLabelPolicy(zoom: number): {
   hide: boolean;
   maxLabels: number;
-  useIncorporatedOnly: boolean;
+  minPopulation: number;
   fetchLimit: number;
 } {
   if (zoom >= 15) {
-    return {
-      hide: true,
-      maxLabels: 0,
-      useIncorporatedOnly: false,
-      fetchLimit: 0,
-    };
+    return { hide: true, maxLabels: 0, minPopulation: 0, fetchLimit: 0 };
   }
   if (zoom >= 13) {
     return {
       hide: false,
       maxLabels: 140,
-      useIncorporatedOnly: false,
+      minPopulation: 0,
       fetchLimit: 300,
     };
   }
@@ -684,7 +694,7 @@ export function placeLabelPolicy(zoom: number): {
     return {
       hide: false,
       maxLabels: 90,
-      useIncorporatedOnly: false,
+      minPopulation: 200,
       fetchLimit: 220,
     };
   }
@@ -692,7 +702,7 @@ export function placeLabelPolicy(zoom: number): {
     return {
       hide: false,
       maxLabels: 45,
-      useIncorporatedOnly: false,
+      minPopulation: 1500,
       fetchLimit: 140,
     };
   }
@@ -700,14 +710,14 @@ export function placeLabelPolicy(zoom: number): {
     return {
       hide: false,
       maxLabels: 18,
-      useIncorporatedOnly: true,
+      minPopulation: 8000,
       fetchLimit: 80,
     };
   }
   return {
     hide: false,
     maxLabels: 8,
-    useIncorporatedOnly: true,
+    minPopulation: 25000,
     fetchLimit: 40,
   };
 }
@@ -720,19 +730,26 @@ export function getPlacesQueryUrl(
   const policy = placeLabelPolicy(zoom);
   if (policy.hide || policy.fetchLimit <= 0) return null;
 
-  const layerUrl = policy.useIncorporatedOnly
-    ? incorporatedPlacesUrl
-    : populatedPlacesUrl;
+  const where =
+    policy.minPopulation > 0
+      ? `POPULATION >= ${policy.minPopulation}`
+      : "POPULATION > 0";
 
-  return buildFeatureQueryUrl(layerUrl, PLACE_FIELDS, {
+  return buildFeatureQueryUrl(usaPlacesPopulationUrl, PLACE_FIELDS, {
+    where,
     bbox: bbox ?? undefined,
     resultRecordCount: policy.fetchLimit,
+    orderByFields: "POPULATION DESC",
   });
 }
 
+function placePopulation(props: Record<string, unknown>): number {
+  const n = Number(props.POPULATION ?? props.population ?? 0);
+  return Number.isFinite(n) ? n : 0;
+}
+
 /**
- * Spatially thin place labels so names don't stack when zoomed out.
- * Prefers shorter / “City of …” names as a weak major-place heuristic.
+ * Spatially thin place labels, keeping the highest-population place per cell.
  */
 export function thinPlaceLabels(
   geojson: GeoJSON.FeatureCollection,
@@ -756,7 +773,7 @@ export function thinPlaceLabels(
     feature: GeoJSON.Feature;
     lng: number;
     lat: number;
-    score: number;
+    population: number;
   };
 
   const ranked: Ranked[] = [];
@@ -766,19 +783,12 @@ export function thinPlaceLabels(
     const [lng, lat] = geometry.coordinates;
     if (!Number.isFinite(lng) || !Number.isFinite(lat)) continue;
     const props = (feature.properties ?? {}) as Record<string, unknown>;
-    const name = placeDisplayName(props.gaz_name);
-    const featureClass = String(props.gaz_featureclass ?? "").toLowerCase();
-    let score = 0;
-    if (featureClass.includes("civil") || /^city of\s+/i.test(String(props.gaz_name ?? ""))) {
-      score += 40;
-    }
-    if (featureClass.includes("populated")) score += 10;
-    // Shorter names tend to be primary towns vs long subdivisions.
-    score += Math.max(0, 24 - name.length);
-    ranked.push({ feature, lng, lat, score });
+    const population = placePopulation(props);
+    if (population < policy.minPopulation) continue;
+    ranked.push({ feature, lng, lat, population });
   }
 
-  ranked.sort((a, b) => b.score - a.score);
+  ranked.sort((a, b) => b.population - a.population);
 
   const used = new Set<string>();
   const kept: GeoJSON.Feature[] = [];
@@ -795,9 +805,25 @@ export function thinPlaceLabels(
   return { type: "FeatureCollection", features: kept };
 }
 
-/** Clean USGS GNIS place names for map labels. */
-export function placeDisplayName(gazName: unknown): string {
-  let name = String(gazName ?? "").trim();
+/** Clean place names for map labels (USA Places / GNIS). */
+export function placeDisplayName(
+  nameOrProps: unknown,
+  props?: Record<string, unknown>,
+): string {
+  const record =
+    props ??
+    (nameOrProps && typeof nameOrProps === "object"
+      ? (nameOrProps as Record<string, unknown>)
+      : null);
+
+  let name = String(
+    record?.NAME ??
+      record?.gaz_name ??
+      (typeof nameOrProps === "string" || typeof nameOrProps === "number"
+        ? nameOrProps
+        : "") ??
+      "",
+  ).trim();
   if (!name) return "Place";
   name = name.replace(/^City of\s+/i, "");
   name = name.replace(/^Town of\s+/i, "");

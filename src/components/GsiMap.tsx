@@ -533,16 +533,19 @@ function windPopup(props: Record<string, unknown>): string {
 }
 
 function placePopup(props: Record<string, unknown>): string {
-  const name = placeDisplayName(props.gaz_name);
+  const name = placeDisplayName(props);
+  const pop = Number(props.POPULATION ?? props.population);
+  const popLabel = Number.isFinite(pop) ? pop.toLocaleString("en-US") : "—";
+  const state = String(props.ST || props.STATE_NAME || "—");
+  const klass = String(props.CLASS || "place");
   return `
     <div style="min-width:180px;font-family:system-ui,sans-serif;font-size:12px;line-height:1.4">
       <div style="font-weight:600;color:#fff;margin-bottom:4px">${escapeHtml(name)}</div>
-      <div style="display:inline-block;margin-bottom:6px;padding:2px 8px;border-radius:999px;background:#e2e8f033;color:#e2e8f0;font-size:11px;font-weight:600">Community</div>
+      <div style="display:inline-block;margin-bottom:6px;padding:2px 8px;border-radius:999px;background:#e2e8f033;color:#e2e8f0;font-size:11px;font-weight:600">${escapeHtml(klass)}</div>
       <table style="border-collapse:collapse">${[
-        popupRow("State", escapeHtml(props.state_alpha || "—")),
-        popupRow("County", escapeHtml(props.county_name || "—")),
-        popupRow("Type", escapeHtml(props.gaz_featureclass || "—")),
-        popupRow("Source", "USGS GNIS"),
+        popupRow("State", escapeHtml(state)),
+        popupRow("Population", escapeHtml(popLabel)),
+        popupRow("Source", "USA Places / Census"),
       ].join("")}</table>
     </div>`;
 }
@@ -551,7 +554,7 @@ function placeLabelIcon(
   L: typeof import("leaflet"),
   props: Record<string, unknown>,
 ) {
-  const name = placeDisplayName(props.gaz_name);
+  const name = placeDisplayName(props);
   return L.divIcon({
     className: "hogback-map-symbol hogback-place-symbol",
     html: `<span class="hogback-place-label" title="${escapeHtml(name)}">${escapeHtml(name)}</span>`,

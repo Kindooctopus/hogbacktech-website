@@ -79,14 +79,14 @@ export default function HogbackGeoAppPage() {
           >
             Open-Meteo
           </a>
-          ; city/community labels from{" "}
+          ; city/community labels (population-ranked) from{" "}
           <a
-            href="https://www.usgs.gov/tools/geographic-names-information-system-gnis"
+            href="https://www.census.gov/"
             className="text-copper-400 hover:underline"
             target="_blank"
             rel="noreferrer"
           >
-            USGS GNIS
+            USA Places / Census
           </a>
           . Not a substitute for official alerts, dispatch, or Field Maps
           incident systems.
