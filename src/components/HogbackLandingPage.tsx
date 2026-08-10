@@ -177,12 +177,13 @@ export function HogbackProducts() {
       name: "Hogback Ops",
       badge: "Public Safety",
       description:
-        "Incident‑ready software for fire, EMS, and public safety teams that need clarity when seconds matter.",
+        "Incident‑ready software for fire, EMS, and public safety teams — map, Geo layers, and AR compass when seconds matter.",
       points: [
-        "Operational dashboards for command staff",
-        "Incident timelines and activity views",
+        "Ops map with live fire, heat, wind & AVL",
+        "AR compass for heading-aware field targeting",
         "Built with frontline experience in mind",
       ],
+      appHref: "/apps/ops",
     },
     {
       id: "geo",
@@ -289,9 +290,11 @@ export function HogbackProducts() {
                   >
                     {product.id === "sat"
                       ? "Open live feed"
-                      : product.id === "geo"
-                        ? "Open Geo map"
-                        : "Open map"}
+                      : product.id === "ops"
+                        ? "Open Ops"
+                        : product.id === "geo"
+                          ? "Open Geo map"
+                          : "Open map"}
                     <span aria-hidden="true">↗</span>
                   </Link>
                 ) : null}

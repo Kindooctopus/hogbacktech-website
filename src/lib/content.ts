@@ -42,11 +42,11 @@ export const products = [
     subtitle: "Public Safety Operations Platform",
     tileImage: "/brand/products/ops.png",
     description:
-      "A unified operations hub for Fire, EMS, and emergency services — consolidating CAD, AVL, ICS, staffing, and protocols into a single platform.",
+      "A unified operations hub for Fire, EMS, and emergency services — the Ops map with Hogback Geo layers, AR compass, CAD/AVL, ICS tools, and situational feeds in one place.",
     features: [
-      "CAD ingestion & AVL",
-      "ICS tools & weather overlays",
-      "Staffing integration",
+      "Ops map with live fire, heat, wind & AVL layers",
+      "AR compass with heading-aware targeting",
+      "CAD ingestion, ICS tools & staffing",
       "Document libraries & situational feeds",
     ],
     accent: "ops",
