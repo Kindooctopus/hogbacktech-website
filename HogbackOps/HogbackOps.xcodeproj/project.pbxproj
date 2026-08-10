@@ -1,0 +1,280 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		81AEDAEF3E7543BE96F27474 /* HogbackOpsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B03FE3C9D12413FA72F0CBC /* HogbackOpsApp.swift */; };
+		B78C2CAF2F44457FB94655E2 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7BA5903C2B0472AB1D68621 /* ContentView.swift */; };
+		5D82D616FEE7462EB7C25526 /* OpsMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2544512CAB1402EADF92745 /* OpsMapView.swift */; };
+		EF5D3B114DF14EACBF36721F /* CompassView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FC200382974A06A93C13A5 /* CompassView.swift */; };
+		802440C01CF149D08108583F /* HeadingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4572CA6E905C401B8E1CA5C6 /* HeadingService.swift */; };
+		92864B256E1840E1A520F911 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7F13697CDE344AF18782D7BF /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		4A9122305C114E4BA282EF69 /* HogbackOps.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HogbackOps.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8B03FE3C9D12413FA72F0CBC /* HogbackOpsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HogbackOpsApp.swift; sourceTree = "<group>"; };
+		B7BA5903C2B0472AB1D68621 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		E2544512CAB1402EADF92745 /* OpsMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpsMapView.swift; sourceTree = "<group>"; };
+		29FC200382974A06A93C13A5 /* CompassView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompassView.swift; sourceTree = "<group>"; };
+		4572CA6E905C401B8E1CA5C6 /* HeadingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadingService.swift; sourceTree = "<group>"; };
+		75277E5450424E25B34E0263 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		7F13697CDE344AF18782D7BF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9061A021741D478A96779E90 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		6FB8247EA46D48CAB8DB2105 = {
+			isa = PBXGroup;
+			children = (
+				B87E7359F65D4E728843C00D /* HogbackOps */,
+				8CF0CB1F7DDB47D2A810D6AB /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		8CF0CB1F7DDB47D2A810D6AB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4A9122305C114E4BA282EF69 /* HogbackOps.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B87E7359F65D4E728843C00D /* HogbackOps */ = {
+			isa = PBXGroup;
+			children = (
+				8B03FE3C9D12413FA72F0CBC /* HogbackOpsApp.swift */,
+				B7BA5903C2B0472AB1D68621 /* ContentView.swift */,
+				A11E00000000000000000001 /* Views */,
+				A11E00000000000000000002 /* Services */,
+				7F13697CDE344AF18782D7BF /* Assets.xcassets */,
+				75277E5450424E25B34E0263 /* Info.plist */,
+			);
+			path = HogbackOps;
+			sourceTree = "<group>";
+		};
+		A11E00000000000000000001 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				E2544512CAB1402EADF92745 /* OpsMapView.swift */,
+				29FC200382974A06A93C13A5 /* CompassView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A11E00000000000000000002 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				4572CA6E905C401B8E1CA5C6 /* HeadingService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4A9122305C114E4BA282EF68 /* HogbackOps */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2B7107ABC8314808A2E296AC /* Build configuration list for PBXNativeTarget "HogbackOps" */;
+			buildPhases = (
+				EC0CD91B5F574F13A1C707FF /* Sources */,
+				9061A021741D478A96779E90 /* Frameworks */,
+				15F088CD4D42489C9E3E06C8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HogbackOps;
+			productName = HogbackOps;
+			productReference = 4A9122305C114E4BA282EF69 /* HogbackOps.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		27EBDFB68B9B42C5993FDE38 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 1540;
+				TargetAttributes = {
+					4A9122305C114E4BA282EF68 = {
+						CreatedOnToolsVersion = 15.4;
+					};
+				};
+			};
+			buildConfigurationList = D6AEAE891B354AB8A74EEF09 /* Build configuration list for PBXProject "HogbackOps" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 6FB8247EA46D48CAB8DB2105;
+			productRefGroup = 8CF0CB1F7DDB47D2A810D6AB /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4A9122305C114E4BA282EF68 /* HogbackOps */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		15F088CD4D42489C9E3E06C8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92864B256E1840E1A520F911 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		EC0CD91B5F574F13A1C707FF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				81AEDAEF3E7543BE96F27474 /* HogbackOpsApp.swift in Sources */,
+				B78C2CAF2F44457FB94655E2 /* ContentView.swift in Sources */,
+				5D82D616FEE7462EB7C25526 /* OpsMapView.swift in Sources */,
+				EF5D3B114DF14EACBF36721F /* CompassView.swift in Sources */,
+				802440C01CF149D08108583F /* HeadingService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		AC84969508EA47A3984673FC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		7977E7A369CC45159D157A81 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		FDD0A7077F28402CA6FD7C74 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = HogbackOps/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Hogback Ops";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hogbacktech.ops;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		EE246BE8480E423097BA51B0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = HogbackOps/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Hogback Ops";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hogbacktech.ops;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		D6AEAE891B354AB8A74EEF09 /* Build configuration list for PBXProject "HogbackOps" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AC84969508EA47A3984673FC /* Debug */,
+				7977E7A369CC45159D157A81 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2B7107ABC8314808A2E296AC /* Build configuration list for PBXNativeTarget "HogbackOps" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FDD0A7077F28402CA6FD7C74 /* Debug */,
+				EE246BE8480E423097BA51B0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 27EBDFB68B9B42C5993FDE38 /* Project object */;
+}
