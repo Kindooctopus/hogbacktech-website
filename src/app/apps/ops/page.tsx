@@ -4,36 +4,38 @@ import { HogbackMapAppShell } from "@/components/HogbackMapAppShell";
 import { company } from "@/lib/content";
 
 export const metadata: Metadata = {
-  title: "Hogback Geo — Fire Layers & Satellite Heat Map",
+  title: "Hogback Ops — Map, Layers & AR Compass",
   description:
-    "The Hogback Geo map — topo, satellite, imagery, and relief basemaps with live NIFC fire layers, VIIRS/MODIS/Landsat heat signatures, evacuations, AVL, and unit locations.",
+    "Hogback Ops — the public safety operations map with live fire layers, heat signatures, wind, AVL, and AR compass for field situational awareness.",
   openGraph: {
-    title: `Hogback Geo map | ${company.name}`,
+    title: `Hogback Ops | ${company.name}`,
     description:
-      "Live fire layers, satellite heat signatures, AVL, and GIS overlays — the Hogback Geo map.",
+      "Operations map with Hogback Geo layers and AR compass — fire, heat, wind, AVL, and heading-aware targeting.",
     images: [
       {
-        url: "/brand/products/geo.png",
+        url: "/brand/products/ops.png",
         width: 1024,
         height: 1024,
-        alt: "Hogback Geo map",
+        alt: "Hogback Ops",
       },
     ],
   },
 };
 
-export default function HogbackGeoAppPage() {
+export default function HogbackOpsAppPage() {
   return (
     <HogbackMapAppShell
-      eyebrow="Hogback Geo"
-      title="Geo map — fire, heat, wind & AVL"
-      productHref="/products/geo"
+      eyebrow="Hogback Ops"
+      title="Ops — map, layers & AR compass"
+      productHref="/products/ops"
       footer={
         <>
           <strong className="font-medium text-slate-400">
             Informational only.
           </strong>{" "}
-          Incidents, perimeters, and hotshot/IHC locations from{" "}
+          Hogback Ops embeds the Hogback Geo map and AR compass for field
+          situational awareness. Incidents, perimeters, and hotshot/IHC
+          locations from{" "}
           <a
             href="https://data-nifc.opendata.arcgis.com/"
             className="text-copper-400 hover:underline"
@@ -94,7 +96,7 @@ export default function HogbackGeoAppPage() {
         </>
       }
     >
-      <GsiMap />
+      <GsiMap loadingLabel="Loading Hogback Ops…" />
     </HogbackMapAppShell>
   );
 }

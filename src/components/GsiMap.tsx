@@ -944,7 +944,14 @@ async function buildOverlayLayer(
   return L.geoJSON(geojson);
 }
 
-export function GsiMap() {
+type GsiMapProps = {
+  /** Shown while the Leaflet map initializes. */
+  loadingLabel?: string;
+};
+
+export function GsiMap({
+  loadingLabel = "Loading Geo map…",
+}: GsiMapProps = {}) {
   const mapId = useId().replace(/:/g, "");
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<LeafletMap | null>(null);
@@ -1725,7 +1732,7 @@ export function GsiMap() {
         />
         {!ready && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-navy-950 text-sm text-slate-400">
-            Loading Geo map…
+            {loadingLabel}
           </div>
         )}
         {ready && !userLocation && !locationError && (

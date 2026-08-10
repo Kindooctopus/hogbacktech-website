@@ -6,14 +6,17 @@ import { useState, type ReactNode } from "react";
 type HogbackMapAppShellProps = {
   title: string;
   eyebrow?: string;
+  /** Product detail page linked from the header (e.g. `/products/ops`). */
+  productHref?: string;
   children: ReactNode;
   footer: ReactNode;
 };
 
-/** Shell for the Hogback Geo map (`/apps/geo`). */
+/** Full-viewport chrome for Hogback map apps (`/apps/ops`, `/apps/geo`). */
 export function HogbackMapAppShell({
   title,
   eyebrow = "Hogback Geo",
+  productHref = "/products/geo",
   children,
   footer,
 }: HogbackMapAppShellProps) {
@@ -33,7 +36,7 @@ export function HogbackMapAppShell({
           </div>
           <div className="flex shrink-0 items-center gap-2 text-sm">
             <Link
-              href="/products/geo"
+              href={productHref}
               className="hidden text-slate-400 transition hover:text-white sm:inline"
             >
               Product
