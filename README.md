@@ -10,6 +10,16 @@ A modern marketing site for [Hogback Tech](https://hogbacktech.com) — software
 - **TypeScript**
 - Static export for Cloudflare Pages deployment
 
+## Hogback Ops iOS (Xcode)
+
+Native app shell lives in [`HogbackOps/`](./HogbackOps/). Open:
+
+```text
+HogbackOps/HogbackOps.xcodeproj
+```
+
+Copy that `HogbackOps` folder into OneDrive under `Hogback/` (same workflow as MCFR) and open the `.xcodeproj` in Xcode. See [`HogbackOps/README.md`](./HogbackOps/README.md).
+
 ## Getting Started
 
 ```bash
