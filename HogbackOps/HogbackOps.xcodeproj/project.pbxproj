@@ -12,7 +12,9 @@
 		5D82D616FEE7462EB7C25526 /* OpsMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2544512CAB1402EADF92745 /* OpsMapView.swift */; };
 		EF5D3B114DF14EACBF36721F /* CompassView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FC200382974A06A93C13A5 /* CompassView.swift */; };
 		802440C01CF149D08108583F /* HeadingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4572CA6E905C401B8E1CA5C6 /* HeadingService.swift */; };
+		0872B750A0654DEBA54D3EE0 /* LocalWebAppServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 281E51DF7C9C44239CDFCD82 /* LocalWebAppServer.swift */; };
 		92864B256E1840E1A520F911 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7F13697CDE344AF18782D7BF /* Assets.xcassets */; };
+		66A5DB946E6C4239B2D365A0 /* WebApp in Resources */ = {isa = PBXBuildFile; fileRef = 0DE8C4346A3941F6A20C022A /* WebApp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,8 +24,10 @@
 		E2544512CAB1402EADF92745 /* OpsMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpsMapView.swift; sourceTree = "<group>"; };
 		29FC200382974A06A93C13A5 /* CompassView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompassView.swift; sourceTree = "<group>"; };
 		4572CA6E905C401B8E1CA5C6 /* HeadingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadingService.swift; sourceTree = "<group>"; };
+		281E51DF7C9C44239CDFCD82 /* LocalWebAppServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalWebAppServer.swift; sourceTree = "<group>"; };
 		75277E5450424E25B34E0263 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7F13697CDE344AF18782D7BF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		0DE8C4346A3941F6A20C022A /* WebApp */ = {isa = PBXFileReference; lastKnownFileType = folder; path = WebApp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +64,7 @@
 				B7BA5903C2B0472AB1D68621 /* ContentView.swift */,
 				A11E00000000000000000001 /* Views */,
 				A11E00000000000000000002 /* Services */,
+				0DE8C4346A3941F6A20C022A /* WebApp */,
 				7F13697CDE344AF18782D7BF /* Assets.xcassets */,
 				75277E5450424E25B34E0263 /* Info.plist */,
 			);
@@ -79,6 +84,7 @@
 			isa = PBXGroup;
 			children = (
 				4572CA6E905C401B8E1CA5C6 /* HeadingService.swift */,
+				281E51DF7C9C44239CDFCD82 /* LocalWebAppServer.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -142,6 +148,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				92864B256E1840E1A520F911 /* Assets.xcassets in Resources */,
+				66A5DB946E6C4239B2D365A0 /* WebApp in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -157,6 +164,7 @@
 				5D82D616FEE7462EB7C25526 /* OpsMapView.swift in Sources */,
 				EF5D3B114DF14EACBF36721F /* CompassView.swift in Sources */,
 				802440C01CF149D08108583F /* HeadingService.swift in Sources */,
+				0872B750A0654DEBA54D3EE0 /* LocalWebAppServer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

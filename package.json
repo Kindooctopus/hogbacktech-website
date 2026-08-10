@@ -10,7 +10,8 @@
     "build": "next build",
     "start": "npx --yes serve out -p 3000",
     "lint": "next lint",
-    "deploy": "wrangler deploy --name hogbacktech-website"
+    "deploy": "wrangler deploy --name hogbacktech-website",
+    "sync:ios": "bash scripts/sync-ios-webapp.sh"
   },
   "dependencies": {
     "leaflet": "^1.9.4",

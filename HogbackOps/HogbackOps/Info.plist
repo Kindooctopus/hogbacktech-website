@@ -28,6 +28,11 @@
 	<string>Hogback Ops uses your location for the map, compass heading, and nearby situational awareness.</string>
 	<key>NSMotionUsageDescription</key>
 	<string>Hogback Ops uses motion sensors for compass heading.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UIRequiredDeviceCapabilities</key>

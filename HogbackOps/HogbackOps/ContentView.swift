@@ -13,7 +13,7 @@ struct ContentView: View {
         TabView(selection: $tab) {
             OpsMapView()
                 .tabItem {
-                    Label("Map", systemImage: "map.fill")
+                    Label("Ops Map", systemImage: "map.fill")
                 }
                 .tag(OpsTab.map)
 
@@ -23,7 +23,7 @@ struct ContentView: View {
                 }
                 .tag(OpsTab.compass)
         }
-        .tint(Color("AccentColor"))
+        .tint(Color(red: 0.77, green: 0.36, blue: 0.24))
         .onAppear {
             headingService.requestAuthorization()
         }

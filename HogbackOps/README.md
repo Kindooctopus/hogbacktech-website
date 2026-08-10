@@ -1,46 +1,41 @@
 # Hogback Ops (Xcode)
 
-Native iOS shell for **Hogback Ops** — same idea as your MCFR apps: open this project in Xcode from OneDrive.
+Native iOS app for **Hogback Ops** with the real map, layers, branding, and AR Compass bundled in.
 
-## File to open
+## Open this
 
-```
+```text
 HogbackOps/HogbackOps.xcodeproj
 ```
 
-That is the Xcode project. Double‑click it or open it from Xcode → File → Open.
+## What’s inside
 
-## Put it in OneDrive (MCFR style)
+| Piece | Source |
+|-------|--------|
+| **Ops Map** tab | Full Hogback Ops web app (bundled under `HogbackOps/WebApp/`) — basemaps, fire/heat/wind/AVL layers, places, search, AR Compass |
+| **Compass** tab | Native Core Location heading |
+| **App icon** | Hogback Ops brand tile |
 
-On your Mac:
+The Map tab is not an empty shell: it serves the built site from inside the app over localhost.
+
+## OneDrive (MCFR style)
 
 ```bash
-mkdir -p ~/Library/CloudStorage/OneDrive-Personal/Hogback
-cp -R /path/to/hogbacktech-website/HogbackOps \
-  ~/Library/CloudStorage/OneDrive-Personal/Hogback/
-open ~/Library/CloudStorage/OneDrive-Personal/Hogback/HogbackOps/HogbackOps.xcodeproj
+cd ~/Library/CloudStorage/OneDrive-Personal/Hogback/hogbacktech-website
+git fetch origin
+git checkout cursor/hogback-ops-xcode-4887
+git pull
+open HogbackOps/HogbackOps.xcodeproj
 ```
 
-Or drag the `HogbackOps` folder into `OneDrive/Hogback/`, then open `HogbackOps.xcodeproj`.
+In Xcode: set your **Team** under Signing → pick a simulator/device → Run.
 
-Work in that OneDrive copy going forward (like MCFR). Avoid editing a second copy elsewhere.
+## Refresh the bundled map after web changes
 
-## What’s in the app
+```bash
+npm run build
+# or:
+bash scripts/sync-ios-webapp.sh
+```
 
-| Tab | What it does |
-|-----|----------------|
-| **Map** | Loads the Hogback Ops web map (`/apps/ops`) — Geo layers + in-map AR Compass |
-| **Compass** | Native Core Location heading rose |
-
-## First run in Xcode
-
-1. Open `HogbackOps.xcodeproj`
-2. Select your **Team** under Signing & Capabilities (set `DEVELOPMENT_TEAM`)
-3. Pick an iPhone simulator or your device
-4. Press Run (▶)
-
-Location permission is required for the Compass tab. Camera permission is declared for the web AR Compass inside the Map tab.
-
-## Optional: local web map URL
-
-In `HogbackOps/Views/OpsMapView.swift`, change `opsURL` if you want a preview/local build instead of `https://hogbacktech.com/apps/ops`.
+Then rebuild in Xcode.
