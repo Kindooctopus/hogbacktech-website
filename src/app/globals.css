@@ -299,3 +299,93 @@ body {
   mix-blend-mode: screen;
   opacity: 0.95;
 }
+
+.hogback-tf-label {
+  display: inline-flex;
+  min-width: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(251, 191, 36, 0.7);
+  background: rgba(10, 17, 26, 0.92);
+  padding: 2px 7px;
+  color: #fbbf24;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+}
+
+.hogback-pin-label {
+  display: inline-flex;
+  min-width: 28px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px 999px 999px 4px;
+  transform: rotate(-45deg);
+  background: #c45c3e;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 6px 5px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+}
+
+.hogback-pin-label {
+  transform: none;
+  border-radius: 999px;
+  padding: 4px 7px;
+}
+
+.hogback-poly-menu {
+  position: absolute;
+  z-index: 40;
+  min-width: 210px;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(16, 24, 32, 0.96);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+.hogback-poly-menu__title {
+  margin: 0;
+  padding: 8px 12px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #d48c5c;
+}
+
+.hogback-poly-menu button {
+  display: block;
+  width: 100%;
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: transparent;
+  padding: 10px 12px;
+  text-align: left;
+  color: #f1f5f9;
+  font-size: 13px;
+}
+
+.hogback-poly-menu button span {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.hogback-poly-menu button:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.hogback-poly-menu button:disabled {
+  opacity: 0.5;
+}
+
+.hogback-poly-menu__cancel {
+  color: #94a3b8 !important;
+}
