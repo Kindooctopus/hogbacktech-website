@@ -5,8 +5,10 @@ import type {
   CircleMarker,
   FeatureGroup,
   GeoJSON as LeafletGeoJSON,
+  Layer,
   Map as LeafletMap,
   Polygon,
+  Polyline,
   TileLayer,
 } from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -62,6 +64,13 @@ import {
   windSpeedLegendGradient,
   windStyle,
 } from "@/lib/surfaceWind";
+import {
+  convexHull,
+  fetchClosestAddressesInPolygon,
+  formatTfId,
+  leafletLatLngsToRing,
+  type TacticalAddress,
+} from "@/lib/tacticalZones";
 
 type LayerStatus = "idle" | "loading" | "ready" | "error";
 
@@ -638,6 +647,89 @@ function heatPopup(
     </div>`;
 }
 
+type PolygonHoldInfo = {
+  latlng: LatLng;
+  ring: LatLng[];
+  containerPoint: { x: number; y: number };
+};
+
+type HoldPointerEvent = {
+  latlng: { lat: number; lng: number };
+  containerPoint?: { x: number; y: number };
+  originalEvent?: MouseEvent | TouchEvent;
+};
+
+function bindPolygonHold(
+  L: typeof import("leaflet"),
+  lyr: Layer,
+  onHold: (info: PolygonHoldInfo) => void,
+) {
+  const path = lyr as Layer & { getLatLngs?: () => unknown };
+  if (typeof path.getLatLngs !== "function") return;
+
+  const fire = (e: HoldPointerEvent) => {
+    if (!e.containerPoint) return;
+    L.DomEvent.preventDefault(e as unknown as Event);
+    L.DomEvent.stopPropagation(e as unknown as Event);
+    const point = { lat: e.latlng.lat, lng: e.latlng.lng };
+    const ring = leafletLatLngsToRing(path.getLatLngs?.(), point);
+    if (!ring) return;
+    onHold({
+      latlng: point,
+      ring,
+      containerPoint: e.containerPoint,
+    });
+  };
+
+  lyr.on("contextmenu", (raw) => fire(raw as unknown as HoldPointerEvent));
+
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  let start: { x: number; y: number } | null = null;
+
+  const cancel = () => {
+    if (timer) clearTimeout(timer);
+    timer = null;
+    start = null;
+  };
+
+  lyr.on("mousedown touchstart", (raw) => {
+    const e = raw as unknown as HoldPointerEvent;
+    const orig = e.originalEvent;
+    if (orig && "button" in orig && orig.button !== 0) return;
+    if (!e.containerPoint) return;
+    start = { x: e.containerPoint.x, y: e.containerPoint.y };
+    timer = setTimeout(() => fire(e), 550);
+  });
+  lyr.on("mouseup mouseout touchend touchcancel", cancel);
+  lyr.on("mousemove touchmove", (raw) => {
+    const e = raw as unknown as HoldPointerEvent;
+    if (!start || !e.containerPoint) return;
+    const dx = e.containerPoint.x - start.x;
+    const dy = e.containerPoint.y - start.y;
+    if (Math.hypot(dx, dy) > 14) cancel();
+  });
+}
+
+function tfMarkerIcon(L: typeof import("leaflet"), id: string) {
+  return L.divIcon({
+    className: "hogback-map-symbol hogback-tf-symbol",
+    html: `<span class="hogback-tf-label">${id}</span>`,
+    iconSize: [40, 28],
+    iconAnchor: [20, 14],
+    popupAnchor: [0, -12],
+  });
+}
+
+function pinMarkerIcon(L: typeof import("leaflet"), label: string) {
+  return L.divIcon({
+    className: "hogback-map-symbol hogback-pin-symbol",
+    html: `<span class="hogback-pin-label">${label}</span>`,
+    iconSize: [32, 32],
+    iconAnchor: [16, 30],
+    popupAnchor: [0, -28],
+  });
+}
+
 function mapBoundsToBBox(map: LeafletMap): MapBBox {
   const b = map.getBounds();
   return {
@@ -652,6 +744,7 @@ async function buildOverlayLayer(
   L: typeof import("leaflet"),
   id: GsiOverlayId,
   geojson: GeoJSON.FeatureCollection,
+  onPolygonHold?: (info: PolygonHoldInfo) => void,
 ): Promise<LeafletGeoJSON> {
   if (id === "incidents") {
     const icon = fireMarkerIcon(L);
@@ -683,6 +776,7 @@ async function buildOverlayLayer(
           className: "hogback-gsi-popup",
           maxWidth: 280,
         });
+        if (onPolygonHold) bindPolygonHold(L, lyr, onPolygonHold);
       },
     });
   }
@@ -705,6 +799,7 @@ async function buildOverlayLayer(
           className: "hogback-gsi-popup",
           maxWidth: 300,
         });
+        if (onPolygonHold) bindPolygonHold(L, lyr, onPolygonHold);
       },
     });
   }
@@ -955,6 +1050,11 @@ export function GsiMap() {
   const searchMarkerRef = useRef<CircleMarker | null>(null);
   const flashlightRef = useRef<Polygon | null>(null);
   const layersMenuRef = useRef<HTMLDivElement>(null);
+  const tacticalGroupRef = useRef<FeatureGroup | null>(null);
+  const drawPreviewRef = useRef<Polyline | null>(null);
+  const onPolygonHoldRef = useRef<(info: PolygonHoldInfo) => void>(() => {});
+  const pinCountRef = useRef(0);
+  const zoneCountRef = useRef(0);
   const [ready, setReady] = useState(false);
   const [basemapId, setBasemapId] = useState<GsiBasemapId>(defaultBasemapId);
   const [layersOpen, setLayersOpen] = useState(false);
@@ -972,6 +1072,11 @@ export function GsiMap() {
   );
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [refreshToken, setRefreshToken] = useState(0);
+  const [drawing, setDrawing] = useState(false);
+  const [drawVertices, setDrawVertices] = useState<LatLng[]>([]);
+  const [polygonMenu, setPolygonMenu] = useState<PolygonHoldInfo | null>(null);
+  const [tacticalStatus, setTacticalStatus] = useState<string | null>(null);
+  const [tacticalBusy, setTacticalBusy] = useState(false);
 
   const setLayerMeta = useCallback(
     (
@@ -1010,6 +1115,11 @@ export function GsiMap() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [targetsVersion]);
 
+  onPolygonHoldRef.current = (info) => {
+    setPolygonMenu(info);
+    setLayersOpen(false);
+  };
+
   useEffect(() => {
     let cancelled = false;
 
@@ -1031,6 +1141,12 @@ export function GsiMap() {
         if (overlay.defaultOn) group.addTo(map);
       }
 
+      const tactical = L.featureGroup().addTo(map);
+      tacticalGroupRef.current = tactical;
+      map.getContainer().addEventListener("contextmenu", (event) => {
+        event.preventDefault();
+      });
+
       mapRef.current = map;
       setReady(true);
     }
@@ -1048,6 +1164,8 @@ export function GsiMap() {
         userMarkerRef.current = null;
         searchMarkerRef.current = null;
         flashlightRef.current = null;
+        tacticalGroupRef.current = null;
+        drawPreviewRef.current = null;
       }
     };
   }, []);
@@ -1131,7 +1249,9 @@ export function GsiMap() {
         if (cancelled) return;
 
         group.clearLayers();
-        const layer = await buildOverlayLayer(L, id, geojson);
+        const layer = await buildOverlayLayer(L, id, geojson, (info) =>
+          onPolygonHoldRef.current(info),
+        );
         layer.addTo(group);
         featuresRef.current[id] = targetsFromGeoJSON(id, geojson);
         setLayerMeta(id, {
@@ -1209,6 +1329,85 @@ export function GsiMap() {
       document.removeEventListener("keydown", onKeyDown);
     };
   }, [layersOpen]);
+
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setPolygonMenu(null);
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!ready || !map || !drawing) return;
+
+    map.doubleClickZoom.disable();
+    map.getContainer().style.cursor = "crosshair";
+
+    const onClick = (e: { latlng: { lat: number; lng: number } }) => {
+      setDrawVertices((prev) => [
+        ...prev,
+        { lat: e.latlng.lat, lng: e.latlng.lng },
+      ]);
+    };
+    const onDblClick = (e: { originalEvent?: Event }) => {
+      e.originalEvent?.preventDefault();
+      setDrawVertices((prev) => {
+        if (prev.length >= 3) {
+          queueMicrotask(() => void finishDrawnPolygon(prev));
+        }
+        return prev;
+      });
+    };
+
+    map.on("click", onClick);
+    map.on("dblclick", onDblClick);
+
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") cancelDrawing();
+    }
+    document.addEventListener("keydown", onKey);
+
+    return () => {
+      map.off("click", onClick);
+      map.off("dblclick", onDblClick);
+      map.doubleClickZoom.enable();
+      map.getContainer().style.cursor = "";
+      document.removeEventListener("keydown", onKey);
+    };
+    // finishDrawnPolygon reads current vertices from the dblclick closure
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, drawing]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    let cancelled = false;
+
+    async function updatePreview() {
+      const L = await import("leaflet");
+      if (cancelled || !mapRef.current) return;
+      if (drawPreviewRef.current) {
+        mapRef.current.removeLayer(drawPreviewRef.current);
+        drawPreviewRef.current = null;
+      }
+      if (!drawing || drawVertices.length < 2) return;
+      drawPreviewRef.current = L.polyline(
+        drawVertices.map((v) => [v.lat, v.lng] as [number, number]),
+        {
+          color: "#d48c5c",
+          weight: 2,
+          dashArray: "6 4",
+        },
+      ).addTo(mapRef.current);
+    }
+
+    void updatePreview();
+    return () => {
+      cancelled = true;
+    };
+  }, [drawing, drawVertices]);
 
   useEffect(() => {
     if (!ready) return;
@@ -1402,7 +1601,9 @@ export function GsiMap() {
                 geojson = (await res.json()) as GeoJSON.FeatureCollection;
               }
               group.clearLayers();
-              const layer = await buildOverlayLayer(L, id, geojson);
+              const layer = await buildOverlayLayer(L, id, geojson, (info) =>
+          onPolygonHoldRef.current(info),
+        );
               layer.addTo(group);
               featuresRef.current[id] = targetsFromGeoJSON(id, geojson);
               setLayerMeta(id, {
@@ -1430,6 +1631,150 @@ export function GsiMap() {
 
   function refresh() {
     setRefreshToken((n) => n + 1);
+  }
+
+  function cancelDrawing() {
+    setDrawing(false);
+    setDrawVertices([]);
+    const map = mapRef.current;
+    if (map && drawPreviewRef.current) {
+      map.removeLayer(drawPreviewRef.current);
+      drawPreviewRef.current = null;
+    }
+  }
+
+  async function finishDrawnPolygon(vertices: LatLng[]) {
+    const map = mapRef.current;
+    const group = tacticalGroupRef.current;
+    if (!map || !group || vertices.length < 3) return;
+    const L = await import("leaflet");
+    const polygon = L.polygon(
+      vertices.map((v) => [v.lat, v.lng] as [number, number]),
+      {
+        color: "#d48c5c",
+        weight: 2,
+        fillColor: "#b87333",
+        fillOpacity: 0.18,
+      },
+    );
+    bindPolygonHold(L, polygon, (info) => onPolygonHoldRef.current(info));
+    polygon.bindPopup(
+      `<div style="min-width:160px;font-family:system-ui,sans-serif;font-size:12px;color:#e2e8f0">
+        <div style="font-weight:600;color:#fff;margin-bottom:4px">Tactical polygon</div>
+        <div style="color:#94a3b8">Long-press for pin or TF zones</div>
+      </div>`,
+      { className: "hogback-gsi-popup", maxWidth: 240 },
+    );
+    polygon.addTo(group);
+    cancelDrawing();
+    setTacticalStatus("Polygon ready — long-press it to drop a pin or create TF zones.");
+  }
+
+  async function dropPinAt(info: PolygonHoldInfo) {
+    const map = mapRef.current;
+    const group = tacticalGroupRef.current;
+    if (!map || !group) return;
+    const L = await import("leaflet");
+    pinCountRef.current += 1;
+    const label = `P${pinCountRef.current}`;
+    L.marker([info.latlng.lat, info.latlng.lng], {
+      icon: pinMarkerIcon(L, label),
+      riseOnHover: true,
+    })
+      .bindPopup(
+        `<div style="min-width:140px;font-family:system-ui,sans-serif;font-size:12px;color:#e2e8f0">
+          <div style="font-weight:600;color:#fff;margin-bottom:4px">${label}</div>
+          <div style="color:#94a3b8">${info.latlng.lat.toFixed(5)}, ${info.latlng.lng.toFixed(5)}</div>
+        </div>`,
+        { className: "hogback-gsi-popup", maxWidth: 220 },
+      )
+      .addTo(group);
+    setPolygonMenu(null);
+    setTacticalStatus(`Dropped pin ${label}.`);
+  }
+
+  async function createTfZone(info: PolygonHoldInfo) {
+    const map = mapRef.current;
+    const group = tacticalGroupRef.current;
+    if (!map || !group || tacticalBusy) return;
+    setTacticalBusy(true);
+    setPolygonMenu(null);
+    setTacticalStatus("Finding 10 closest addresses in the polygon…");
+    try {
+      const addresses: TacticalAddress[] =
+        await fetchClosestAddressesInPolygon(info.ring, info.latlng, 10);
+      if (addresses.length === 0) {
+        setTacticalStatus(
+          "No rooftop addresses found inside this polygon. Try a denser neighborhood or a larger shape.",
+        );
+        return;
+      }
+
+      const L = await import("leaflet");
+      zoneCountRef.current += 1;
+      const zoneName = `Zone ${zoneCountRef.current}`;
+      const hull = convexHull(
+        addresses.map((a) => ({ lat: a.lat, lng: a.lng })),
+      );
+      if (hull.length >= 3) {
+        L.polygon(
+          hull.map((p) => [p.lat, p.lng] as [number, number]),
+          {
+            color: "#fbbf24",
+            weight: 2,
+            dashArray: "5 4",
+            fillColor: "#fbbf24",
+            fillOpacity: 0.12,
+          },
+        )
+          .bindPopup(
+            `<div style="font-family:system-ui,sans-serif;font-size:12px;color:#e2e8f0">
+              <div style="font-weight:600;color:#fff">${zoneName}</div>
+              <div style="color:#94a3b8">${addresses.length} addresses · TF01–${formatTfId(addresses.length)}</div>
+            </div>`,
+            { className: "hogback-gsi-popup", maxWidth: 240 },
+          )
+          .addTo(group);
+      }
+
+      addresses.forEach((address, index) => {
+        const tf = formatTfId(index + 1);
+        L.marker([address.lat, address.lng], {
+          icon: tfMarkerIcon(L, tf),
+          riseOnHover: true,
+        })
+          .bindPopup(
+            `<div style="min-width:160px;font-family:system-ui,sans-serif;font-size:12px;color:#e2e8f0">
+              <div style="font-weight:600;color:#fff;margin-bottom:4px">${tf} · ${zoneName}</div>
+              <div>${address.label.replace(/</g, "&lt;")}</div>
+              <div style="color:#94a3b8">${address.detail.replace(/</g, "&lt;")}</div>
+            </div>`,
+            { className: "hogback-gsi-popup", maxWidth: 260 },
+          )
+          .addTo(group);
+      });
+
+      setTacticalStatus(
+        `${zoneName}: labeled ${addresses.length} closest address${addresses.length === 1 ? "" : "es"} TF01–${formatTfId(addresses.length)}.`,
+      );
+    } catch (err) {
+      setTacticalStatus(
+        err instanceof Error
+          ? err.message
+          : "Could not look up addresses for this polygon.",
+      );
+    } finally {
+      setTacticalBusy(false);
+    }
+  }
+
+  function clearTactical() {
+    tacticalGroupRef.current?.clearLayers();
+    pinCountRef.current = 0;
+    zoneCountRef.current = 0;
+    setPolygonMenu(null);
+    setTacticalStatus("Cleared pins and TF zones. Drawn polygons were removed too.");
+    cancelDrawing();
   }
 
   function locateMe() {
@@ -1701,6 +2046,49 @@ export function GsiMap() {
           >
             AR Compass
           </button>
+          {drawing ? (
+            <>
+              <button
+                type="button"
+                disabled={drawVertices.length < 3}
+                onClick={() => void finishDrawnPolygon(drawVertices)}
+                className="rounded-md border border-copper-500/50 bg-copper-500/20 px-2.5 py-1.5 text-sm text-copper-200 hover:bg-copper-500/30 disabled:opacity-40"
+              >
+                Finish polygon
+              </button>
+              <button
+                type="button"
+                onClick={cancelDrawing}
+                className="rounded-md border border-white/15 px-2.5 py-1.5 text-sm text-white hover:bg-white/5"
+              >
+                Cancel
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                setDrawing(true);
+                setDrawVertices([]);
+                setPolygonMenu(null);
+                setTacticalStatus(
+                  "Tap to add corners, then Finish. Long-press the polygon for pin or TF zones.",
+                );
+              }}
+              className="rounded-md border border-white/15 px-2.5 py-1.5 text-sm text-white hover:bg-white/5"
+              title="Draw a tactical polygon"
+            >
+              Draw polygon
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={clearTactical}
+            className="rounded-md border border-white/15 px-2.5 py-1.5 text-sm text-white hover:bg-white/5"
+            title="Remove drawn polygons, pins, and TF zones"
+          >
+            Clear zones
+          </button>
           <button
             type="button"
             onClick={refresh}
@@ -1710,6 +2098,13 @@ export function GsiMap() {
           </button>
         </div>
       </div>
+
+      {tacticalStatus && (
+        <p className="border-b border-copper-500/20 bg-copper-500/10 px-3 py-1.5 text-xs text-copper-100">
+          {tacticalBusy ? "Working… " : null}
+          {tacticalStatus}
+        </p>
+      )}
 
       {locationError && (
         <p className="border-b border-amber-500/20 bg-amber-500/10 px-3 py-1.5 text-xs text-amber-200">
@@ -1723,6 +2118,44 @@ export function GsiMap() {
           id={`hogback-gsi-map-${mapId}`}
           className="absolute inset-0 z-0 bg-navy-950"
         />
+        {polygonMenu && (
+          <div
+            className="hogback-poly-menu"
+            style={{
+              left: Math.min(
+                polygonMenu.containerPoint.x,
+                (containerRef.current?.clientWidth ?? 280) - 220,
+              ),
+              top: Math.min(
+                polygonMenu.containerPoint.y,
+                (containerRef.current?.clientHeight ?? 180) - 120,
+              ),
+            }}
+          >
+            <p className="hogback-poly-menu__title">Polygon</p>
+            <button
+              type="button"
+              onClick={() => void dropPinAt(polygonMenu)}
+            >
+              Drop pin
+            </button>
+            <button
+              type="button"
+              disabled={tacticalBusy}
+              onClick={() => void createTfZone(polygonMenu)}
+            >
+              Create TF zones
+              <span>10 closest addresses · TF01–TF10</span>
+            </button>
+            <button
+              type="button"
+              className="hogback-poly-menu__cancel"
+              onClick={() => setPolygonMenu(null)}
+            >
+              Cancel
+            </button>
+          </div>
+        )}
         {!ready && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-navy-950 text-sm text-slate-400">
             Loading Geo map…
