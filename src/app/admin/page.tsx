@@ -61,7 +61,13 @@ export default function AdminPage() {
       if (!login.ok) {
         sessionStorage.removeItem(PASSWORD_KEY);
         setAuthed(false);
-        setStatus("Login failed. Check ADMIN_PASSWORD secret.");
+        const err = (await login.json().catch(() => ({}))) as {
+          error?: string;
+        };
+        setStatus(
+          err.error ??
+            `Login failed (${login.status}). Check ADMIN_PASSWORD on Worker hogbacktech-website.`,
+        );
         return;
       }
       sessionStorage.setItem(PASSWORD_KEY, pwd);
