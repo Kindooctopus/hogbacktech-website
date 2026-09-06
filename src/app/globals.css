@@ -89,3 +89,96 @@ body {
   -webkit-mask-image: radial-gradient(ellipse 90% 86% at 50% 50%, #000 58%, transparent 100%);
   mask-image: radial-gradient(ellipse 90% 86% at 50% 50%, #000 58%, transparent 100%);
 }
+
+/* Hogback GSI / Leaflet dark popups */
+.leaflet-container {
+  background: var(--color-navy-950);
+  font: inherit;
+}
+
+.hogback-gsi-popup .leaflet-popup-content-wrapper {
+  background: #101820;
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+.hogback-gsi-popup .leaflet-popup-tip {
+  background: #101820;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hogback-gsi-popup .leaflet-popup-content {
+  margin: 12px 14px;
+}
+
+.hogback-gsi-popup a.leaflet-popup-close-button {
+  color: #94a3b8;
+}
+
+/* Custom map symbols (fire / engines / resources) */
+.hogback-map-symbol {
+  background: transparent !important;
+  border: none !important;
+}
+
+.hogback-fire-symbol,
+.hogback-engine-symbol,
+.hogback-resource-symbol {
+  display: block;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
+  line-height: 0;
+}
+
+.hogback-fire-symbol svg,
+.hogback-engine-symbol svg,
+.hogback-resource-symbol svg {
+  display: block;
+  overflow: visible;
+}
+
+/* AR compass direction flashlight */
+.hogback-ar-flashlight {
+  width: min(70vw, 280px);
+  height: min(70vh, 420px);
+  background: linear-gradient(
+    to top,
+    rgba(184, 115, 51, 0.45) 0%,
+    rgba(234, 88, 12, 0.18) 42%,
+    rgba(251, 191, 36, 0.05) 78%,
+    transparent 100%
+  );
+  clip-path: polygon(50% 100%, 0% 0%, 100% 0%);
+  filter: blur(0.2px);
+  mix-blend-mode: screen;
+  opacity: 0.9;
+  transform: translateY(-8%);
+  animation: hogback-flashlight-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes hogback-flashlight-pulse {
+  0%,
+  100% {
+    opacity: 0.72;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+
+/* Flat-hold compass flashlight (wedge toward phone top / "ahead") */
+.hogback-flat-flashlight {
+  background: conic-gradient(
+    from -22deg at 50% 50%,
+    transparent 0deg,
+    rgba(245, 158, 11, 0.08) 2deg,
+    rgba(245, 158, 11, 0.28) 18deg,
+    rgba(245, 158, 11, 0.08) 34deg,
+    transparent 36deg,
+    transparent 360deg
+  );
+  border-radius: 9999px;
+  mix-blend-mode: screen;
+  opacity: 0.95;
+}
