@@ -5,9 +5,8 @@ export const company = {
   email: "developer@hogbacktech.com",
   emails: {
     developer: "developer@hogbacktech.com",
-    djensen: "djensen@hogbacktech.com",
   },
-  location: "The Dalles, Oregon",
+  location: "Pacific Northwest",
   tagline: "Solid Foundation. Smart Solutions.",
   motto: "Built on Experience. | Engineered for the Future. | Rooted in Strength.",
   mission:

@@ -57,7 +57,7 @@ export const satelliteLayers: SatelliteLayer[] = [
   },
 ];
 
-/** The Dalles / Columbia River Gorge — Hogback home territory */
+/** Columbia River Gorge — default map center */
 export const defaultMapCenter: [number, number] = [45.5945, -121.1787];
 export const defaultMapZoom = 7;
 

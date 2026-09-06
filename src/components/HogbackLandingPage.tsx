@@ -301,7 +301,7 @@ export function HogbackAbout() {
             Built from the ridge line up
           </h2>
           <p>
-            Hogback Ridge Technologies is based in The Dalles, Oregon—where
+            Hogback Ridge Technologies is rooted in the Pacific Northwest—where
             steep ridges, real weather, and real work shape how people think
             about reliability. Our software carries that same mindset.
           </p>
@@ -343,7 +343,7 @@ export function HogbackAbout() {
           <div className="overflow-hidden rounded-2xl border border-white/10">
             <Image
               src="/brand/hero-ridge.png"
-              alt="Hogback Ridge geological formation in The Dalles, Oregon"
+              alt="Hogback Ridge geological formation"
               width={800}
               height={600}
               className="h-auto w-full object-cover"
@@ -355,8 +355,8 @@ export function HogbackAbout() {
               Location
             </p>
             <p className="text-sm text-slate-200">
-              Hogback Ridge Technologies · The Dalles, Oregon · Serving agencies
-              and organizations across the Pacific Northwest and beyond.
+              Hogback Ridge Technologies · Pacific Northwest · Serving agencies
+              and organizations across the region and beyond.
             </p>
           </div>
         </div>
@@ -386,21 +386,12 @@ export function HogbackContact() {
 
           <div className="space-y-3 text-sm">
             <p className="text-slate-300">
-              <span className="text-slate-400">Development:</span>{" "}
+              <span className="text-slate-400">Email:</span>{" "}
               <a
                 href={`mailto:${company.emails.developer}`}
                 className="text-copper-500 hover:text-copper-400"
               >
                 Developer@hogbacktech.com
-              </a>
-            </p>
-            <p className="text-slate-300">
-              <span className="text-slate-400">David Jensen:</span>{" "}
-              <a
-                href={`mailto:${company.emails.djensen}`}
-                className="text-copper-500 hover:text-copper-400"
-              >
-                Djensen@hogbacktech.com
               </a>
             </p>
             <p className="text-slate-300">
@@ -457,8 +448,8 @@ export function HogbackFooter() {
     <footer className="mt-16 border-t border-white/10">
       <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-4 px-6 py-6 text-xs text-slate-500 sm:flex-row sm:items-center">
         <p>
-          © <span suppressHydrationWarning>{new Date().getFullYear()}</span> Hogback Ridge Technologies · The Dalles,
-          Oregon · Solid Foundation. Smart Solutions.
+          © <span suppressHydrationWarning>{new Date().getFullYear()}</span> Hogback Ridge Technologies ·
+          Solid Foundation. Smart Solutions.
         </p>
         <p>Brand &amp; site: hogbacktech.com</p>
       </div>
