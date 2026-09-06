@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { capabilities, company, products } from "@/lib/content";
+import { company, products } from "@/lib/content";
 
 export function HogbackLandingPage() {
   return (
@@ -70,22 +70,7 @@ export function HogbackHero() {
               priority
             />
 
-            {/* Desktop only: capability artwork on the left — keep off mobile so it does not cover the hero */}
-            <ul className="absolute left-3 top-1/2 z-10 hidden max-w-none -translate-y-1/2 flex-col gap-2 lg:flex">
-              {capabilities.map((capability) => (
-                <li key={capability.label}>
-                  <Image
-                    src={capability.image}
-                    alt={capability.label}
-                    width={512}
-                    height={512}
-                    className="hero-capability-blend h-[9.36rem] w-auto object-contain"
-                  />
-                </li>
-              ))}
-            </ul>
-
-            {/* Desktop / tablet+: product links on the right */}
+            {/* Desktop: product links on the right */}
             <div className="absolute right-1 top-1/2 z-10 hidden -translate-y-1/2 flex-col items-end gap-2 sm:right-2 md:flex lg:right-3">
               {products.map((product) => (
                 <Link
@@ -104,46 +89,30 @@ export function HogbackHero() {
                 </Link>
               ))}
             </div>
-          </div>
-        </div>
 
-        {/* Mobile / tablet: feature tiles sit under the hero image — never stacked over it */}
-        <div className="space-y-4 border-b border-copper-500/40 py-4 lg:hidden">
-          <ul className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {capabilities.map((capability) => (
-              <li key={capability.label} className="shrink-0">
-                <Image
-                  src={capability.image}
-                  alt={capability.label}
-                  width={512}
-                  height={512}
-                  className="hero-capability-blend h-20 w-auto object-contain sm:h-24"
-                />
-              </li>
-            ))}
-          </ul>
-
-          <div className="grid grid-cols-5 gap-1.5 md:hidden">
-            {products.map((product) => (
-              <Link
-                key={product.id}
-                href={`/products/${product.id}`}
-                className="group flex flex-col items-center gap-1 rounded-lg px-0.5 py-1 text-center transition hover:bg-white/5"
-                aria-label={`Learn more about ${product.name}`}
-              >
-                <Image
-                  src={product.tileImage}
-                  alt=""
-                  width={1024}
-                  height={1024}
-                  aria-hidden
-                  className="hero-product-blend h-14 w-14 object-contain sm:h-16 sm:w-16"
-                />
-                <span className="text-[7px] font-semibold uppercase leading-tight tracking-wide text-slate-300 group-hover:text-copper-300 sm:text-[8px]">
-                  {product.name.replace("Hogback ", "")}
-                </span>
-              </Link>
-            ))}
+            {/* Mobile / tablet: compact product links along the bottom */}
+            <div className="absolute inset-x-0 bottom-0 z-10 grid grid-cols-5 gap-1 p-1.5 sm:gap-1.5 sm:p-2 md:hidden">
+              {products.map((product) => (
+                <Link
+                  key={product.id}
+                  href={`/products/${product.id}`}
+                  className="group flex flex-col items-center gap-1 rounded-lg px-0.5 py-1 text-center transition hover:bg-black/25"
+                  aria-label={`Learn more about ${product.name}`}
+                >
+                  <Image
+                    src={product.tileImage}
+                    alt=""
+                    width={1024}
+                    height={1024}
+                    aria-hidden
+                    className="hero-product-blend h-[5.221125rem] w-[5.221125rem] object-contain sm:h-[5.967rem] sm:w-[5.967rem]"
+                  />
+                  <span className="text-[7px] font-semibold uppercase leading-tight tracking-wide text-white drop-shadow-sm group-hover:text-copper-300 sm:text-[8px]">
+                    {product.name.replace("Hogback ", "")}
+                  </span>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -178,6 +147,7 @@ export function HogbackHero() {
     </section>
   );
 }
+
 
 export function HogbackProducts() {
   const productCards = [
