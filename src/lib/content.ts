@@ -135,23 +135,23 @@ export const products = [
 export const capabilities = [
   {
     label: "Software Development",
-    image: "/brand/tiles/software-transparent.png",
+    image: "/brand/tiles/software-dark.png",
   },
   {
     label: "Mobile App Development",
-    image: "/brand/tiles/mobile-app-transparent.png",
+    image: "/brand/tiles/mobile-app-dark.png",
   },
   {
     label: "Customized for Your Organization",
-    image: "/brand/tiles/customize-transparent.png",
+    image: "/brand/tiles/customize-dark.png",
   },
   {
     label: "Secure Platforms",
-    image: "/brand/tiles/secure-platform-transparent.png",
+    image: "/brand/tiles/secure-platform-dark.png",
   },
   {
     label: "Communication & Development Strategy",
-    image: "/brand/tiles/comms-strategy-transparent.png",
+    image: "/brand/tiles/comms-strategy-dark.png",
   },
 ];
 
