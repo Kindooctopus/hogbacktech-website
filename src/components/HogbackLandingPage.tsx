@@ -23,11 +23,11 @@ export function HogbackHeader() {
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <a href="#top" aria-label="Hogback Ridge Technologies home" className="shrink-0">
           <Image
-            src="/brand/logo-with-name.png"
+            src="/brand/logo-mark.png"
             alt={company.name}
-            width={681}
-            height={299}
-            className="h-10 w-auto brightness-0 sm:h-11"
+            width={1024}
+            height={1024}
+            className="h-10 w-auto sm:h-11"
             priority
           />
         </a>
@@ -70,13 +70,13 @@ export function HogbackHero() {
               priority
             />
 
-            {/* Desktop: product links on the right */}
-            <div className="absolute right-1 top-1/2 z-10 hidden -translate-y-1/2 flex-col items-end gap-2 sm:right-2 md:flex lg:right-3">
+            {/* Desktop: product links on the right — sized to fit full tiles inside the banner */}
+            <div className="absolute inset-y-2 right-1 z-10 hidden w-[7.25rem] flex-col justify-between gap-1 sm:right-2 md:flex lg:right-3 lg:w-[8.5rem] xl:w-[9.5rem]">
               {products.map((product) => (
                 <Link
                   key={product.id}
                   href={`/products/${product.id}`}
-                  className="group block transition duration-200 hover:scale-[1.02] hover:opacity-95"
+                  className="group flex min-h-0 flex-1 items-center justify-end transition duration-200 hover:scale-[1.02] hover:opacity-95"
                   aria-label={`Learn more about ${product.name}`}
                 >
                   <Image
@@ -84,7 +84,7 @@ export function HogbackHero() {
                     alt={product.name}
                     width={1024}
                     height={1024}
-                    className="hero-product-blend h-auto max-h-[8.9505rem] w-auto object-contain xl:max-h-[10.44225rem]"
+                    className="h-full w-auto max-w-full object-contain"
                   />
                 </Link>
               ))}
@@ -105,7 +105,7 @@ export function HogbackHero() {
                     width={1024}
                     height={1024}
                     aria-hidden
-                    className="hero-product-blend h-[5.221125rem] w-[5.221125rem] object-contain sm:h-[5.967rem] sm:w-[5.967rem]"
+                    className="h-[5.221125rem] w-[5.221125rem] object-contain sm:h-[5.967rem] sm:w-[5.967rem]"
                   />
                   <span className="text-[7px] font-semibold uppercase leading-tight tracking-wide text-white drop-shadow-sm group-hover:text-copper-300 sm:text-[8px]">
                     {product.name.replace("Hogback ", "")}
@@ -153,7 +153,7 @@ export function HogbackHero() {
                 alt={capability.label}
                 width={512}
                 height={512}
-                className="hero-capability-blend h-24 w-auto object-contain sm:h-28 lg:h-32"
+                className="h-24 w-auto object-contain sm:h-28 lg:h-32"
               />
             </li>
           ))}
