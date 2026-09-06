@@ -61,12 +61,12 @@ export const products = [
     subtitle: "Fleet Tracking & Situational Awareness",
     tileImage: "/brand/products/geo.png",
     description:
-      "Real-time tracking and intelligence for fleet operators, utilities, public works, and logistics — with Cradlepoint integrations and advanced mapping.",
+      "Real-time tracking and intelligence for fleet operators, utilities, public works, and public safety — Cradlepoint integrations plus the Geo map with live fire layers, AVL, and GIS overlays.",
     features: [
-      "Real-time fleet tracking",
-      "Geofencing & alerts",
-      "Cradlepoint NetCloud integration",
-      "Advanced mapping & GIS layers",
+      "Geo map with live NIFC fire & perimeter layers",
+      "VIIRS, MODIS & Landsat heat signatures",
+      "Surface wind lines & speed (mph)",
+      "Evacuations, engines, crews & unit locations",
     ],
     accent: "geo",
     pricing: {
@@ -203,5 +203,6 @@ export const roadmap = [
   "AI-powered document search",
   "AI incident summaries",
   "Additional GIS layers",
+  "Expanded multi-state evacuation feeds",
   "Hogback Sat agency overlays",
 ];
