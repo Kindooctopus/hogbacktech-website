@@ -1,14 +1,12 @@
 # Hogback Tech Website
 
-A modern marketing site for [Hogback Tech](https://hogbacktech.com) — software, applications, and engagement.
+Marketing site for [Hogback Tech](https://hogbacktech.com) — mission-critical software for public safety, fleets, and field operations.
 
 ## Tech Stack
 
-- **Next.js 15** with App Router
-- **React 19**
-- **Tailwind CSS 4**
-- **TypeScript**
-- Static export for Cloudflare Pages deployment
+- **Next.js 15** (App Router, static export → `out/`)
+- **React 19** + **Tailwind CSS 4** + **TypeScript**
+- **Cloudflare Workers** (static assets + `/api/*` content API)
 
 ## Getting Started
 
@@ -17,57 +15,66 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the site locally.
+Open [http://localhost:3000](http://localhost:3000). Local `next dev` serves the static UI with bundled default copy; the content API only runs when the site is served through the Worker.
 
-## Build
+## Build & Deploy
 
 ```bash
 npm run build
+npm run deploy   # wrangler deploy --name hogbacktech-website
 ```
 
-The static site is exported to the `out/` directory.
+Workers Builds should build with `npm run build` and deploy assets from `out/`. The Worker entry is `worker/index.ts`.
 
-## Deploy to Cloudflare Pages
+## Homepage admin editor
 
-Since your domain is already registered with Cloudflare, deploying is straightforward:
+Edit homepage text, product boxes, spacing, and colors in the browser at **`/admin`**.
 
-1. Push this project to a GitHub or GitLab repository
-2. In the [Cloudflare Dashboard](https://dash.cloudflare.com), go to **Workers & Pages** → **Create** → **Pages** → **Connect to Git**
-3. Select your repository and configure the build:
-   - **Framework preset:** Next.js (Static HTML Export)
-   - **Build command:** `npm run build`
-   - **Build output directory:** `out`
-   - **Node.js version:** 20 or later
-4. Click **Save and Deploy**
-5. Once deployed, go to **Custom domains** and add `hogbacktech.com` and `www.hogbacktech.com`
+### One-time Cloudflare setup
 
-### Email Setup (Optional)
+1. **Create a KV namespace** (stores saved content):
 
-To use `hello@hogbacktech.com`, configure email routing in Cloudflare:
+   ```bash
+   npx wrangler kv namespace create SITE_CONTENT
+   npx wrangler kv namespace create SITE_CONTENT --preview
+   ```
 
-1. Go to **Email** → **Email Routing** in your Cloudflare dashboard
-2. Add a custom address `hello@hogbacktech.com` that forwards to your personal email
+   Add the returned IDs to `wrangler.jsonc` under `kv_namespaces` with binding `CONTENT` (see comments in that file).
 
-## Project Structure
+2. **Set the admin password** (Worker secret):
+
+   ```bash
+   npx wrangler secret put ADMIN_PASSWORD --name hogbacktech-website
+   ```
+
+3. **Deploy** (`npm run build && npm run deploy`), then open `https://hogbacktech.com/admin`.
+
+Without KV, the site still loads bundled defaults; Save in `/admin` returns an error until the binding is configured. Without `ADMIN_PASSWORD`, login is disabled.
+
+### What you can edit
+
+- Hero titles, body, and CTAs
+- Product section copy and each product box (name, badge, description, bullets)
+- About and contact sections
+- Page background, copper/navy accents, section spacing, and card gap
+
+Saved content is merged over defaults in `src/lib/site-content.ts`, so new fields keep working after deploys.
+
+## Project structure
 
 ```
 src/
 ├── app/
-│   ├── layout.tsx      # Root layout, fonts, SEO metadata
-│   ├── page.tsx        # Homepage
-│   └── globals.css     # Global styles & theme
-└── components/
-    ├── Header.tsx      # Navigation
-    ├── Hero.tsx        # Hero section
-    ├── Services.tsx    # Software, Apps, Engagement
-    ├── Approach.tsx    # Process overview
-    ├── About.tsx       # Company info
-    ├── Contact.tsx     # Contact form
-    └── Footer.tsx      # Site footer
+│   ├── admin/          # In-browser homepage editor
+│   ├── layout.tsx
+│   ├── page.tsx
+│   └── globals.css
+├── components/
+│   └── HogbackLandingPage.tsx
+└── lib/
+    ├── content.ts          # Shared company/product metadata
+    ├── site-content.ts     # Editable homepage schema + defaults
+    └── use-site-content.ts # Client fetch of /api/content
+worker/
+└── index.ts                # GET/PUT /api/content, POST /api/admin/login
 ```
-
-## Customization
-
-- Update contact email in `Footer.tsx` and `Contact.tsx`
-- Modify service offerings in `Services.tsx`
-- Adjust brand colors in `globals.css` (`@theme` block)

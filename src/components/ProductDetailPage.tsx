@@ -1,16 +1,20 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { HogbackFooter, HogbackHeader } from "@/components/HogbackLandingPage";
 import { company, products } from "@/lib/content";
+import { useSiteContent } from "@/lib/use-site-content";
 
 type Product = (typeof products)[number];
 
 export function ProductDetailPage({ product }: { product: Product }) {
+  const { content } = useSiteContent();
   const others = products.filter((p) => p.id !== product.id);
 
   return (
     <div className="min-h-screen bg-[#eef2f6] text-slate-600">
-      <HogbackHeader />
+      <HogbackHeader content={content} />
       <main className="mx-auto max-w-6xl space-y-12 px-6 py-12">
         <Link
           href="/"
@@ -114,7 +118,7 @@ export function ProductDetailPage({ product }: { product: Product }) {
           </div>
         </section>
       </main>
-      <HogbackFooter />
+      <HogbackFooter content={content} />
     </div>
   );
 }

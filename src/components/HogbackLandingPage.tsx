@@ -1,30 +1,53 @@
+"use client";
+
+import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { capabilities, company, products } from "@/lib/content";
+import { capabilities } from "@/lib/content";
+import type { SiteContent } from "@/lib/site-content";
+import { useSiteContent } from "@/lib/use-site-content";
 
 export function HogbackLandingPage() {
+  const { content } = useSiteContent();
+  const d = content.design;
+
+  const pageStyle = {
+    backgroundColor: d.pageBackground,
+    ["--color-copper-500" as string]: d.copper,
+    ["--color-copper-600" as string]: d.copper,
+    ["--color-copper-400" as string]: d.copper,
+    ["--color-navy-950" as string]: d.navy,
+  } as CSSProperties;
+
   return (
-    <div className="min-h-screen bg-[#eef2f6] text-slate-600">
-      <HogbackHeader />
-      <main className="space-y-24 pb-24">
-        <HogbackHero />
-        <HogbackProducts />
-        <HogbackAbout />
-        <HogbackContact />
+    <div className="min-h-screen text-slate-600" style={pageStyle}>
+
+      <HogbackHeader content={content} />
+      <main
+        className="flex flex-col pb-24"
+        style={{ gap: d.sectionSpacingPx }}
+      >
+        <HogbackHero content={content} />
+        <HogbackProducts content={content} />
+        <HogbackAbout content={content} />
+        <HogbackContact content={content} />
       </main>
-      <HogbackFooter />
+      <HogbackFooter content={content} />
     </div>
   );
 }
 
-export function HogbackHeader() {
+export function HogbackHeader({ content }: { content: SiteContent }) {
   return (
-    <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-[#eef2f6]/90 backdrop-blur-sm">
+    <header
+      className="sticky top-0 z-30 border-b border-slate-200/80 backdrop-blur-sm"
+      style={{ backgroundColor: `${content.design.pageBackground}e6` }}
+    >
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <a href="#top" aria-label="Hogback Ridge Technologies home" className="shrink-0">
           <Image
             src="/brand/logo-mark.png"
-            alt={company.name}
+            alt="Hogback Ridge Technologies"
             width={1024}
             height={1024}
             className="h-10 w-auto sm:h-11"
@@ -48,14 +71,14 @@ export function HogbackHeader() {
           href="#contact"
           className="shrink-0 rounded-full bg-copper-500 px-4 py-1.5 text-sm font-semibold text-navy-950 hover:bg-copper-400"
         >
-          Talk with us
+          {content.header.ctaLabel}
         </a>
       </div>
     </header>
   );
 }
 
-export function HogbackHero() {
+export function HogbackHero({ content }: { content: SiteContent }) {
   return (
     <section id="top" className="scroll-mt-16">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
@@ -70,9 +93,8 @@ export function HogbackHero() {
               priority
             />
 
-            {/* Desktop: product links on the right — 5 equal rows so every full tile fits */}
             <div className="absolute inset-y-5 right-2 z-10 hidden w-[13%] max-w-[8.75rem] grid-rows-5 gap-2 sm:right-3 md:grid lg:right-4 lg:w-[14%] xl:max-w-[9.75rem]">
-              {products.map((product) => (
+              {content.products.cards.map((product) => (
                 <Link
                   key={product.id}
                   href={`/products/${product.id}`}
@@ -80,7 +102,7 @@ export function HogbackHero() {
                   aria-label={`Learn more about ${product.name}`}
                 >
                   <Image
-                    src={product.tileImage}
+                    src={`/brand/products/${product.id}.png`}
                     alt={product.name}
                     fill
                     sizes="156px"
@@ -90,9 +112,8 @@ export function HogbackHero() {
               ))}
             </div>
 
-            {/* Mobile / tablet: compact product links along the bottom */}
             <div className="absolute inset-x-0 bottom-0 z-10 grid grid-cols-5 gap-1 p-1.5 sm:gap-1.5 sm:p-2 md:hidden">
-              {products.map((product) => (
+              {content.products.cards.map((product) => (
                 <Link
                   key={product.id}
                   href={`/products/${product.id}`}
@@ -100,7 +121,7 @@ export function HogbackHero() {
                   aria-label={`Learn more about ${product.name}`}
                 >
                   <Image
-                    src={product.tileImage}
+                    src={`/brand/products/${product.id}.png`}
                     alt=""
                     width={1024}
                     height={1024}
@@ -119,14 +140,12 @@ export function HogbackHero() {
 
       <div className="mx-auto max-w-6xl space-y-5 px-6 pt-6 pb-6 lg:pb-8">
         <h1 className="font-display text-4xl font-semibold leading-tight text-navy-950 sm:text-5xl lg:text-6xl">
-          Solid Foundation.
+          {content.hero.titleLine1}
           <br />
-          <span className="text-copper-600">Smart Solutions.</span>
+          <span className="text-copper-600">{content.hero.titleLine2}</span>
         </h1>
         <p className="max-w-xl text-base text-slate-600 sm:text-lg">
-          Hogback Ridge Technologies builds software for the people who keep
-          communities moving—public safety, fleets, and field operations.
-          Grounded in real-world experience, engineered for what comes next.
+          {content.hero.body}
         </p>
 
         <div className="flex flex-wrap items-center gap-4">
@@ -134,17 +153,16 @@ export function HogbackHero() {
             href="#products"
             className="rounded-full bg-copper-500 px-6 py-2.5 text-sm font-semibold text-navy-950 hover:bg-copper-400 sm:text-base"
           >
-            Explore products
+            {content.hero.primaryCta}
           </a>
           <a
             href="#contact"
             className="rounded-full border border-slate-300 bg-white/70 px-6 py-2.5 text-sm text-navy-950 hover:bg-white sm:text-base"
           >
-            Schedule a conversation
+            {content.hero.secondaryCta}
           </a>
         </div>
 
-        {/* Capability tiles — desktop/tablet only; on mobile these features are already in the hero image */}
         <ul className="hidden grid-cols-2 gap-3 pt-2 sm:grid-cols-3 md:grid lg:grid-cols-5">
           {capabilities.map((capability) => (
             <li key={capability.label} className="flex justify-center">
@@ -163,88 +181,24 @@ export function HogbackHero() {
   );
 }
 
-
-export function HogbackProducts() {
-  const productCards = [
-    {
-      id: "ops",
-      name: "Hogback Ops",
-      badge: "Public Safety",
-      description:
-        "Incident‑ready software for fire, EMS, and public safety teams that need clarity when seconds matter.",
-      points: [
-        "Operational dashboards for command staff",
-        "Incident timelines and activity views",
-        "Built with frontline experience in mind",
-      ],
-    },
-    {
-      id: "geo",
-      name: "Hogback Geo",
-      badge: "Fleet & Field",
-      description:
-        "Location‑aware tools for fleets, apparatus, and field units—so you always know what's moving and why.",
-      points: [
-        "Fleet and asset visibility",
-        "Route and coverage insights",
-        "Supports mixed public & contract fleets",
-      ],
-    },
-    {
-      id: "docs",
-      name: "Hogback Docs",
-      badge: "Documents",
-      description:
-        "Document workflows that match how agencies actually work—policies, inspections, and records in one place.",
-      points: [
-        "Policy and SOP management",
-        "Inspection and checklist flows",
-        "Audit‑friendly, field‑friendly design",
-      ],
-    },
-    {
-      id: "forge",
-      name: "Hogback Forge",
-      badge: "Custom Development",
-      description:
-        "When the off‑the‑shelf tools don't fit, Forge builds exactly what your organization needs.",
-      points: [
-        "Custom integrations and data bridges",
-        "Purpose‑built internal tools",
-        "Long‑term partnership, not one‑off code",
-      ],
-    },
-    {
-      id: "sat",
-      name: "Hogback Sat",
-      badge: "Satellite",
-      description:
-        "Near-real-time satellite imagery for wildfire smoke, thermal hotspots, and field situational awareness.",
-      points: [
-        "NASA GIBS live map feed",
-        "True color, fire, and night layers",
-        "Open the app and scrub recent passes",
-      ],
-    },
-  ];
-
+export function HogbackProducts({ content }: { content: SiteContent }) {
   return (
     <section id="products" className="scroll-mt-24">
       <div className="mx-auto max-w-6xl space-y-8 px-6">
         <div className="space-y-3">
           <h2 className="font-display text-3xl font-semibold text-navy-950">
-            Products built on the ridge
+            {content.products.sectionTitle}
           </h2>
-          <p className="max-w-2xl text-slate-600">
-            Each Hogback product is designed to feel like solid ground under
-            your feet—clear, dependable, and ready when the work gets real.
-          </p>
+          <p className="max-w-2xl text-slate-600">{content.products.sectionBody}</p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          {productCards.map((product) => (
+        <div
+          className="grid md:grid-cols-2"
+          style={{ gap: content.design.cardGapPx }}
+        >
+          {content.products.cards.map((product) => (
             <article
-              key={product.name}
+              key={product.id}
               className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_30px_-24px_rgba(10,17,26,0.35)]"
             >
               <div className="space-y-3">
@@ -292,49 +246,32 @@ export function HogbackProducts() {
   );
 }
 
-export function HogbackAbout() {
+export function HogbackAbout({ content }: { content: SiteContent }) {
   return (
     <section id="about" className="scroll-mt-24">
       <div className="mx-auto grid max-w-6xl items-start gap-10 px-6 lg:grid-cols-2">
         <div className="space-y-4">
           <h2 className="font-display text-3xl font-semibold text-navy-950">
-            Built from the ridge line up
+            {content.about.title}
           </h2>
+          <p>{content.about.paragraphs[0]}</p>
+          <p>{content.about.paragraphs[1]}</p>
           <p>
-            Hogback Ridge Technologies is rooted in the Pacific Northwest—where
-            steep ridges, real weather, and real work shape how people think
-            about reliability. Our software carries that same mindset.
-          </p>
-          <p>
-            We focus on public safety, fleets, and field operations because
-            that&apos;s where downtime isn&apos;t an option. Every screen, workflow, and
-            integration is designed to support the people doing the work, not
-            get in their way.
-          </p>
-          <p>
-            The ridge in our name isn&apos;t just a logo. It&apos;s a reminder:{" "}
-            <span className="text-navy-900">
-              build on solid ground, and you can go higher.
-            </span>
+            {content.about.paragraphs[2]}{" "}
+            <span className="text-navy-900">{content.about.highlight}</span>
           </p>
 
           <div className="rounded-2xl border border-slate-200 bg-gradient-to-r from-copper-500/15 to-white p-5">
             <h3 className="mb-3 font-display text-lg font-semibold text-navy-950">
-              What we care about
+              {content.about.caresTitle}
             </h3>
             <ul className="space-y-2 text-sm text-slate-600">
-              <li className="flex gap-2">
-                <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-copper-500" />
-                <span>Clarity under pressure for public safety and operations teams</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-copper-500" />
-                <span>Long‑term partnerships instead of short‑term projects</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-copper-500" />
-                <span>Software that respects budgets, time, and the realities of the field</span>
-              </li>
+              {content.about.cares.map((item) => (
+                <li key={item} className="flex gap-2">
+                  <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-copper-500" />
+                  <span>{item}</span>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
@@ -352,12 +289,9 @@ export function HogbackAbout() {
 
           <div className="rounded-2xl border border-slate-200 bg-gradient-to-r from-copper-500/15 to-white p-5">
             <p className="mb-2 text-xs uppercase tracking-[0.25em] text-copper-600">
-              Location
+              {content.about.locationLabel}
             </p>
-            <p className="text-sm text-slate-700">
-              Hogback Ridge Technologies · Pacific Northwest · Serving agencies
-              and organizations across the region and beyond.
-            </p>
+            <p className="text-sm text-slate-700">{content.about.locationBody}</p>
           </div>
         </div>
       </div>
@@ -365,75 +299,56 @@ export function HogbackAbout() {
   );
 }
 
-export function HogbackContact() {
+export function HogbackContact({ content }: { content: SiteContent }) {
   return (
     <section id="contact" className="scroll-mt-24">
       <div className="mx-auto grid max-w-6xl items-start gap-10 px-6 lg:grid-cols-[1.2fr_1fr]">
         <div className="space-y-4">
           <h2 className="font-display text-3xl font-semibold text-navy-950">
-            Start a conversation from solid ground
+            {content.contact.title}
           </h2>
-          <p>
-            Whether you&apos;re exploring Hogback Ops, Geo, Docs, Forge—or
-            you&apos;re not sure where to start—the first step is a simple
-            conversation about what you&apos;re trying to solve.
-          </p>
-          <p>
-            Share a bit about your agency, fleet, or organization, and we&apos;ll
-            talk through what a practical, grounded path forward could look
-            like.
-          </p>
+          <p>{content.contact.paragraphs[0]}</p>
+          <p>{content.contact.paragraphs[1]}</p>
 
           <div className="space-y-3 text-sm">
             <p className="text-slate-700">
-              <span className="text-slate-500">Email:</span>{" "}
+              <span className="text-slate-500">{content.contact.emailLabel}</span>{" "}
               <a
-                href={`mailto:${company.emails.developer}`}
+                href={`mailto:${content.contact.email}`}
                 className="text-copper-600 hover:text-copper-500"
               >
-                Developer@hogbacktech.com
+                {content.contact.email}
               </a>
             </p>
             <p className="text-slate-700">
-              Website:{" "}
+              <span className="text-slate-500">{content.contact.websiteLabel}</span>{" "}
               <a
-                href="https://hogbacktech.com"
+                href={`https://${content.contact.website}`}
                 className="text-copper-600 hover:text-copper-500"
               >
-                hogbacktech.com
+                {content.contact.website}
               </a>
             </p>
           </div>
         </div>
 
         <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_30px_-24px_rgba(10,17,26,0.35)]">
-          <p className="text-sm text-slate-600">
-            When you reach out, it helps to include:
-          </p>
+          <p className="text-sm text-slate-600">{content.contact.tipsTitle}</p>
           <ul className="space-y-2 text-sm text-slate-600">
-            <li className="flex gap-2">
-              <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-copper-500" />
-              <span>Your role and organization</span>
-            </li>
-            <li className="flex gap-2">
-              <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-copper-500" />
-              <span>
-                Which areas you&apos;re exploring (Ops, Geo, Docs, Forge, or
-                &quot;not sure yet&quot;)
-              </span>
-            </li>
-            <li className="flex gap-2">
-              <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-copper-500" />
-              <span>Any systems you already use that we should be aware of</span>
-            </li>
+            {content.contact.tips.map((tip) => (
+              <li key={tip} className="flex gap-2">
+                <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-copper-500" />
+                <span>{tip}</span>
+              </li>
+            ))}
           </ul>
 
           <div className="pt-2">
             <a
-              href={`mailto:${company.email}?subject=Hogback%20Ridge%20Technologies%20Inquiry`}
+              href={`mailto:${content.contact.email}?subject=Hogback%20Ridge%20Technologies%20Inquiry`}
               className="inline-flex items-center gap-2 rounded-full bg-copper-500 px-5 py-2 text-sm font-semibold text-navy-950 hover:bg-copper-400"
             >
-              Email {company.email}
+              {content.contact.ctaLabel} {content.contact.email}
               <span aria-hidden="true">↗</span>
             </a>
           </div>
@@ -443,15 +358,15 @@ export function HogbackContact() {
   );
 }
 
-export function HogbackFooter() {
+export function HogbackFooter({ content }: { content: SiteContent }) {
   return (
     <footer className="mt-16 border-t border-slate-200">
       <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-4 px-6 py-6 text-xs text-slate-500 sm:flex-row sm:items-center">
         <p>
-          © <span suppressHydrationWarning>{new Date().getFullYear()}</span> Hogback Ridge Technologies ·
-          Solid Foundation. Smart Solutions.
+          © <span suppressHydrationWarning>{new Date().getFullYear()}</span>{" "}
+          Hogback Ridge Technologies · {content.footer.tagline}
         </p>
-        <p>Brand &amp; site: hogbacktech.com</p>
+        <p>{content.footer.brandLine}</p>
       </div>
     </footer>
   );
