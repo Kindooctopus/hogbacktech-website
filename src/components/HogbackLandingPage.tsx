@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { company, products } from "@/lib/content";
+import { capabilities, company, products } from "@/lib/content";
 
 export function HogbackLandingPage() {
   return (
@@ -143,6 +143,21 @@ export function HogbackHero() {
             Schedule a conversation
           </a>
         </div>
+
+        {/* Capability tiles at the bottom of this section — not overlaid on the hero image */}
+        <ul className="grid grid-cols-2 gap-3 pt-2 sm:grid-cols-3 lg:grid-cols-5">
+          {capabilities.map((capability) => (
+            <li key={capability.label} className="flex justify-center">
+              <Image
+                src={capability.image}
+                alt={capability.label}
+                width={512}
+                height={512}
+                className="hero-capability-blend h-24 w-auto object-contain sm:h-28 lg:h-32"
+              />
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );
