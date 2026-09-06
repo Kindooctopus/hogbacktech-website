@@ -70,21 +70,21 @@ export function HogbackHero() {
               priority
             />
 
-            {/* Desktop: product links on the right — sized to fit full tiles inside the banner */}
-            <div className="absolute inset-y-2 right-1 z-10 hidden w-[7.25rem] flex-col justify-between gap-1 sm:right-2 md:flex lg:right-3 lg:w-[8.5rem] xl:w-[9.5rem]">
+            {/* Desktop: product links on the right — 5 equal rows so every full tile fits */}
+            <div className="absolute inset-y-4 right-1 z-10 hidden w-[14%] max-w-[9rem] grid-rows-5 gap-1 sm:right-2 md:grid lg:right-3 lg:w-[15%] xl:max-w-[10rem]">
               {products.map((product) => (
                 <Link
                   key={product.id}
                   href={`/products/${product.id}`}
-                  className="group flex min-h-0 flex-1 items-center justify-end transition duration-200 hover:scale-[1.02] hover:opacity-95"
+                  className="group relative min-h-0 transition duration-200 hover:opacity-95"
                   aria-label={`Learn more about ${product.name}`}
                 >
                   <Image
                     src={product.tileImage}
                     alt={product.name}
-                    width={1024}
-                    height={1024}
-                    className="h-full w-auto max-w-full object-contain"
+                    fill
+                    sizes="160px"
+                    className="object-contain object-right"
                   />
                 </Link>
               ))}
