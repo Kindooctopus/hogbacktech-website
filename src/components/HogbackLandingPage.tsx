@@ -4,7 +4,7 @@ import { capabilities, company, products } from "@/lib/content";
 
 export function HogbackLandingPage() {
   return (
-    <div className="min-h-screen bg-[#0a111a] text-slate-400">
+    <div className="min-h-screen bg-[#eef2f6] text-slate-600">
       <HogbackHeader />
       <main className="space-y-24 pb-24">
         <HogbackHero />
@@ -19,7 +19,7 @@ export function HogbackLandingPage() {
 
 export function HogbackHeader() {
   return (
-    <header className="sticky top-0 z-30 border-b border-white/5 bg-[#0a111a]/95 backdrop-blur-sm">
+    <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-[#eef2f6]/90 backdrop-blur-sm">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <a href="#top" aria-label="Hogback Ridge Technologies home" className="shrink-0">
           <Image
@@ -27,19 +27,19 @@ export function HogbackHeader() {
             alt={company.name}
             width={681}
             height={299}
-            className="h-10 w-auto sm:h-11"
+            className="h-10 w-auto brightness-0 sm:h-11"
             priority
           />
         </a>
 
-        <nav className="hidden items-center gap-8 text-sm text-slate-300 md:flex">
-          <a href="#products" className="transition-colors hover:text-white">
+        <nav className="hidden items-center gap-8 text-sm text-slate-600 md:flex">
+          <a href="#products" className="transition-colors hover:text-navy-950">
             Products
           </a>
-          <a href="#about" className="transition-colors hover:text-white">
+          <a href="#about" className="transition-colors hover:text-navy-950">
             About
           </a>
-          <a href="#contact" className="transition-colors hover:text-white">
+          <a href="#contact" className="transition-colors hover:text-navy-950">
             Contact
           </a>
         </nav>
@@ -59,7 +59,7 @@ export function HogbackHero() {
   return (
     <section id="top" className="scroll-mt-16">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-        <div className="overflow-hidden border-y border-copper-500/60">
+        <div className="overflow-hidden rounded-sm border-y border-copper-500/70 bg-navy-950 shadow-[0_18px_50px_-28px_rgba(10,17,26,0.45)]">
           <div className="relative">
             <Image
               src="/brand/top-logo.png"
@@ -118,12 +118,12 @@ export function HogbackHero() {
       </div>
 
       <div className="mx-auto max-w-6xl space-y-5 px-6 pt-6 pb-6 lg:pb-8">
-        <h1 className="font-display text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
+        <h1 className="font-display text-4xl font-semibold leading-tight text-navy-950 sm:text-5xl lg:text-6xl">
           Solid Foundation.
           <br />
-          <span className="text-copper-500">Smart Solutions.</span>
+          <span className="text-copper-600">Smart Solutions.</span>
         </h1>
-        <p className="max-w-xl text-base text-slate-400 sm:text-lg">
+        <p className="max-w-xl text-base text-slate-600 sm:text-lg">
           Hogback Ridge Technologies builds software for the people who keep
           communities moving—public safety, fleets, and field operations.
           Grounded in real-world experience, engineered for what comes next.
@@ -138,7 +138,7 @@ export function HogbackHero() {
           </a>
           <a
             href="#contact"
-            className="rounded-full border border-white/15 px-6 py-2.5 text-sm text-white hover:bg-white/5 sm:text-base"
+            className="rounded-full border border-slate-300 bg-white/70 px-6 py-2.5 text-sm text-navy-950 hover:bg-white sm:text-base"
           >
             Schedule a conversation
           </a>
@@ -232,10 +232,10 @@ export function HogbackProducts() {
     <section id="products" className="scroll-mt-24">
       <div className="mx-auto max-w-6xl space-y-8 px-6">
         <div className="space-y-3">
-          <h2 className="font-display text-3xl font-semibold text-white">
+          <h2 className="font-display text-3xl font-semibold text-navy-950">
             Products built on the ridge
           </h2>
-          <p className="max-w-2xl text-slate-400">
+          <p className="max-w-2xl text-slate-600">
             Each Hogback product is designed to feel like solid ground under
             your feet—clear, dependable, and ready when the work gets real.
           </p>
@@ -245,19 +245,19 @@ export function HogbackProducts() {
           {productCards.map((product) => (
             <article
               key={product.name}
-              className="flex flex-col justify-between rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-transparent p-5"
+              className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_30px_-24px_rgba(10,17,26,0.35)]"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between gap-3">
-                  <h3 className="font-display text-xl font-semibold text-white">
+                  <h3 className="font-display text-xl font-semibold text-navy-950">
                     {product.name}
                   </h3>
-                  <span className="rounded-full border border-copper-500/40 bg-copper-500/10 px-3 py-1 text-xs font-medium text-copper-500">
+                  <span className="rounded-full border border-copper-500/30 bg-copper-500/10 px-3 py-1 text-xs font-medium text-copper-600">
                     {product.badge}
                   </span>
                 </div>
-                <p className="text-sm text-slate-400">{product.description}</p>
-                <ul className="mt-3 space-y-1.5 text-sm text-slate-400">
+                <p className="text-sm text-slate-600">{product.description}</p>
+                <ul className="mt-3 space-y-1.5 text-sm text-slate-600">
                   {product.points.map((point) => (
                     <li key={point} className="flex gap-2">
                       <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-copper-500" />
@@ -269,7 +269,7 @@ export function HogbackProducts() {
               <div className="mt-4 flex flex-wrap items-center gap-4">
                 <Link
                   href={`/products/${product.id}`}
-                  className="inline-flex items-center gap-2 text-sm text-copper-500 hover:text-copper-400"
+                  className="inline-flex items-center gap-2 text-sm text-copper-600 hover:text-copper-500"
                 >
                   Learn about {product.name}
                   <span aria-hidden="true">↗</span>
@@ -277,7 +277,7 @@ export function HogbackProducts() {
                 {product.id === "sat" && (
                   <Link
                     href="/apps/sat"
-                    className="inline-flex items-center gap-2 text-sm text-white hover:text-copper-300"
+                    className="inline-flex items-center gap-2 text-sm text-navy-800 hover:text-copper-600"
                   >
                     Open live feed
                     <span aria-hidden="true">↗</span>
@@ -297,7 +297,7 @@ export function HogbackAbout() {
     <section id="about" className="scroll-mt-24">
       <div className="mx-auto grid max-w-6xl items-start gap-10 px-6 lg:grid-cols-2">
         <div className="space-y-4">
-          <h2 className="font-display text-3xl font-semibold text-white">
+          <h2 className="font-display text-3xl font-semibold text-navy-950">
             Built from the ridge line up
           </h2>
           <p>
@@ -313,16 +313,16 @@ export function HogbackAbout() {
           </p>
           <p>
             The ridge in our name isn&apos;t just a logo. It&apos;s a reminder:{" "}
-            <span className="text-slate-200">
+            <span className="text-navy-900">
               build on solid ground, and you can go higher.
             </span>
           </p>
 
-          <div className="rounded-2xl border border-white/10 bg-gradient-to-r from-copper-500/15 to-copper-500/5 p-5">
-            <h3 className="mb-3 font-display text-lg font-semibold text-white">
+          <div className="rounded-2xl border border-slate-200 bg-gradient-to-r from-copper-500/15 to-white p-5">
+            <h3 className="mb-3 font-display text-lg font-semibold text-navy-950">
               What we care about
             </h3>
-            <ul className="space-y-2 text-sm text-slate-300">
+            <ul className="space-y-2 text-sm text-slate-600">
               <li className="flex gap-2">
                 <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-copper-500" />
                 <span>Clarity under pressure for public safety and operations teams</span>
@@ -340,7 +340,7 @@ export function HogbackAbout() {
         </div>
 
         <div className="space-y-6">
-          <div className="overflow-hidden rounded-2xl border border-white/10">
+          <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-[0_14px_40px_-28px_rgba(10,17,26,0.4)]">
             <Image
               src="/brand/hero-ridge.png"
               alt="Hogback Ridge geological formation"
@@ -350,11 +350,11 @@ export function HogbackAbout() {
             />
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-gradient-to-r from-copper-500/15 to-copper-500/5 p-5">
-            <p className="mb-2 text-xs uppercase tracking-[0.25em] text-copper-300">
+          <div className="rounded-2xl border border-slate-200 bg-gradient-to-r from-copper-500/15 to-white p-5">
+            <p className="mb-2 text-xs uppercase tracking-[0.25em] text-copper-600">
               Location
             </p>
-            <p className="text-sm text-slate-200">
+            <p className="text-sm text-slate-700">
               Hogback Ridge Technologies · Pacific Northwest · Serving agencies
               and organizations across the region and beyond.
             </p>
@@ -370,7 +370,7 @@ export function HogbackContact() {
     <section id="contact" className="scroll-mt-24">
       <div className="mx-auto grid max-w-6xl items-start gap-10 px-6 lg:grid-cols-[1.2fr_1fr]">
         <div className="space-y-4">
-          <h2 className="font-display text-3xl font-semibold text-white">
+          <h2 className="font-display text-3xl font-semibold text-navy-950">
             Start a conversation from solid ground
           </h2>
           <p>
@@ -385,20 +385,20 @@ export function HogbackContact() {
           </p>
 
           <div className="space-y-3 text-sm">
-            <p className="text-slate-300">
-              <span className="text-slate-400">Email:</span>{" "}
+            <p className="text-slate-700">
+              <span className="text-slate-500">Email:</span>{" "}
               <a
                 href={`mailto:${company.emails.developer}`}
-                className="text-copper-500 hover:text-copper-400"
+                className="text-copper-600 hover:text-copper-500"
               >
                 Developer@hogbacktech.com
               </a>
             </p>
-            <p className="text-slate-300">
+            <p className="text-slate-700">
               Website:{" "}
               <a
                 href="https://hogbacktech.com"
-                className="text-copper-500 hover:text-copper-400"
+                className="text-copper-600 hover:text-copper-500"
               >
                 hogbacktech.com
               </a>
@@ -406,11 +406,11 @@ export function HogbackContact() {
           </div>
         </div>
 
-        <div className="space-y-4 rounded-2xl border border-white/10 bg-white/5 p-5">
-          <p className="text-sm text-slate-300">
+        <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_30px_-24px_rgba(10,17,26,0.35)]">
+          <p className="text-sm text-slate-600">
             When you reach out, it helps to include:
           </p>
-          <ul className="space-y-2 text-sm">
+          <ul className="space-y-2 text-sm text-slate-600">
             <li className="flex gap-2">
               <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-copper-500" />
               <span>Your role and organization</span>
@@ -445,7 +445,7 @@ export function HogbackContact() {
 
 export function HogbackFooter() {
   return (
-    <footer className="mt-16 border-t border-white/10">
+    <footer className="mt-16 border-t border-slate-200">
       <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-4 px-6 py-6 text-xs text-slate-500 sm:flex-row sm:items-center">
         <p>
           © <span suppressHydrationWarning>{new Date().getFullYear()}</span> Hogback Ridge Technologies ·
