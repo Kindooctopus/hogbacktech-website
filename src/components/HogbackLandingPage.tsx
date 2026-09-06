@@ -144,8 +144,8 @@ export function HogbackHero() {
           </a>
         </div>
 
-        {/* Capability tiles at the bottom of this section — not overlaid on the hero image */}
-        <ul className="grid grid-cols-2 gap-3 pt-2 sm:grid-cols-3 lg:grid-cols-5">
+        {/* Capability tiles — desktop/tablet only; on mobile these features are already in the hero image */}
+        <ul className="hidden grid-cols-2 gap-3 pt-2 sm:grid-cols-3 md:grid lg:grid-cols-5">
           {capabilities.map((capability) => (
             <li key={capability.label} className="flex justify-center">
               <Image
