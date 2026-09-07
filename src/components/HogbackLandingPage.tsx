@@ -326,7 +326,9 @@ export function HogbackProducts({
                 </div>
                 <p className="text-sm text-slate-600">{product.description}</p>
                 <ul className="mt-3 space-y-1.5 text-sm text-slate-600">
-                  {product.points.map((point) => (
+                  {product.points
+                    .filter((point) => point.trim().length > 0)
+                    .map((point) => (
                     <li key={point} className="flex gap-2">
                       <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-copper-500" />
                       <span>{point}</span>
