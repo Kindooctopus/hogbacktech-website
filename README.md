@@ -53,10 +53,10 @@ Without KV, the site still loads bundled defaults; Save in `/admin` returns an e
 
 ### What you can edit
 
-- Hero titles, body, and CTAs
-- Product section copy and each product box (name, badge, description, bullets)
-- About and contact sections
-- Page background, copper/navy accents, section spacing, and card gap
+- **Layout:** drag page sections to reorder; add text boxes, images, image+text, or content boxes
+- **Theme:** whole-page font themes, body size, heading scale, colors, spacing
+- **Per section:** copy plus title/body text size, weight, alignment, and color
+- Product cards can be reordered independently inside the Products section
 
 Saved content is merged over defaults in `src/lib/site-content.ts`, so new fields keep working after deploys.
 
