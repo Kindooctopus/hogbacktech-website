@@ -144,111 +144,132 @@ export function HogbackHero({
       })
     : undefined;
   const bodyStyle = block ? textStyleToCss(block.bodyStyle) : undefined;
+  const titlesFirst = content.hero.bannerPosition === "below-titles";
 
-  return (
-    <section id="top" className="scroll-mt-16">
-      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-        <div className="overflow-hidden rounded-sm border-y border-copper-500/70 bg-navy-950 shadow-[0_18px_50px_-28px_rgba(10,17,26,0.45)]">
-          <div className="relative">
-            <Image
-              src="/brand/top-logo.png"
-              alt="Hogback Technologies — Solid Foundation. Smart Solutions."
-              width={1022}
-              height={694}
-              className="block h-auto w-full object-contain"
-              priority
-            />
+  const banner = (
+    <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+      <div className="overflow-hidden rounded-sm border-y border-copper-500/70 bg-navy-950 shadow-[0_18px_50px_-28px_rgba(10,17,26,0.45)]">
+        <div className="relative">
+          <Image
+            src="/brand/top-logo.png"
+            alt="Hogback Technologies — Solid Foundation. Smart Solutions."
+            width={1022}
+            height={694}
+            className="block h-auto w-full object-contain"
+            priority
+          />
 
-            <div className="absolute inset-y-5 right-2 z-10 hidden w-[13%] max-w-[8.75rem] grid-rows-5 gap-2 sm:right-3 md:grid lg:right-4 lg:w-[14%] xl:max-w-[9.75rem]">
-              {content.products.cards.map((product) => (
-                <Link
-                  key={product.id}
-                  href={`/products/${product.id}`}
-                  className="group relative min-h-0 overflow-hidden rounded-md ring-1 ring-white/25 transition duration-200 hover:ring-copper-400/70 hover:opacity-95"
-                  aria-label={`Learn more about ${product.name}`}
-                >
-                  <Image
-                    src={`/brand/products/${product.id}.png`}
-                    alt={product.name}
-                    fill
-                    sizes="156px"
-                    className="object-contain object-center"
-                  />
-                </Link>
-              ))}
-            </div>
+          <div className="absolute inset-y-5 right-2 z-10 hidden w-[13%] max-w-[8.75rem] grid-rows-5 gap-2 sm:right-3 md:grid lg:right-4 lg:w-[14%] xl:max-w-[9.75rem]">
+            {content.products.cards.map((product) => (
+              <Link
+                key={product.id}
+                href={`/products/${product.id}`}
+                className="group relative min-h-0 overflow-hidden rounded-md ring-1 ring-white/25 transition duration-200 hover:ring-copper-400/70 hover:opacity-95"
+                aria-label={`Learn more about ${product.name}`}
+              >
+                <Image
+                  src={`/brand/products/${product.id}.png`}
+                  alt={product.name}
+                  fill
+                  sizes="156px"
+                  className="object-contain object-center"
+                />
+              </Link>
+            ))}
+          </div>
 
-            <div className="absolute inset-x-0 bottom-0 z-10 grid grid-cols-5 gap-1 p-1.5 sm:gap-1.5 sm:p-2 md:hidden">
-              {content.products.cards.map((product) => (
-                <Link
-                  key={product.id}
-                  href={`/products/${product.id}`}
-                  className="group flex flex-col items-center gap-1 rounded-lg px-0.5 py-1 text-center transition hover:bg-black/25"
-                  aria-label={`Learn more about ${product.name}`}
-                >
-                  <Image
-                    src={`/brand/products/${product.id}.png`}
-                    alt=""
-                    width={1024}
-                    height={1024}
-                    aria-hidden
-                    className="h-[5.221125rem] w-[5.221125rem] object-contain sm:h-[5.967rem] sm:w-[5.967rem]"
-                  />
-                  <span className="text-[7px] font-semibold uppercase leading-tight tracking-wide text-white drop-shadow-sm group-hover:text-copper-300 sm:text-[8px]">
-                    {product.name.replace("Hogback ", "")}
-                  </span>
-                </Link>
-              ))}
-            </div>
+          <div className="absolute inset-x-0 bottom-0 z-10 grid grid-cols-5 gap-1 p-1.5 sm:gap-1.5 sm:p-2 md:hidden">
+            {content.products.cards.map((product) => (
+              <Link
+                key={product.id}
+                href={`/products/${product.id}`}
+                className="group flex flex-col items-center gap-1 rounded-lg px-0.5 py-1 text-center transition hover:bg-black/25"
+                aria-label={`Learn more about ${product.name}`}
+              >
+                <Image
+                  src={`/brand/products/${product.id}.png`}
+                  alt=""
+                  width={1024}
+                  height={1024}
+                  aria-hidden
+                  className="h-[5.221125rem] w-[5.221125rem] object-contain sm:h-[5.967rem] sm:w-[5.967rem]"
+                />
+                <span className="text-[7px] font-semibold uppercase leading-tight tracking-wide text-white drop-shadow-sm group-hover:text-copper-300 sm:text-[8px]">
+                  {product.name.replace("Hogback ", "")}
+                </span>
+              </Link>
+            ))}
           </div>
         </div>
       </div>
+    </div>
+  );
 
-      <div className="mx-auto max-w-6xl space-y-5 px-6 pt-6 pb-6 lg:pb-8">
-        <h1
-          className="font-display text-4xl font-semibold leading-tight text-navy-950 sm:text-5xl lg:text-6xl"
-          style={titleStyle}
+  const copy = (
+    <div
+      className={`mx-auto max-w-6xl space-y-5 px-6 pb-6 lg:pb-8 ${
+        titlesFirst ? "pt-6" : "pt-6"
+      }`}
+    >
+      <h1
+        className="font-display text-4xl font-semibold leading-tight text-navy-950 sm:text-5xl lg:text-6xl"
+        style={titleStyle}
+      >
+        {content.hero.titleLine1}
+        <br />
+        <span className="text-copper-600">{content.hero.titleLine2}</span>
+      </h1>
+      <p
+        className="max-w-xl text-base text-slate-600 sm:text-lg"
+        style={bodyStyle}
+      >
+        {content.hero.body}
+      </p>
+
+      <div className="flex flex-wrap items-center gap-4">
+        <a
+          href="#products"
+          className="rounded-full bg-copper-500 px-6 py-2.5 text-sm font-semibold text-navy-950 hover:bg-copper-400 sm:text-base"
         >
-          {content.hero.titleLine1}
-          <br />
-          <span className="text-copper-600">{content.hero.titleLine2}</span>
-        </h1>
-        <p
-          className="max-w-xl text-base text-slate-600 sm:text-lg"
-          style={bodyStyle}
+          {content.hero.primaryCta}
+        </a>
+        <a
+          href="#contact"
+          className="rounded-full border border-slate-300 bg-white/70 px-6 py-2.5 text-sm text-navy-950 hover:bg-white sm:text-base"
         >
-          {content.hero.body}
-        </p>
-
-        <div className="flex flex-wrap items-center gap-4">
-          <a
-            href="#products"
-            className="rounded-full bg-copper-500 px-6 py-2.5 text-sm font-semibold text-navy-950 hover:bg-copper-400 sm:text-base"
-          >
-            {content.hero.primaryCta}
-          </a>
-          <a
-            href="#contact"
-            className="rounded-full border border-slate-300 bg-white/70 px-6 py-2.5 text-sm text-navy-950 hover:bg-white sm:text-base"
-          >
-            {content.hero.secondaryCta}
-          </a>
-        </div>
-
-        <ul className="hidden grid-cols-2 gap-3 pt-2 sm:grid-cols-3 md:grid lg:grid-cols-5">
-          {capabilities.map((capability) => (
-            <li key={capability.label} className="flex justify-center">
-              <Image
-                src={capability.image}
-                alt={capability.label}
-                width={512}
-                height={512}
-                className="h-24 w-auto object-contain sm:h-28 lg:h-32"
-              />
-            </li>
-          ))}
-        </ul>
+          {content.hero.secondaryCta}
+        </a>
       </div>
+
+      <ul className="hidden grid-cols-2 gap-3 pt-2 sm:grid-cols-3 md:grid lg:grid-cols-5">
+        {capabilities.map((capability) => (
+          <li key={capability.label} className="flex justify-center">
+            <Image
+              src={capability.image}
+              alt={capability.label}
+              width={512}
+              height={512}
+              className="h-24 w-auto object-contain sm:h-28 lg:h-32"
+            />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+
+  return (
+    <section id="top" className="scroll-mt-16">
+      {titlesFirst ? (
+        <>
+          {copy}
+          {banner}
+        </>
+      ) : (
+        <>
+          {banner}
+          {copy}
+        </>
+      )}
     </section>
   );
 }

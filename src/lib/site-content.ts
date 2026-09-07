@@ -180,6 +180,12 @@ export type SiteContent = {
     body: string;
     primaryCta: string;
     secondaryCta: string;
+    /**
+     * Where the heading picture sits relative to title 1 / title 2.
+     * - above-titles: banner first (default)
+     * - below-titles: titles first, then banner
+     */
+    bannerPosition: "above-titles" | "below-titles";
   };
   products: {
     sectionTitle: string;
@@ -368,6 +374,7 @@ export const defaultSiteContent: SiteContent = {
     body: "Hogback Ridge Technologies builds software for the people who keep communities moving—public safety, fleets, and field operations. Grounded in real-world experience, engineered for what comes next.",
     primaryCta: "Explore products",
     secondaryCta: "Schedule a conversation",
+    bannerPosition: "above-titles",
   },
   products: {
     sectionTitle: "Products built on the ridge",
@@ -632,7 +639,15 @@ export function mergeSiteContent(partial: unknown): SiteContent {
     ...incoming,
     version: 2,
     header: { ...defaultSiteContent.header, ...incoming.header },
-    hero: { ...defaultSiteContent.hero, ...incoming.hero },
+    hero: {
+      ...defaultSiteContent.hero,
+      ...incoming.hero,
+      bannerPosition:
+        incoming.hero?.bannerPosition === "below-titles" ||
+        incoming.hero?.bannerPosition === "above-titles"
+          ? incoming.hero.bannerPosition
+          : defaultSiteContent.hero.bannerPosition,
+    },
     products: {
       ...defaultSiteContent.products,
       ...incoming.products,

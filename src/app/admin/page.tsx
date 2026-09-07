@@ -1193,6 +1193,33 @@ function BlockContentEditor({
   if (block.type === "hero") {
     return (
       <div className="space-y-3">
+        <label className="block text-sm">
+          <span className="mb-1 block text-slate-500">
+            Hero order (titles vs heading picture)
+          </span>
+          <select
+            value={content.hero.bannerPosition}
+            onChange={(e) =>
+              setContent((c) => ({
+                ...c,
+                hero: {
+                  ...c.hero,
+                  bannerPosition: e.target.value as
+                    | "above-titles"
+                    | "below-titles",
+                },
+              }))
+            }
+            className="w-full rounded-lg border border-slate-300 px-3 py-2"
+          >
+            <option value="above-titles">
+              Picture first, then Title 1 / Title 2
+            </option>
+            <option value="below-titles">
+              Title 1 / Title 2 first, then picture
+            </option>
+          </select>
+        </label>
         <Field
           label="Title line 1"
           value={content.hero.titleLine1}
