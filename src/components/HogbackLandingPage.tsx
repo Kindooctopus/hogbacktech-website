@@ -4,8 +4,20 @@ import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { capabilities } from "@/lib/content";
-import type { SiteContent } from "@/lib/site-content";
+import {
+  textStyleToCss,
+  type BuiltinBlock,
+  type PageBlock,
+  type SiteContent,
+} from "@/lib/site-content";
 import { useSiteContent } from "@/lib/use-site-content";
+import { FontThemeLoader } from "@/components/FontThemeLoader";
+import {
+  BoxBlockSection,
+  ImageBlockSection,
+  ImageTextBlockSection,
+  TextBlockSection,
+} from "@/components/CustomBlocks";
 
 export function HogbackLandingPage() {
   const { content } = useSiteContent();
@@ -13,28 +25,58 @@ export function HogbackLandingPage() {
 
   const pageStyle = {
     backgroundColor: d.pageBackground,
+    fontSize: d.bodySizePx,
     ["--color-copper-500" as string]: d.copper,
     ["--color-copper-600" as string]: d.copper,
     ["--color-copper-400" as string]: d.copper,
     ["--color-navy-950" as string]: d.navy,
+    ["--heading-scale" as string]: String(d.headingScale),
   } as CSSProperties;
 
   return (
     <div className="min-h-screen text-slate-600" style={pageStyle}>
-
+      <FontThemeLoader themeId={d.fontTheme} />
       <HogbackHeader content={content} />
       <main
         className="flex flex-col pb-24"
         style={{ gap: d.sectionSpacingPx }}
       >
-        <HogbackHero content={content} />
-        <HogbackProducts content={content} />
-        <HogbackAbout content={content} />
-        <HogbackContact content={content} />
+        {content.blocks.map((block) => (
+          <PageBlockView key={block.id} block={block} content={content} />
+        ))}
       </main>
       <HogbackFooter content={content} />
     </div>
   );
+}
+
+function PageBlockView({
+  block,
+  content,
+}: {
+  block: PageBlock;
+  content: SiteContent;
+}) {
+  switch (block.type) {
+    case "hero":
+      return <HogbackHero content={content} block={block} />;
+    case "products":
+      return <HogbackProducts content={content} block={block} />;
+    case "about":
+      return <HogbackAbout content={content} block={block} />;
+    case "contact":
+      return <HogbackContact content={content} block={block} />;
+    case "text":
+      return <TextBlockSection block={block} />;
+    case "image":
+      return <ImageBlockSection block={block} />;
+    case "imageText":
+      return <ImageTextBlockSection block={block} />;
+    case "box":
+      return <BoxBlockSection block={block} />;
+    default:
+      return null;
+  }
 }
 
 export function HogbackHeader({ content }: { content: SiteContent }) {
@@ -78,7 +120,23 @@ export function HogbackHeader({ content }: { content: SiteContent }) {
   );
 }
 
-export function HogbackHero({ content }: { content: SiteContent }) {
+export function HogbackHero({
+  content,
+  block,
+}: {
+  content: SiteContent;
+  block?: BuiltinBlock;
+}) {
+  const titleStyle = block
+    ? textStyleToCss({
+        ...block.titleStyle,
+        fontSizePx: Math.round(
+          block.titleStyle.fontSizePx * content.design.headingScale,
+        ),
+      })
+    : undefined;
+  const bodyStyle = block ? textStyleToCss(block.bodyStyle) : undefined;
+
   return (
     <section id="top" className="scroll-mt-16">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
@@ -139,12 +197,18 @@ export function HogbackHero({ content }: { content: SiteContent }) {
       </div>
 
       <div className="mx-auto max-w-6xl space-y-5 px-6 pt-6 pb-6 lg:pb-8">
-        <h1 className="font-display text-4xl font-semibold leading-tight text-navy-950 sm:text-5xl lg:text-6xl">
+        <h1
+          className="font-display text-4xl font-semibold leading-tight text-navy-950 sm:text-5xl lg:text-6xl"
+          style={titleStyle}
+        >
           {content.hero.titleLine1}
           <br />
           <span className="text-copper-600">{content.hero.titleLine2}</span>
         </h1>
-        <p className="max-w-xl text-base text-slate-600 sm:text-lg">
+        <p
+          className="max-w-xl text-base text-slate-600 sm:text-lg"
+          style={bodyStyle}
+        >
           {content.hero.body}
         </p>
 
@@ -181,15 +245,36 @@ export function HogbackHero({ content }: { content: SiteContent }) {
   );
 }
 
-export function HogbackProducts({ content }: { content: SiteContent }) {
+export function HogbackProducts({
+  content,
+  block,
+}: {
+  content: SiteContent;
+  block?: BuiltinBlock;
+}) {
+  const titleStyle = block
+    ? textStyleToCss({
+        ...block.titleStyle,
+        fontSizePx: Math.round(
+          block.titleStyle.fontSizePx * content.design.headingScale,
+        ),
+      })
+    : undefined;
+  const bodyStyle = block ? textStyleToCss(block.bodyStyle) : undefined;
+
   return (
     <section id="products" className="scroll-mt-24">
       <div className="mx-auto max-w-6xl space-y-8 px-6">
         <div className="space-y-3">
-          <h2 className="font-display text-3xl font-semibold text-navy-950">
+          <h2
+            className="font-display text-3xl font-semibold text-navy-950"
+            style={titleStyle}
+          >
             {content.products.sectionTitle}
           </h2>
-          <p className="max-w-2xl text-slate-600">{content.products.sectionBody}</p>
+          <p className="max-w-2xl text-slate-600" style={bodyStyle}>
+            {content.products.sectionBody}
+          </p>
         </div>
 
         <div
@@ -246,12 +331,31 @@ export function HogbackProducts({ content }: { content: SiteContent }) {
   );
 }
 
-export function HogbackAbout({ content }: { content: SiteContent }) {
+export function HogbackAbout({
+  content,
+  block,
+}: {
+  content: SiteContent;
+  block?: BuiltinBlock;
+}) {
+  const titleStyle = block
+    ? textStyleToCss({
+        ...block.titleStyle,
+        fontSizePx: Math.round(
+          block.titleStyle.fontSizePx * content.design.headingScale,
+        ),
+      })
+    : undefined;
+  const bodyStyle = block ? textStyleToCss(block.bodyStyle) : undefined;
+
   return (
     <section id="about" className="scroll-mt-24">
       <div className="mx-auto grid max-w-6xl items-start gap-10 px-6 lg:grid-cols-2">
-        <div className="space-y-4">
-          <h2 className="font-display text-3xl font-semibold text-navy-950">
+        <div className="space-y-4" style={bodyStyle}>
+          <h2
+            className="font-display text-3xl font-semibold text-navy-950"
+            style={titleStyle}
+          >
             {content.about.title}
           </h2>
           <p>{content.about.paragraphs[0]}</p>
@@ -299,12 +403,31 @@ export function HogbackAbout({ content }: { content: SiteContent }) {
   );
 }
 
-export function HogbackContact({ content }: { content: SiteContent }) {
+export function HogbackContact({
+  content,
+  block,
+}: {
+  content: SiteContent;
+  block?: BuiltinBlock;
+}) {
+  const titleStyle = block
+    ? textStyleToCss({
+        ...block.titleStyle,
+        fontSizePx: Math.round(
+          block.titleStyle.fontSizePx * content.design.headingScale,
+        ),
+      })
+    : undefined;
+  const bodyStyle = block ? textStyleToCss(block.bodyStyle) : undefined;
+
   return (
     <section id="contact" className="scroll-mt-24">
       <div className="mx-auto grid max-w-6xl items-start gap-10 px-6 lg:grid-cols-[1.2fr_1fr]">
-        <div className="space-y-4">
-          <h2 className="font-display text-3xl font-semibold text-navy-950">
+        <div className="space-y-4" style={bodyStyle}>
+          <h2
+            className="font-display text-3xl font-semibold text-navy-950"
+            style={titleStyle}
+          >
             {content.contact.title}
           </h2>
           <p>{content.contact.paragraphs[0]}</p>
