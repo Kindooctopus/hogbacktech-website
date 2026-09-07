@@ -5,7 +5,7 @@ export type ProductCardContent = {
   name: string;
   badge: string;
   description: string;
-  points: [string, string, string];
+  points: string[];
 };
 
 export type TextAlign = "left" | "center" | "right";
@@ -661,11 +661,10 @@ export function mergeSiteContent(partial: unknown): SiteContent {
               return {
                 ...fallback,
                 ...card,
-                points: [
-                  card.points?.[0] ?? fallback.points[0],
-                  card.points?.[1] ?? fallback.points[1],
-                  card.points?.[2] ?? fallback.points[2],
-                ] as [string, string, string],
+                points:
+                  Array.isArray(card.points) && card.points.length > 0
+                    ? card.points.map((p) => (typeof p === "string" ? p : ""))
+                    : [...fallback.points],
               };
             })
           : defaultSiteContent.products.cards,

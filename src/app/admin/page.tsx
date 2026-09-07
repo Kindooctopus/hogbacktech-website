@@ -1344,25 +1344,59 @@ function BlockContentEditor({
               }
             />
             {card.points.map((point, pointIndex) => (
-              <Field
-                key={pointIndex}
-                label={`Bullet ${pointIndex + 1}`}
-                value={point}
-                onChange={(v) =>
-                  setContent((c) => {
-                    const cards = [...c.products.cards];
-                    const points = [...cards[index].points] as [
-                      string,
-                      string,
-                      string,
-                    ];
-                    points[pointIndex] = v;
-                    cards[index] = { ...cards[index], points };
-                    return { ...c, products: { ...c.products, cards } };
-                  })
-                }
-              />
+              <div key={pointIndex} className="flex items-end gap-2">
+                <div className="min-w-0 flex-1">
+                  <Field
+                    label={`Bullet ${pointIndex + 1}`}
+                    value={point}
+                    onChange={(v) =>
+                      setContent((c) => {
+                        const cards = [...c.products.cards];
+                        const points = [...cards[index].points];
+                        points[pointIndex] = v;
+                        cards[index] = { ...cards[index], points };
+                        return { ...c, products: { ...c.products, cards } };
+                      })
+                    }
+                  />
+                </div>
+                <button
+                  type="button"
+                  className="mb-[1px] rounded-full px-2 py-2 text-xs text-slate-500 hover:bg-slate-50 hover:text-red-600"
+                  onClick={() =>
+                    setContent((c) => {
+                      const cards = [...c.products.cards];
+                      const points = cards[index].points.filter(
+                        (_, i) => i !== pointIndex,
+                      );
+                      cards[index] = {
+                        ...cards[index],
+                        points: points.length > 0 ? points : [""],
+                      };
+                      return { ...c, products: { ...c.products, cards } };
+                    })
+                  }
+                >
+                  Remove
+                </button>
+              </div>
             ))}
+            <button
+              type="button"
+              className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm hover:bg-slate-50"
+              onClick={() =>
+                setContent((c) => {
+                  const cards = [...c.products.cards];
+                  cards[index] = {
+                    ...cards[index],
+                    points: [...cards[index].points, "New bullet point"],
+                  };
+                  return { ...c, products: { ...c.products, cards } };
+                })
+              }
+            >
+              + Add bullet
+            </button>
           </div>
         ))}
         <TextStyleEditor
