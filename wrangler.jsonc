@@ -1,12 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  // Named hogback-docs-admin so Cloudflare Workers Builds for that Worker
-  // passes the name requirement while Root directory is still the repo root.
-  // The marketing site Worker overrides the name via WRANGLER_CI_OVERRIDE_NAME
-  // (or `npm run deploy`, which passes --name hogbacktech-website).
-  // Prefer setting Cloudflare Root directory to hogback-docs/admin for admin,
-  // then restore this name to "hogbacktech-website".
-  "name": "hogback-docs-admin",
+  // Marketing site Worker (hogbacktech.com). Local deploys: npm run deploy
+  "name": "hogbacktech-website",
   "main": "worker/index.ts",
   "compatibility_date": "2026-06-13",
   "assets": {
@@ -14,17 +9,12 @@
     "binding": "ASSETS",
     // Route /api/* through the Worker before static assets so content edits work.
     "run_worker_first": ["/api/*"]
-  }
-  // After creating a KV namespace, add:
-  // "kv_namespaces": [
-  //   {
-  //     "binding": "CONTENT",
-  //     "id": "<production-kv-id>",
-  //     "preview_id": "<preview-kv-id>"
-  //   }
-  // ]
-  // Commands:
-  //   npx wrangler kv namespace create SITE_CONTENT
-  //   npx wrangler kv namespace create SITE_CONTENT --preview
-  //   npx wrangler secret put ADMIN_PASSWORD --name hogbacktech-website
+  },
+  "kv_namespaces": [
+    {
+      "binding": "CONTENT",
+      "id": "cfc110435fd8459a9b9f3e3e53026b6a",
+      "preview_id": "cfc110435fd8459a9b9f3e3e53026b6a"
+    }
+  ]
 }
