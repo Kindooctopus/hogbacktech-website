@@ -19,7 +19,7 @@ export type TextStyle = {
 };
 
 export type BuiltinBlockType = "hero" | "products" | "about" | "contact";
-export type CustomBlockType = "text" | "image" | "imageText" | "box";
+export type CustomBlockType = "text" | "image" | "imageText" | "box" | "group";
 export type BlockType = BuiltinBlockType | CustomBlockType;
 
 type BlockBase = {
@@ -72,12 +72,23 @@ export type BoxBlock = BlockBase & {
   background: string;
 };
 
+/** Nested boxes that live inside a group section. */
+export type NestedBox = TextBlock | ImageBlock | ImageTextBlock | BoxBlock;
+
+export type GroupBlock = BlockBase & {
+  type: "group";
+  title: string;
+  layout: "stack" | "grid";
+  children: NestedBox[];
+};
+
 export type PageBlock =
   | BuiltinBlock
   | TextBlock
   | ImageBlock
   | ImageTextBlock
-  | BoxBlock;
+  | BoxBlock
+  | GroupBlock;
 
 export type FontThemeId =
   | "ridge"
@@ -308,6 +319,38 @@ export function createBoxBlock(): BoxBlock {
     bodyStyle: { ...defaultBodyStyle },
     background: "#ffffff",
   };
+}
+
+export function createGroupBlock(): GroupBlock {
+  return {
+    id: newId("group"),
+    type: "group",
+    label: "Box section",
+    title: "New section",
+    layout: "grid",
+    children: [createBoxBlock(), createBoxBlock()],
+  };
+}
+
+/** Short title shown on admin drag previews. */
+export function blockPreviewTitle(block: PageBlock | NestedBox): string {
+  if ("title" in block && typeof block.title === "string" && block.title.trim()) {
+    return block.title;
+  }
+  if (block.type === "image" && block.caption) return block.caption;
+  if (block.type === "hero") return "Hero";
+  if (block.type === "products") return "Products";
+  if (block.type === "about") return "About";
+  if (block.type === "contact") return "Contact";
+  return block.label;
+}
+
+export function blockPreviewImage(block: PageBlock | NestedBox): string | null {
+  if (block.type === "image" || block.type === "imageText") return block.src;
+  if (block.type === "box" && block.imageSrc) return block.imageSrc;
+  if (block.type === "hero") return "/brand/top-logo.png";
+  if (block.type === "about") return "/brand/hero-ridge.png";
+  return null;
 }
 
 export function getFontTheme(id: FontThemeId | string | undefined): FontTheme {
@@ -541,6 +584,32 @@ function normalizeBlock(raw: unknown, fallbackIndex: number): PageBlock | null {
       background: typeof t.background === "string" ? t.background : def.background,
       titleStyle: mergeTextStyle(def.titleStyle, t.titleStyle),
       bodyStyle: mergeTextStyle(def.bodyStyle, t.bodyStyle),
+    };
+  }
+
+  if (b.type === "group") {
+    const def = createGroupBlock();
+    const t = b as Partial<GroupBlock>;
+    const children = Array.isArray(t.children)
+      ? t.children
+          .map((child, i) => normalizeBlock(child, i))
+          .filter((child): child is NestedBox =>
+            Boolean(
+              child &&
+                (child.type === "text" ||
+                  child.type === "image" ||
+                  child.type === "imageText" ||
+                  child.type === "box"),
+            ),
+          )
+      : def.children;
+    return {
+      ...def,
+      id: typeof t.id === "string" ? t.id : `${def.id}-${fallbackIndex}`,
+      label: typeof t.label === "string" ? t.label : def.label,
+      title: typeof t.title === "string" ? t.title : def.title,
+      layout: t.layout === "stack" || t.layout === "grid" ? t.layout : def.layout,
+      children: children.length > 0 ? children : def.children,
     };
   }
 

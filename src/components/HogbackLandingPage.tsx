@@ -14,6 +14,7 @@ import { useSiteContent } from "@/lib/use-site-content";
 import { FontThemeLoader } from "@/components/FontThemeLoader";
 import {
   BoxBlockSection,
+  GroupBlockSection,
   ImageBlockSection,
   ImageTextBlockSection,
   TextBlockSection,
@@ -74,6 +75,13 @@ function PageBlockView({
       return <ImageTextBlockSection block={block} />;
     case "box":
       return <BoxBlockSection block={block} />;
+    case "group":
+      return (
+        <GroupBlockSection
+          block={block}
+          cardGapPx={content.design.cardGapPx}
+        />
+      );
     default:
       return null;
   }

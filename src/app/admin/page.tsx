@@ -12,8 +12,11 @@ import Link from "next/link";
 import {
   BRAND_IMAGE_OPTIONS,
   FONT_THEMES,
+  blockPreviewImage,
+  blockPreviewTitle,
   createBoxBlock,
   createBuiltinBlock,
+  createGroupBlock,
   createImageBlock,
   createImageTextBlock,
   createTextBlock,
@@ -22,6 +25,8 @@ import {
   type BuiltinBlockType,
   type FontThemeId,
   type FontWeight,
+  type GroupBlock,
+  type NestedBox,
   type PageBlock,
   type SiteContent,
   type TextAlign,
@@ -339,60 +344,34 @@ export default function AdminPage() {
             <div className="space-y-5">
               <div>
                 <h2 className="font-display text-lg font-semibold text-navy-950">
-                  Page sections
+                  Page preview — drag to reorder
                 </h2>
                 <p className="text-sm text-slate-500">
-                  Drag the handle to reorder. Click a row to edit its content and
-                  text styles.
+                  Drag each <strong>preview card</strong> to move sections on the
+                  homepage. Use Edit to change content. Inside a Box section, you
+                  can also drag the boxes within that section.
                 </p>
               </div>
 
-              <ul className="space-y-2">
+              <div className="grid gap-3 sm:grid-cols-2">
                 {content.blocks.map((block, index) => (
-                  <li
+                  <PreviewCard
                     key={block.id}
-                    draggable
+                    title={blockPreviewTitle(block)}
+                    subtitle={block.type}
+                    image={blockPreviewImage(block)}
+                    selected={selectedBlockId === block.id}
+                    dragging={dragIndex === index}
                     onDragStart={() => onDragStart(index)}
-                    onDragOver={(e: DragEvent) => e.preventDefault()}
                     onDrop={() => onDrop(index)}
-                    className={`flex items-center gap-2 rounded-xl border px-3 py-2 ${
-                      selectedBlockId === block.id
-                        ? "border-copper-500 bg-copper-500/5"
-                        : "border-slate-200 bg-slate-50"
-                    } ${dragIndex === index ? "opacity-60" : ""}`}
-                  >
-                    <span
-                      className="cursor-grab select-none px-1 text-slate-400 active:cursor-grabbing"
-                      title="Drag to reorder"
-                      aria-hidden
-                    >
-                      ⋮⋮
-                    </span>
-                    <button
-                      type="button"
-                      className="min-w-0 flex-1 text-left"
-                      onClick={() => {
-                        setSelectedBlockId(block.id);
-                        setSection("content");
-                      }}
-                    >
-                      <span className="block truncate text-sm font-medium text-navy-950">
-                        {block.label}
-                      </span>
-                      <span className="block text-xs uppercase tracking-wide text-slate-400">
-                        {block.type}
-                      </span>
-                    </button>
-                    <button
-                      type="button"
-                      className="rounded-full px-2 py-1 text-xs text-slate-500 hover:bg-white hover:text-red-600"
-                      onClick={() => removeBlock(block.id)}
-                    >
-                      Remove
-                    </button>
-                  </li>
+                    onEdit={() => {
+                      setSelectedBlockId(block.id);
+                      setSection("content");
+                    }}
+                    onRemove={() => removeBlock(block.id)}
+                  />
                 ))}
-              </ul>
+              </div>
 
               <div className="space-y-2 border-t border-slate-200 pt-4">
                 <p className="text-sm font-medium text-navy-950">Add to page</p>
@@ -404,6 +383,10 @@ export default function AdminPage() {
                     onClick={() => addBlock(createImageTextBlock)}
                   />
                   <AddBtn label="Content box" onClick={() => addBlock(createBoxBlock)} />
+                  <AddBtn
+                    label="Box section"
+                    onClick={() => addBlock(createGroupBlock)}
+                  />
                 </div>
                 <p className="pt-2 text-xs text-slate-500">
                   Restore a core section if you removed it:
@@ -645,6 +628,89 @@ function AddBtn({ label, onClick }: { label: string; onClick: () => void }) {
   );
 }
 
+function PreviewCard({
+  title,
+  subtitle,
+  image,
+  selected,
+  dragging,
+  onDragStart,
+  onDrop,
+  onEdit,
+  onRemove,
+}: {
+  title: string;
+  subtitle: string;
+  image: string | null;
+  selected?: boolean;
+  dragging?: boolean;
+  onDragStart: () => void;
+  onDrop: () => void;
+  onEdit?: () => void;
+  onRemove?: () => void;
+}) {
+  return (
+    <div
+      draggable
+      onDragStart={onDragStart}
+      onDragOver={(e: DragEvent) => e.preventDefault()}
+      onDrop={onDrop}
+      className={`overflow-hidden rounded-xl border bg-white shadow-sm transition ${
+        selected ? "border-copper-500 ring-1 ring-copper-500/40" : "border-slate-200"
+      } ${dragging ? "opacity-50" : ""}`}
+    >
+      <div
+        className="cursor-grab active:cursor-grabbing"
+        title="Drag this preview to reorder"
+      >
+        <div className="relative flex h-28 items-center justify-center bg-slate-100">
+          {image ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={image} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <div className="px-3 text-center">
+              <p className="line-clamp-3 text-sm font-medium text-navy-950">
+                {title}
+              </p>
+            </div>
+          )}
+          <span className="absolute left-2 top-2 rounded bg-black/55 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+            Drag preview
+          </span>
+        </div>
+        <div className="space-y-1 px-3 py-2">
+          <p className="truncate text-sm font-semibold text-navy-950">{title}</p>
+          <p className="text-[11px] uppercase tracking-wide text-slate-400">
+            {subtitle}
+          </p>
+        </div>
+      </div>
+      {(onEdit || onRemove) && (
+        <div className="flex gap-2 border-t border-slate-100 px-3 py-2">
+          {onEdit ? (
+            <button
+              type="button"
+              onClick={onEdit}
+              className="rounded-full bg-copper-500 px-3 py-1 text-xs font-semibold text-navy-950 hover:bg-copper-400"
+            >
+              Edit
+            </button>
+          ) : null}
+          {onRemove ? (
+            <button
+              type="button"
+              onClick={onRemove}
+              className="rounded-full px-3 py-1 text-xs text-slate-500 hover:bg-slate-50 hover:text-red-600"
+            >
+              Remove
+            </button>
+          ) : null}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Field({
   label,
   value,
@@ -826,32 +892,285 @@ function ProductCardsEditor({
   return (
     <div className="space-y-3 border-t border-slate-200 pt-4">
       <div>
-        <p className="text-sm font-medium text-navy-950">Product boxes</p>
+        <p className="text-sm font-medium text-navy-950">
+          Boxes inside Products section
+        </p>
         <p className="text-xs text-slate-500">
-          Drag to reorder the product cards inside the Products section.
+          Drag each product preview card to reorder boxes within that section.
         </p>
       </div>
-      <ul className="space-y-2">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {content.products.cards.map((card, index) => (
-          <li
+          <PreviewCard
             key={card.id}
-            draggable
+            title={card.name}
+            subtitle={card.badge}
+            image={`/brand/products/${card.id}.png`}
+            dragging={cardDrag === index}
             onDragStart={() => setCardDrag(index)}
-            onDragOver={(e) => e.preventDefault()}
             onDrop={() => {
               if (cardDrag !== null) moveCard(cardDrag, index);
               setCardDrag(null);
             }}
-            className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"
-          >
-            <span className="cursor-grab text-slate-400" aria-hidden>
-              ⋮⋮
-            </span>
-            <span className="font-medium text-navy-950">{card.name}</span>
-            <span className="text-xs text-slate-400">{card.badge}</span>
-          </li>
+          />
         ))}
-      </ul>
+      </div>
+      <p className="text-xs text-slate-500">
+        Drag the product previews to reorder. To edit product text, Edit the
+        Products section above.
+      </p>
+    </div>
+  );
+}
+
+function GroupChildrenEditor({
+  block,
+  updateBlock,
+}: {
+  block: GroupBlock;
+  updateBlock: (id: string, next: PageBlock) => void;
+}) {
+  const [dragChild, setDragChild] = useState<number | null>(null);
+  const [editChildId, setEditChildId] = useState<string | null>(
+    block.children[0]?.id ?? null,
+  );
+
+  function moveChild(from: number, to: number) {
+    if (to < 0 || to >= block.children.length || from === to) return;
+    const children = [...block.children];
+    const [item] = children.splice(from, 1);
+    children.splice(to, 0, item);
+    updateBlock(block.id, { ...block, children });
+  }
+
+  function updateChild(childId: string, next: NestedBox) {
+    updateBlock(block.id, {
+      ...block,
+      children: block.children.map((c) => (c.id === childId ? next : c)),
+    });
+  }
+
+  function addChild(factory: () => NestedBox) {
+    const child = factory();
+    updateBlock(block.id, {
+      ...block,
+      children: [...block.children, child],
+    });
+    setEditChildId(child.id);
+  }
+
+  function removeChild(childId: string) {
+    if (!confirm("Remove this box from the section?")) return;
+    const children = block.children.filter((c) => c.id !== childId);
+    updateBlock(block.id, { ...block, children });
+    if (editChildId === childId) setEditChildId(children[0]?.id ?? null);
+  }
+
+  const editing = block.children.find((c) => c.id === editChildId) ?? null;
+
+  return (
+    <div className="space-y-4">
+      <Field
+        label="Section title"
+        value={block.title}
+        onChange={(v) => updateBlock(block.id, { ...block, title: v })}
+      />
+      <label className="block text-sm">
+        <span className="mb-1 block text-slate-500">Layout</span>
+        <select
+          value={block.layout}
+          onChange={(e) =>
+            updateBlock(block.id, {
+              ...block,
+              layout: e.target.value as GroupBlock["layout"],
+            })
+          }
+          className="w-full rounded-lg border border-slate-300 px-3 py-2"
+        >
+          <option value="grid">Grid (side by side)</option>
+          <option value="stack">Stack (one under another)</option>
+        </select>
+      </label>
+
+      <div>
+        <p className="mb-2 text-sm font-medium text-navy-950">
+          Boxes in this section — drag previews to reorder
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {block.children.map((child, index) => (
+            <PreviewCard
+              key={child.id}
+              title={blockPreviewTitle(child)}
+              subtitle={child.type}
+              image={blockPreviewImage(child)}
+              selected={editChildId === child.id}
+              dragging={dragChild === index}
+              onDragStart={() => setDragChild(index)}
+              onDrop={() => {
+                if (dragChild !== null) moveChild(dragChild, index);
+                setDragChild(null);
+              }}
+              onEdit={() => setEditChildId(child.id)}
+              onRemove={() => removeChild(child.id)}
+            />
+          ))}
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <AddBtn label="Text box" onClick={() => addChild(createTextBlock)} />
+          <AddBtn label="Image" onClick={() => addChild(createImageBlock)} />
+          <AddBtn
+            label="Image + text"
+            onClick={() => addChild(createImageTextBlock)}
+          />
+          <AddBtn label="Content box" onClick={() => addChild(createBoxBlock)} />
+        </div>
+      </div>
+
+      {editing ? (
+        <div className="space-y-3 rounded-xl border border-slate-200 p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-copper-600">
+            Editing box: {blockPreviewTitle(editing)}
+          </p>
+          <NestedBoxFields
+            block={editing}
+            onChange={(next) => updateChild(editing.id, next)}
+          />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function NestedBoxFields({
+  block,
+  onChange,
+}: {
+  block: NestedBox;
+  onChange: (next: NestedBox) => void;
+}) {
+  if (block.type === "text") {
+    return (
+      <div className="space-y-3">
+        <Field
+          label="Title"
+          value={block.title}
+          onChange={(v) => onChange({ ...block, title: v })}
+        />
+        <Area
+          label="Body"
+          value={block.body}
+          onChange={(v) => onChange({ ...block, body: v })}
+        />
+        <TextStyleEditor
+          label="Title style"
+          style={block.titleStyle}
+          onChange={(titleStyle) => onChange({ ...block, titleStyle })}
+        />
+        <TextStyleEditor
+          label="Body style"
+          style={block.bodyStyle}
+          onChange={(bodyStyle) => onChange({ ...block, bodyStyle })}
+        />
+      </div>
+    );
+  }
+  if (block.type === "image") {
+    return (
+      <div className="space-y-3">
+        <ImagePicker
+          label="Image"
+          value={block.src}
+          onChange={(src) => onChange({ ...block, src })}
+        />
+        <Field
+          label="Alt text"
+          value={block.alt}
+          onChange={(v) => onChange({ ...block, alt: v })}
+        />
+        <Field
+          label="Caption"
+          value={block.caption}
+          onChange={(v) => onChange({ ...block, caption: v })}
+        />
+      </div>
+    );
+  }
+  if (block.type === "imageText") {
+    return (
+      <div className="space-y-3">
+        <ImagePicker
+          label="Image"
+          value={block.src}
+          onChange={(src) => onChange({ ...block, src })}
+        />
+        <Field
+          label="Title"
+          value={block.title}
+          onChange={(v) => onChange({ ...block, title: v })}
+        />
+        <Area
+          label="Body"
+          value={block.body}
+          onChange={(v) => onChange({ ...block, body: v })}
+        />
+        <label className="block text-sm">
+          <span className="mb-1 block text-slate-500">Text position</span>
+          <select
+            value={block.textPosition}
+            onChange={(e) =>
+              onChange({
+                ...block,
+                textPosition: e.target.value as typeof block.textPosition,
+              })
+            }
+            className="w-full rounded-lg border border-slate-300 px-3 py-2"
+          >
+            <option value="overlay">Text in front (overlay)</option>
+            <option value="below">Text below image</option>
+            <option value="left">Text left / image right</option>
+            <option value="right">Image left / text right</option>
+          </select>
+        </label>
+        <TextStyleEditor
+          label="Title style"
+          style={block.titleStyle}
+          onChange={(titleStyle) => onChange({ ...block, titleStyle })}
+        />
+        <TextStyleEditor
+          label="Body style"
+          style={block.bodyStyle}
+          onChange={(bodyStyle) => onChange({ ...block, bodyStyle })}
+        />
+      </div>
+    );
+  }
+  return (
+    <div className="space-y-3">
+      <Field
+        label="Title"
+        value={block.title}
+        onChange={(v) => onChange({ ...block, title: v })}
+      />
+      <Area
+        label="Body"
+        value={block.body}
+        onChange={(v) => onChange({ ...block, body: v })}
+      />
+      <ImagePicker
+        label="Optional image"
+        value={block.imageSrc}
+        onChange={(imageSrc) => onChange({ ...block, imageSrc })}
+      />
+      <TextStyleEditor
+        label="Title style"
+        style={block.titleStyle}
+        onChange={(titleStyle) => onChange({ ...block, titleStyle })}
+      />
+      <TextStyleEditor
+        label="Body style"
+        style={block.bodyStyle}
+        onChange={(bodyStyle) => onChange({ ...block, bodyStyle })}
+      />
     </div>
   );
 }
@@ -867,6 +1186,10 @@ function BlockContentEditor({
   setContent: React.Dispatch<React.SetStateAction<SiteContent>>;
   updateBlock: (id: string, next: PageBlock) => void;
 }) {
+  if (block.type === "group") {
+    return <GroupChildrenEditor block={block} updateBlock={updateBlock} />;
+  }
+
   if (block.type === "hero") {
     return (
       <div className="space-y-3">
