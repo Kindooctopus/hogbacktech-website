@@ -103,6 +103,15 @@ export function ProductDetailPage({ productId }: { productId: string }) {
   );
 }
 
+function splitPricingTier(tier: string): { label: string; price: string } {
+  const trimmed = tier.trim();
+  const match = trimmed.match(/^(.+?)\s+(\$[\d$.,–\-—+/a-zA-Z\s]+)$/);
+  if (match) {
+    return { label: match[1].trim(), price: match[2].trim() };
+  }
+  return { label: "Plan", price: trimmed };
+}
+
 function ProductCopy({
   product,
   email,
@@ -144,19 +153,47 @@ function ProductCopy({
       </ul>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_30px_-24px_rgba(10,17,26,0.35)]">
-        <p className="mb-2 text-xs uppercase tracking-[0.25em] text-copper-600">
+        <p className="mb-3 text-xs uppercase tracking-[0.25em] text-copper-600">
           {content.products.pricingLabel}
         </p>
-        <ul className="space-y-1 text-sm text-slate-700">
-          {product.pricingTiers
-            .filter((tier) => tier.trim().length > 0)
-            .map((tier) => (
-              <li key={tier}>{tier}</li>
-            ))}
-        </ul>
-        <p className="mt-3 text-sm text-slate-500">
-          {content.products.setupLabel} {product.pricingSetup}
-        </p>
+        <table className="w-full border-collapse text-sm">
+          <thead>
+            <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-[0.14em] text-slate-500">
+              <th className="pb-2 pr-4 font-medium">Plan</th>
+              <th className="pb-2 text-right font-medium">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            {product.pricingTiers
+              .filter((tier) => tier.trim().length > 0)
+              .map((tier) => {
+                const { label, price } = splitPricingTier(tier);
+                return (
+                  <tr
+                    key={tier}
+                    className="border-b border-slate-100 last:border-b-0"
+                  >
+                    <td className="py-2.5 pr-4 font-medium text-navy-950">
+                      {label}
+                    </td>
+                    <td className="py-2.5 text-right tabular-nums text-slate-700">
+                      {price}
+                    </td>
+                  </tr>
+                );
+              })}
+            {product.pricingSetup.trim().length > 0 ? (
+              <tr className="border-t border-slate-200">
+                <td className="pt-3 pr-4 text-slate-500">
+                  {content.products.setupLabel.replace(/:$/, "") || "Setup"}
+                </td>
+                <td className="pt-3 text-right tabular-nums text-slate-600">
+                  {product.pricingSetup}
+                </td>
+              </tr>
+            ) : null}
+          </tbody>
+        </table>
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
