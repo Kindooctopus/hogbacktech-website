@@ -16,6 +16,9 @@ export type ProductCardContent = {
   /** Feature list on the product detail page. */
   features: string[];
   tileImage: string;
+  /** Structured pricing table rows (Plan | Price). Preferred over pricingTiers. */
+  pricingRows: PricingRow[];
+  /** Legacy single-string tiers; kept in sync from pricingRows for older content. */
   pricingTiers: string[];
   pricingSetup: string;
   /** Optional in-app CTA, e.g. `/apps/sat` or `/apps/geo`. */
@@ -39,25 +42,60 @@ export type ProductScreenshot = {
   caption: string;
 };
 
+export type PricingRow = {
+  plan: string;
+  price: string;
+};
+
 /** Split stored tier strings like "Core $49/mo" into table columns. */
-export function splitPricingTier(tier: string): { label: string; price: string } {
+export function splitPricingTier(tier: string): PricingRow {
   const trimmed = tier.trim();
+  if (!trimmed) return { plan: "", price: "" };
+  if (trimmed.includes("||")) {
+    const [plan, ...rest] = trimmed.split("||");
+    return { plan: plan.trim(), price: rest.join("||").trim() };
+  }
   const match = trimmed.match(/^(.+?)\s+(\$[\d$.,–\-—+/a-zA-Z\s]+)$/);
   if (match) {
-    return { label: match[1].trim(), price: match[2].trim() };
+    return { plan: match[1].trim(), price: match[2].trim() };
   }
   if (trimmed.startsWith("$")) {
-    return { label: "Plan", price: trimmed };
+    return { plan: "", price: trimmed };
   }
-  return { label: trimmed || "Plan", price: "" };
+  return { plan: trimmed, price: "" };
 }
 
-/** Join plan + price columns back into the stored tier string. */
-export function joinPricingTier(label: string, price: string): string {
-  const plan = label.trim();
+/** Join plan + price columns back into a legacy tier string. */
+export function joinPricingTier(plan: string, price: string): string {
+  const label = plan.trim();
   const amount = price.trim();
-  if (plan && amount) return `${plan} ${amount}`;
-  return plan || amount;
+  if (label && amount) return `${label} ${amount}`;
+  return label || amount;
+}
+
+export function pricingRowsFromTiers(tiers: string[]): PricingRow[] {
+  return tiers.map((tier) => splitPricingTier(tier));
+}
+
+export function pricingTiersFromRows(rows: PricingRow[]): string[] {
+  return rows.map((row) => joinPricingTier(row.plan, row.price));
+}
+
+export function normalizePricingRows(
+  rows: unknown,
+  fallbackTiers: string[],
+): PricingRow[] {
+  if (Array.isArray(rows) && rows.length > 0) {
+    return rows.map((row) => {
+      if (!row || typeof row !== "object") return { plan: "", price: "" };
+      const r = row as Partial<PricingRow>;
+      return {
+        plan: typeof r.plan === "string" ? r.plan : "",
+        price: typeof r.price === "string" ? r.price : "",
+      };
+    });
+  }
+  return pricingRowsFromTiers(fallbackTiers);
 }
 
 
@@ -464,6 +502,11 @@ export const defaultSiteContent: SiteContent = {
           "Document libraries & situational feeds",
         ],
         tileImage: "/brand/products/ops.png",
+        pricingRows: [
+          { plan: "Core", price: "$3,500/yr" },
+          { plan: "Standard", price: "$7,500/yr" },
+          { plan: "Pro", price: "$12,000–$18,000/yr" },
+        ],
         pricingTiers: [
           "Core $3,500/yr",
           "Standard $7,500/yr",
@@ -504,6 +547,11 @@ export const defaultSiteContent: SiteContent = {
           "Evacuations, engines, crews & unit locations",
         ],
         tileImage: "/brand/products/geo.png",
+        pricingRows: [
+          { plan: "Core", price: "$1,500/yr" },
+          { plan: "Standard", price: "$3,000/yr" },
+          { plan: "Pro", price: "$6,000/yr" },
+        ],
         pricingTiers: ["Core $1,500/yr", "Standard $3,000/yr", "Pro $6,000/yr"],
         pricingSetup: "$1,000–$3,000",
         appHref: "/apps/geo",
@@ -540,6 +588,11 @@ export const defaultSiteContent: SiteContent = {
           "Admin upload & user access",
         ],
         tileImage: "/brand/products/docs.png",
+        pricingRows: [
+          { plan: "Core", price: "$49/mo" },
+          { plan: "Standard", price: "$99/mo" },
+          { plan: "Pro", price: "$199/mo" },
+        ],
         pricingTiers: ["Core $49/mo", "Standard $99/mo", "Pro $199/mo"],
         pricingSetup: "$250–$750",
         appHref: "/products/docs#signup",
@@ -606,6 +659,10 @@ export const defaultSiteContent: SiteContent = {
           "Automation workflows",
         ],
         tileImage: "/brand/products/forge.png",
+        pricingRows: [
+          { plan: "", price: "$125–$200/hr" },
+          { plan: "Projects", price: "$5,000–$200,000+" },
+        ],
         pricingTiers: ["$125–$200/hr", "Projects $5,000–$200,000+"],
         pricingSetup: "Scoped per project",
         appHref: "",
@@ -642,6 +699,11 @@ export const defaultSiteContent: SiteContent = {
           "Built for PNW situational awareness",
         ],
         tileImage: "/brand/products/sat.png",
+        pricingRows: [
+          { plan: "Core", price: "$1,200/yr" },
+          { plan: "Standard", price: "$2,500/yr" },
+          { plan: "Pro", price: "$5,000/yr" },
+        ],
         pricingTiers: [
           "Core $1,200/yr",
           "Standard $2,500/yr",
@@ -887,10 +949,33 @@ export function mergeSiteContent(partial: unknown): SiteContent {
             Array.isArray(card.features) && card.features.length > 0
               ? card.features.map((p) => (typeof p === "string" ? p : ""))
               : [...fallback.features],
-          pricingTiers:
-            Array.isArray(card.pricingTiers) && card.pricingTiers.length > 0
+          pricingRows: (() => {
+            const fromRows = normalizePricingRows(
+              (card as { pricingRows?: unknown }).pricingRows,
+              [],
+            );
+            if (fromRows.some((r) => r.plan || r.price)) return fromRows;
+            const tiers =
+              Array.isArray(card.pricingTiers) && card.pricingTiers.length > 0
+                ? card.pricingTiers.map((p) => (typeof p === "string" ? p : ""))
+                : fallback.pricingTiers;
+            const derived = normalizePricingRows(undefined, tiers);
+            if (derived.some((r) => r.plan || r.price)) return derived;
+            return [...fallback.pricingRows];
+          })(),
+          pricingTiers: (() => {
+            const fromRows = normalizePricingRows(
+              (card as { pricingRows?: unknown }).pricingRows,
+              [],
+            );
+            if (fromRows.some((r) => r.plan || r.price)) {
+              return pricingTiersFromRows(fromRows);
+            }
+            return Array.isArray(card.pricingTiers) &&
+              card.pricingTiers.length > 0
               ? card.pricingTiers.map((p) => (typeof p === "string" ? p : ""))
-              : [...fallback.pricingTiers],
+              : [...fallback.pricingTiers];
+          })(),
           screenshots:
             Array.isArray(card.screenshots)
               ? card.screenshots

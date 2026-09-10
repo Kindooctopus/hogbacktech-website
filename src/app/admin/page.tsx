@@ -21,9 +21,8 @@ import {
   createImageTextBlock,
   createTextBlock,
   defaultSiteContent,
-  joinPricingTier,
   mergeSiteContent,
-  splitPricingTier,
+  pricingTiersFromRows,
   type BuiltinBlockType,
   type FontThemeId,
   type FontWeight,
@@ -1544,9 +1543,10 @@ function BlockContentEditor({
                       </tr>
                     </thead>
                     <tbody>
-                      {card.pricingTiers.map((tier, tierIndex) => {
-                        const { label, price } = splitPricingTier(tier);
-                        return (
+                      {(card.pricingRows?.length
+                        ? card.pricingRows
+                        : [{ plan: "", price: "" }]
+                      ).map((row, tierIndex) => (
                           <tr
                             key={tierIndex}
                             className="border-b border-slate-100 last:border-b-0"
@@ -1554,24 +1554,25 @@ function BlockContentEditor({
                             <td className="px-3 py-2 align-middle">
                               <input
                                 aria-label={`Plan name ${tierIndex + 1}`}
-                                value={label}
+                                value={row.plan}
                                 placeholder="Core"
                                 onChange={(e) =>
                                   setContent((c) => {
                                     const cards = [...c.products.cards];
-                                    const pricingTiers = [
-                                      ...cards[index].pricingTiers,
+                                    const pricingRows = [
+                                      ...(cards[index].pricingRows?.length
+                                        ? cards[index].pricingRows
+                                        : [{ plan: "", price: "" }]),
                                     ];
-                                    const current = splitPricingTier(
-                                      pricingTiers[tierIndex],
-                                    );
-                                    pricingTiers[tierIndex] = joinPricingTier(
-                                      e.target.value,
-                                      current.price,
-                                    );
+                                    pricingRows[tierIndex] = {
+                                      ...pricingRows[tierIndex],
+                                      plan: e.target.value,
+                                    };
                                     cards[index] = {
                                       ...cards[index],
-                                      pricingTiers,
+                                      pricingRows,
+                                      pricingTiers:
+                                        pricingTiersFromRows(pricingRows),
                                     };
                                     return {
                                       ...c,
@@ -1585,24 +1586,25 @@ function BlockContentEditor({
                             <td className="px-3 py-2 align-middle">
                               <input
                                 aria-label={`Price ${tierIndex + 1}`}
-                                value={price}
+                                value={row.price}
                                 placeholder="$49/mo"
                                 onChange={(e) =>
                                   setContent((c) => {
                                     const cards = [...c.products.cards];
-                                    const pricingTiers = [
-                                      ...cards[index].pricingTiers,
+                                    const pricingRows = [
+                                      ...(cards[index].pricingRows?.length
+                                        ? cards[index].pricingRows
+                                        : [{ plan: "", price: "" }]),
                                     ];
-                                    const current = splitPricingTier(
-                                      pricingTiers[tierIndex],
-                                    );
-                                    pricingTiers[tierIndex] = joinPricingTier(
-                                      current.label,
-                                      e.target.value,
-                                    );
+                                    pricingRows[tierIndex] = {
+                                      ...pricingRows[tierIndex],
+                                      price: e.target.value,
+                                    };
                                     cards[index] = {
                                       ...cards[index],
-                                      pricingTiers,
+                                      pricingRows,
+                                      pricingTiers:
+                                        pricingTiersFromRows(pricingRows),
                                     };
                                     return {
                                       ...c,
@@ -1620,16 +1622,20 @@ function BlockContentEditor({
                                 onClick={() =>
                                   setContent((c) => {
                                     const cards = [...c.products.cards];
-                                    const pricingTiers =
-                                      cards[index].pricingTiers.filter(
-                                        (_, i) => i !== tierIndex,
-                                      );
+                                    const pricingRows = (
+                                      cards[index].pricingRows?.length
+                                        ? cards[index].pricingRows
+                                        : [{ plan: "", price: "" }]
+                                    ).filter((_, i) => i !== tierIndex);
+                                    const nextRows =
+                                      pricingRows.length > 0
+                                        ? pricingRows
+                                        : [{ plan: "", price: "" }];
                                     cards[index] = {
                                       ...cards[index],
+                                      pricingRows: nextRows,
                                       pricingTiers:
-                                        pricingTiers.length > 0
-                                          ? pricingTiers
-                                          : [""],
+                                        pricingTiersFromRows(nextRows),
                                     };
                                     return {
                                       ...c,
@@ -1642,8 +1648,7 @@ function BlockContentEditor({
                               </button>
                             </td>
                           </tr>
-                        );
-                      })}
+                        ))}
                       <tr className="border-t border-slate-200 bg-slate-50/70">
                         <td className="px-3 py-2 align-middle">
                           <span className="text-sm text-slate-500">
@@ -1682,12 +1687,14 @@ function BlockContentEditor({
                       onClick={() =>
                         setContent((c) => {
                           const cards = [...c.products.cards];
+                          const pricingRows = [
+                            ...(cards[index].pricingRows || []),
+                            { plan: "New plan", price: "$0/mo" },
+                          ];
                           cards[index] = {
                             ...cards[index],
-                            pricingTiers: [
-                              ...cards[index].pricingTiers,
-                              "New plan $0/mo",
-                            ],
+                            pricingRows,
+                            pricingTiers: pricingTiersFromRows(pricingRows),
                           };
                           return { ...c, products: { ...c.products, cards } };
                         })
