@@ -1634,6 +1634,116 @@ function BlockContentEditor({
                     })
                   }
                 />
+
+                <div className="space-y-3 border-t border-slate-200 pt-4">
+                  <p className="text-sm font-medium text-navy-950">
+                    App screenshots (iOS / phone)
+                  </p>
+                  <Field
+                    label="Screenshots heading"
+                    value={card.screenshotsHeading}
+                    onChange={(v) =>
+                      setContent((c) => {
+                        const cards = [...c.products.cards];
+                        cards[index] = {
+                          ...cards[index],
+                          screenshotsHeading: v,
+                        };
+                        return { ...c, products: { ...c.products, cards } };
+                      })
+                    }
+                  />
+                  {card.screenshots.map((shot, shotIndex) => (
+                    <div
+                      key={shotIndex}
+                      className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-3"
+                    >
+                      <Field
+                        label={`Screenshot ${shotIndex + 1} path`}
+                        value={shot.src}
+                        onChange={(v) =>
+                          setContent((c) => {
+                            const cards = [...c.products.cards];
+                            const screenshots = [...cards[index].screenshots];
+                            screenshots[shotIndex] = {
+                              ...screenshots[shotIndex],
+                              src: v,
+                            };
+                            cards[index] = { ...cards[index], screenshots };
+                            return { ...c, products: { ...c.products, cards } };
+                          })
+                        }
+                      />
+                      <Field
+                        label="Caption"
+                        value={shot.caption}
+                        onChange={(v) =>
+                          setContent((c) => {
+                            const cards = [...c.products.cards];
+                            const screenshots = [...cards[index].screenshots];
+                            screenshots[shotIndex] = {
+                              ...screenshots[shotIndex],
+                              caption: v,
+                            };
+                            cards[index] = { ...cards[index], screenshots };
+                            return { ...c, products: { ...c.products, cards } };
+                          })
+                        }
+                      />
+                      <button
+                        type="button"
+                        className="rounded-full px-3 py-1 text-xs text-slate-500 hover:bg-white hover:text-red-600"
+                        onClick={() =>
+                          setContent((c) => {
+                            const cards = [...c.products.cards];
+                            cards[index] = {
+                              ...cards[index],
+                              screenshots: cards[index].screenshots.filter(
+                                (_, i) => i !== shotIndex,
+                              ),
+                            };
+                            return { ...c, products: { ...c.products, cards } };
+                          })
+                        }
+                      >
+                        Remove screenshot
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm hover:bg-slate-50"
+                    onClick={() =>
+                      setContent((c) => {
+                        const cards = [...c.products.cards];
+                        cards[index] = {
+                          ...cards[index],
+                          screenshots: [
+                            ...cards[index].screenshots,
+                            {
+                              src: `/brand/products/${card.id}/screenshot-${cards[index].screenshots.length + 1}.png`,
+                              caption: "",
+                            },
+                          ],
+                        };
+                        return { ...c, products: { ...c.products, cards } };
+                      })
+                    }
+                  >
+                    + Add screenshot
+                  </button>
+                  <p className="text-xs text-slate-500">
+                    Put iOS screenshot files in{" "}
+                    <code className="text-copper-600">
+                      public/brand/products/{card.id}/
+                    </code>{" "}
+                    then set the path above (for example{" "}
+                    <code className="text-copper-600">
+                      /brand/products/{card.id}/home.png
+                    </code>
+                    ).
+                  </p>
+                </div>
               </div>
             </div>
           </div>

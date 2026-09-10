@@ -58,6 +58,38 @@ export function ProductDetailPage({ productId }: { productId: string }) {
           <ProductCopy product={product} email={email} content={content} />
         </div>
 
+        {product.screenshots.some((shot) => shot.src.trim().length > 0) ? (
+          <section className="space-y-5 border-t border-slate-200 pt-10">
+            <h2 className="font-display text-xl font-semibold text-navy-950">
+              {product.screenshotsHeading || "App screenshots"}
+            </h2>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {product.screenshots
+                .filter((shot) => shot.src.trim().length > 0)
+                .map((shot) => (
+                  <figure key={shot.src} className="space-y-3">
+                    <div className="mx-auto w-full max-w-[280px] overflow-hidden rounded-[1.75rem] border border-slate-300 bg-navy-950 p-2 shadow-[0_18px_50px_-28px_rgba(10,17,26,0.45)]">
+                      <div className="overflow-hidden rounded-[1.35rem] bg-black">
+                        <Image
+                          src={shot.src}
+                          alt={shot.caption || `${product.name} screenshot`}
+                          width={1170}
+                          height={2532}
+                          className="h-auto w-full object-cover object-top"
+                        />
+                      </div>
+                    </div>
+                    {shot.caption ? (
+                      <figcaption className="text-center text-sm text-slate-500">
+                        {shot.caption}
+                      </figcaption>
+                    ) : null}
+                  </figure>
+                ))}
+            </div>
+          </section>
+        ) : null}
+
         <section className="space-y-4 border-t border-slate-200 pt-10">
           <h2 className="font-display text-xl font-semibold text-navy-950">
             {content.products.exploreOthersLabel}

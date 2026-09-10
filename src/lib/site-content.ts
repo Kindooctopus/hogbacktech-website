@@ -22,6 +22,14 @@ export type ProductCardContent = {
   appHref: string;
   appCtaLabel: string;
   talkCtaLabel: string;
+  /** Product page screenshot gallery. */
+  screenshots: ProductScreenshot[];
+  screenshotsHeading: string;
+};
+
+export type ProductScreenshot = {
+  src: string;
+  caption: string;
 };
 
 export type TextAlign = "left" | "center" | "right";
@@ -436,6 +444,8 @@ export const defaultSiteContent: SiteContent = {
         appHref: "",
         appCtaLabel: "",
         talkCtaLabel: "Talk about Hogback Ops",
+        screenshotsHeading: "App screenshots",
+        screenshots: [],
       },
       {
         id: "geo",
@@ -464,6 +474,8 @@ export const defaultSiteContent: SiteContent = {
         appHref: "/apps/geo",
         appCtaLabel: "Open Geo map",
         talkCtaLabel: "Talk about Hogback Geo",
+        screenshotsHeading: "App screenshots",
+        screenshots: [],
       },
       {
         id: "docs",
@@ -492,6 +504,29 @@ export const defaultSiteContent: SiteContent = {
         appHref: "",
         appCtaLabel: "",
         talkCtaLabel: "Talk about Hogback Docs",
+        screenshotsHeading: "App screenshots",
+        screenshots: [
+          {
+            src: "/brand/products/docs/ios-signin.png",
+            caption: "Sign in with your organization code — or try the demo",
+          },
+          {
+            src: "/brand/products/docs/ios-home.png",
+            caption: "Browse policies, forms, plans, recents, and favorites",
+          },
+          {
+            src: "/brand/products/docs/ios-search.png",
+            caption: "Keyword search across your document library",
+          },
+          {
+            src: "/brand/products/docs/ios-policy-compass.png",
+            caption: "Policy Compass AI answers questions from your policies",
+          },
+          {
+            src: "/brand/products/docs/ios-summary.png",
+            caption: "AI policy summaries with links back to source documents",
+          },
+        ],
       },
       {
         id: "forge",
@@ -520,6 +555,8 @@ export const defaultSiteContent: SiteContent = {
         appHref: "",
         appCtaLabel: "",
         talkCtaLabel: "Talk about Hogback Forge",
+        screenshotsHeading: "App screenshots",
+        screenshots: [],
       },
       {
         id: "sat",
@@ -552,6 +589,8 @@ export const defaultSiteContent: SiteContent = {
         appHref: "/apps/sat",
         appCtaLabel: "Open live feed",
         talkCtaLabel: "Talk about Hogback Sat",
+        screenshotsHeading: "App screenshots",
+        screenshots: [],
       },
     ],
   },
@@ -784,6 +823,19 @@ export function mergeSiteContent(partial: unknown): SiteContent {
             Array.isArray(card.pricingTiers) && card.pricingTiers.length > 0
               ? card.pricingTiers.map((p) => (typeof p === "string" ? p : ""))
               : [...fallback.pricingTiers],
+          screenshots:
+            Array.isArray(card.screenshots)
+              ? card.screenshots
+                  .filter((s) => s && typeof s.src === "string" && s.src.length > 0)
+                  .map((s) => ({
+                    src: s.src,
+                    caption: typeof s.caption === "string" ? s.caption : "",
+                  }))
+              : [...fallback.screenshots],
+          screenshotsHeading:
+            typeof card.screenshotsHeading === "string"
+              ? card.screenshotsHeading
+              : fallback.screenshotsHeading,
         };
       }),
     },
