@@ -344,15 +344,15 @@ export function HogbackProducts({
                   Learn about {product.name}
                   <span aria-hidden="true">↗</span>
                 </Link>
-                {product.id === "sat" && (
+                {product.appHref && product.appCtaLabel ? (
                   <Link
-                    href="/apps/sat"
+                    href={product.appHref}
                     className="inline-flex items-center gap-2 text-sm text-navy-800 hover:text-copper-600"
                   >
-                    Open live feed
+                    {product.appCtaLabel}
                     <span aria-hidden="true">↗</span>
                   </Link>
-                )}
+                ) : null}
               </div>
             </article>
           ))}

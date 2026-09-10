@@ -1283,7 +1283,7 @@ function BlockContentEditor({
     return (
       <div className="space-y-3">
         <Field
-          label="Section title"
+          label="Section title (homepage)"
           value={content.products.sectionTitle}
           onChange={(v) =>
             setContent((c) => ({
@@ -1293,7 +1293,7 @@ function BlockContentEditor({
           }
         />
         <Area
-          label="Section intro"
+          label="Section intro (homepage)"
           value={content.products.sectionBody}
           onChange={(v) =>
             setContent((c) => ({
@@ -1302,14 +1302,56 @@ function BlockContentEditor({
             }))
           }
         />
+        <Field
+          label="Product page: Back link label"
+          value={content.products.backHomeLabel}
+          onChange={(v) =>
+            setContent((c) => ({
+              ...c,
+              products: { ...c.products, backHomeLabel: v },
+            }))
+          }
+        />
+        <Field
+          label="Product page: Pricing heading"
+          value={content.products.pricingLabel}
+          onChange={(v) =>
+            setContent((c) => ({
+              ...c,
+              products: { ...c.products, pricingLabel: v },
+            }))
+          }
+        />
+        <Field
+          label="Product page: Setup label"
+          value={content.products.setupLabel}
+          onChange={(v) =>
+            setContent((c) => ({
+              ...c,
+              products: { ...c.products, setupLabel: v },
+            }))
+          }
+        />
+        <Field
+          label="Product page: Explore others heading"
+          value={content.products.exploreOthersLabel}
+          onChange={(v) =>
+            setContent((c) => ({
+              ...c,
+              products: { ...c.products, exploreOthersLabel: v },
+            }))
+          }
+        />
         {content.products.cards.map((card, index) => (
           <div
             key={card.id}
-            className="space-y-2 rounded-xl border border-slate-200 p-4"
+            className="space-y-4 rounded-xl border border-slate-200 p-4"
           >
             <p className="text-xs font-semibold uppercase tracking-wide text-copper-600">
-              Box: {card.id}
+              Product: {card.id}
             </p>
+
+            <p className="text-sm font-medium text-navy-950">Homepage card</p>
             <Field
               label="Name"
               value={card.name}
@@ -1322,7 +1364,7 @@ function BlockContentEditor({
               }
             />
             <Field
-              label="Badge"
+              label="Homepage badge"
               value={card.badge}
               onChange={(v) =>
                 setContent((c) => {
@@ -1333,7 +1375,7 @@ function BlockContentEditor({
               }
             />
             <Area
-              label="Description"
+              label="Homepage description"
               value={card.description}
               onChange={(v) =>
                 setContent((c) => {
@@ -1347,7 +1389,7 @@ function BlockContentEditor({
               <div key={pointIndex} className="flex items-end gap-2">
                 <div className="min-w-0 flex-1">
                   <Field
-                    label={`Bullet ${pointIndex + 1}`}
+                    label={`Homepage bullet ${pointIndex + 1}`}
                     value={point}
                     onChange={(v) =>
                       setContent((c) => {
@@ -1395,8 +1437,205 @@ function BlockContentEditor({
                 })
               }
             >
-              + Add bullet
+              + Add homepage bullet
             </button>
+
+            <div className="border-t border-slate-200 pt-4">
+              <p className="mb-3 text-sm font-medium text-navy-950">
+                Product page (/products/{card.id})
+              </p>
+              <div className="space-y-3">
+                <Field
+                  label="Subtitle"
+                  value={card.subtitle}
+                  onChange={(v) =>
+                    setContent((c) => {
+                      const cards = [...c.products.cards];
+                      cards[index] = { ...cards[index], subtitle: v };
+                      return { ...c, products: { ...c.products, cards } };
+                    })
+                  }
+                />
+                <Area
+                  label="Page description"
+                  value={card.pageDescription}
+                  onChange={(v) =>
+                    setContent((c) => {
+                      const cards = [...c.products.cards];
+                      cards[index] = { ...cards[index], pageDescription: v };
+                      return { ...c, products: { ...c.products, cards } };
+                    })
+                  }
+                />
+                {card.features.map((feature, featureIndex) => (
+                  <div key={featureIndex} className="flex items-end gap-2">
+                    <div className="min-w-0 flex-1">
+                      <Field
+                        label={`Feature ${featureIndex + 1}`}
+                        value={feature}
+                        onChange={(v) =>
+                          setContent((c) => {
+                            const cards = [...c.products.cards];
+                            const features = [...cards[index].features];
+                            features[featureIndex] = v;
+                            cards[index] = { ...cards[index], features };
+                            return { ...c, products: { ...c.products, cards } };
+                          })
+                        }
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      className="mb-[1px] rounded-full px-2 py-2 text-xs text-slate-500 hover:bg-slate-50 hover:text-red-600"
+                      onClick={() =>
+                        setContent((c) => {
+                          const cards = [...c.products.cards];
+                          const features = cards[index].features.filter(
+                            (_, i) => i !== featureIndex,
+                          );
+                          cards[index] = {
+                            ...cards[index],
+                            features: features.length > 0 ? features : [""],
+                          };
+                          return { ...c, products: { ...c.products, cards } };
+                        })
+                      }
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm hover:bg-slate-50"
+                  onClick={() =>
+                    setContent((c) => {
+                      const cards = [...c.products.cards];
+                      cards[index] = {
+                        ...cards[index],
+                        features: [...cards[index].features, "New feature"],
+                      };
+                      return { ...c, products: { ...c.products, cards } };
+                    })
+                  }
+                >
+                  + Add feature
+                </button>
+                {card.pricingTiers.map((tier, tierIndex) => (
+                  <div key={tierIndex} className="flex items-end gap-2">
+                    <div className="min-w-0 flex-1">
+                      <Field
+                        label={`Pricing tier ${tierIndex + 1}`}
+                        value={tier}
+                        onChange={(v) =>
+                          setContent((c) => {
+                            const cards = [...c.products.cards];
+                            const pricingTiers = [...cards[index].pricingTiers];
+                            pricingTiers[tierIndex] = v;
+                            cards[index] = { ...cards[index], pricingTiers };
+                            return { ...c, products: { ...c.products, cards } };
+                          })
+                        }
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      className="mb-[1px] rounded-full px-2 py-2 text-xs text-slate-500 hover:bg-slate-50 hover:text-red-600"
+                      onClick={() =>
+                        setContent((c) => {
+                          const cards = [...c.products.cards];
+                          const pricingTiers = cards[index].pricingTiers.filter(
+                            (_, i) => i !== tierIndex,
+                          );
+                          cards[index] = {
+                            ...cards[index],
+                            pricingTiers:
+                              pricingTiers.length > 0 ? pricingTiers : [""],
+                          };
+                          return { ...c, products: { ...c.products, cards } };
+                        })
+                      }
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm hover:bg-slate-50"
+                  onClick={() =>
+                    setContent((c) => {
+                      const cards = [...c.products.cards];
+                      cards[index] = {
+                        ...cards[index],
+                        pricingTiers: [
+                          ...cards[index].pricingTiers,
+                          "New pricing tier",
+                        ],
+                      };
+                      return { ...c, products: { ...c.products, cards } };
+                    })
+                  }
+                >
+                  + Add pricing tier
+                </button>
+                <Field
+                  label="Setup price / note"
+                  value={card.pricingSetup}
+                  onChange={(v) =>
+                    setContent((c) => {
+                      const cards = [...c.products.cards];
+                      cards[index] = { ...cards[index], pricingSetup: v };
+                      return { ...c, products: { ...c.products, cards } };
+                    })
+                  }
+                />
+                <Field
+                  label="Image path"
+                  value={card.tileImage}
+                  onChange={(v) =>
+                    setContent((c) => {
+                      const cards = [...c.products.cards];
+                      cards[index] = { ...cards[index], tileImage: v };
+                      return { ...c, products: { ...c.products, cards } };
+                    })
+                  }
+                />
+                <Field
+                  label="App link (optional, e.g. /apps/sat)"
+                  value={card.appHref}
+                  onChange={(v) =>
+                    setContent((c) => {
+                      const cards = [...c.products.cards];
+                      cards[index] = { ...cards[index], appHref: v };
+                      return { ...c, products: { ...c.products, cards } };
+                    })
+                  }
+                />
+                <Field
+                  label="App button label"
+                  value={card.appCtaLabel}
+                  onChange={(v) =>
+                    setContent((c) => {
+                      const cards = [...c.products.cards];
+                      cards[index] = { ...cards[index], appCtaLabel: v };
+                      return { ...c, products: { ...c.products, cards } };
+                    })
+                  }
+                />
+                <Field
+                  label="Talk / contact button label"
+                  value={card.talkCtaLabel}
+                  onChange={(v) =>
+                    setContent((c) => {
+                      const cards = [...c.products.cards];
+                      cards[index] = { ...cards[index], talkCtaLabel: v };
+                      return { ...c, products: { ...c.products, cards } };
+                    })
+                  }
+                />
+              </div>
+            </div>
           </div>
         ))}
         <TextStyleEditor

@@ -1,36 +1,48 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ProductDetailPage } from "@/components/ProductDetailPage";
-import { company, products } from "@/lib/content";
+import { company } from "@/lib/content";
+import {
+  defaultSiteContent,
+  getProductCard,
+  getProductIds,
+} from "@/lib/site-content";
 
 type PageProps = {
   params: Promise<{ id: string }>;
 };
 
 export function generateStaticParams() {
-  return products.map((product) => ({ id: product.id }));
+  return getProductIds().map((id) => ({ id }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const product = products.find((p) => p.id === id);
+  const product = getProductCard(defaultSiteContent, id);
   if (!product) return {};
 
   return {
     title: product.name,
-    description: product.description,
+    description: product.pageDescription,
     openGraph: {
       title: `${product.name} | ${company.name}`,
-      description: product.description,
-      images: [{ url: product.tileImage, width: 1024, height: 1024, alt: product.name }],
+      description: product.pageDescription,
+      images: [
+        {
+          url: product.tileImage,
+          width: 1024,
+          height: 1024,
+          alt: product.name,
+        },
+      ],
     },
   };
 }
 
 export default async function ProductPage({ params }: PageProps) {
   const { id } = await params;
-  const product = products.find((p) => p.id === id);
+  const product = getProductCard(defaultSiteContent, id);
   if (!product) notFound();
 
-  return <ProductDetailPage product={product} />;
+  return <ProductDetailPage productId={id} />;
 }

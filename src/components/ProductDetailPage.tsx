@@ -3,17 +3,36 @@
 import Image from "next/image";
 import Link from "next/link";
 import { HogbackFooter, HogbackHeader } from "@/components/HogbackLandingPage";
-import { company, products } from "@/lib/content";
+import { company } from "@/lib/content";
+import {
+  defaultSiteContent,
+  getProductCard,
+  type ProductCardContent,
+} from "@/lib/site-content";
 import { useSiteContent } from "@/lib/use-site-content";
 
-type Product = (typeof products)[number];
-
-export function ProductDetailPage({ product }: { product: Product }) {
+export function ProductDetailPage({ productId }: { productId: string }) {
   const { content } = useSiteContent();
-  const others = products.filter((p) => p.id !== product.id);
+  const product =
+    getProductCard(content, productId) ??
+    getProductCard(defaultSiteContent, productId);
+
+  if (!product) {
+    return (
+      <div className="min-h-screen bg-[#eef2f6] p-8 text-slate-600">
+        Product not found.
+      </div>
+    );
+  }
+
+  const others = content.products.cards.filter((p) => p.id !== product.id);
+  const email = content.contact.email || company.email;
 
   return (
-    <div className="min-h-screen bg-[#eef2f6] text-slate-600">
+    <div
+      className="min-h-screen text-slate-600"
+      style={{ backgroundColor: content.design.pageBackground }}
+    >
       <HogbackHeader content={content} />
       <main className="mx-auto max-w-6xl space-y-12 px-6 py-12">
         <Link
@@ -21,7 +40,7 @@ export function ProductDetailPage({ product }: { product: Product }) {
           className="inline-flex items-center gap-2 text-sm text-slate-500 transition hover:text-copper-600"
         >
           <span aria-hidden="true">←</span>
-          Back to home
+          {content.products.backHomeLabel}
         </Link>
 
         <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
@@ -36,68 +55,12 @@ export function ProductDetailPage({ product }: { product: Product }) {
             />
           </div>
 
-          <div className="space-y-6">
-            <div className="space-y-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.25em] text-copper-600">
-                {product.subtitle}
-              </p>
-              <h1 className="font-display text-4xl font-semibold text-navy-950 sm:text-5xl">
-                {product.name}
-              </h1>
-              <p className="text-base text-slate-600 sm:text-lg">{product.description}</p>
-            </div>
-
-            <ul className="space-y-2 text-sm text-slate-600">
-              {product.features.map((feature) => (
-                <li key={feature} className="flex gap-2">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-copper-500" />
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
-
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_30px_-24px_rgba(10,17,26,0.35)]">
-              <p className="mb-2 text-xs uppercase tracking-[0.25em] text-copper-600">
-                Pricing
-              </p>
-              <ul className="space-y-1 text-sm text-slate-700">
-                {product.pricing.tiers.map((tier) => (
-                  <li key={tier}>{tier}</li>
-                ))}
-              </ul>
-              <p className="mt-3 text-sm text-slate-500">
-                Setup: {product.pricing.setup}
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              {product.id === "sat" && (
-                <Link
-                  href="/apps/sat"
-                  className="inline-flex items-center gap-2 rounded-full bg-copper-500 px-6 py-2.5 text-sm font-semibold text-navy-950 hover:bg-copper-400"
-                >
-                  Open live feed
-                  <span aria-hidden="true">↗</span>
-                </Link>
-              )}
-              <a
-                href={`mailto:${company.email}?subject=${encodeURIComponent(`${product.name} inquiry`)}`}
-                className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold ${
-                  product.id === "sat"
-                    ? "border border-slate-300 bg-white text-navy-950 hover:bg-slate-50"
-                    : "bg-copper-500 text-navy-950 hover:bg-copper-400"
-                }`}
-              >
-                Talk about {product.name}
-                <span aria-hidden="true">↗</span>
-              </a>
-            </div>
-          </div>
+          <ProductCopy product={product} email={email} content={content} />
         </div>
 
         <section className="space-y-4 border-t border-slate-200 pt-10">
           <h2 className="font-display text-xl font-semibold text-navy-950">
-            Explore other products
+            {content.products.exploreOthersLabel}
           </h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {others.map((other) => (
@@ -119,6 +82,84 @@ export function ProductDetailPage({ product }: { product: Product }) {
         </section>
       </main>
       <HogbackFooter content={content} />
+    </div>
+  );
+}
+
+function ProductCopy({
+  product,
+  email,
+  content,
+}: {
+  product: ProductCardContent;
+  email: string;
+  content: ReturnType<typeof useSiteContent>["content"];
+}) {
+  const hasApp = Boolean(product.appHref && product.appCtaLabel);
+
+  return (
+    <div className="space-y-6">
+      <div className="space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-copper-600">
+          {product.subtitle}
+        </p>
+        <h1 className="font-display text-4xl font-semibold text-navy-950 sm:text-5xl">
+          {product.name}
+        </h1>
+        <p className="text-base text-slate-600 sm:text-lg">
+          {product.pageDescription}
+        </p>
+      </div>
+
+      <ul className="space-y-2 text-sm text-slate-600">
+        {product.features
+          .filter((feature) => feature.trim().length > 0)
+          .map((feature) => (
+            <li key={feature} className="flex gap-2">
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-copper-500" />
+              <span>{feature}</span>
+            </li>
+          ))}
+      </ul>
+
+      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_30px_-24px_rgba(10,17,26,0.35)]">
+        <p className="mb-2 text-xs uppercase tracking-[0.25em] text-copper-600">
+          {content.products.pricingLabel}
+        </p>
+        <ul className="space-y-1 text-sm text-slate-700">
+          {product.pricingTiers
+            .filter((tier) => tier.trim().length > 0)
+            .map((tier) => (
+              <li key={tier}>{tier}</li>
+            ))}
+        </ul>
+        <p className="mt-3 text-sm text-slate-500">
+          {content.products.setupLabel} {product.pricingSetup}
+        </p>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3">
+        {hasApp ? (
+          <Link
+            href={product.appHref}
+            className="inline-flex items-center gap-2 rounded-full bg-copper-500 px-6 py-2.5 text-sm font-semibold text-navy-950 hover:bg-copper-400"
+          >
+            {product.appCtaLabel}
+            <span aria-hidden="true">↗</span>
+          </Link>
+        ) : null}
+        <a
+          href={`mailto:${email}?subject=${encodeURIComponent(`${product.name} inquiry`)}`}
+          className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold ${
+            hasApp
+              ? "border border-slate-300 bg-white text-navy-950 hover:bg-slate-50"
+              : "bg-copper-500 text-navy-950 hover:bg-copper-400"
+          }`}
+        >
+          {product.talkCtaLabel}
+          <span aria-hidden="true">↗</span>
+        </a>
+      </div>
     </div>
   );
 }

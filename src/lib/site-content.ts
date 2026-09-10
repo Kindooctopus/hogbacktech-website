@@ -3,9 +3,25 @@
 export type ProductCardContent = {
   id: string;
   name: string;
+  /** Homepage card badge (short label). */
   badge: string;
+  /** Homepage card description. */
   description: string;
+  /** Homepage card bullets. */
   points: string[];
+  /** Product detail page eyebrow / subtitle. */
+  subtitle: string;
+  /** Full description on `/products/[id]`. */
+  pageDescription: string;
+  /** Feature list on the product detail page. */
+  features: string[];
+  tileImage: string;
+  pricingTiers: string[];
+  pricingSetup: string;
+  /** Optional in-app CTA, e.g. `/apps/sat` or `/apps/geo`. */
+  appHref: string;
+  appCtaLabel: string;
+  talkCtaLabel: string;
 };
 
 export type TextAlign = "left" | "center" | "right";
@@ -190,6 +206,10 @@ export type SiteContent = {
   products: {
     sectionTitle: string;
     sectionBody: string;
+    backHomeLabel: string;
+    pricingLabel: string;
+    setupLabel: string;
+    exploreOthersLabel: string;
     cards: ProductCardContent[];
   };
   about: {
@@ -380,66 +400,158 @@ export const defaultSiteContent: SiteContent = {
     sectionTitle: "Products built on the ridge",
     sectionBody:
       "Each Hogback product is designed to feel like solid ground under your feet—clear, dependable, and ready when the work gets real.",
+    backHomeLabel: "Back to home",
+    pricingLabel: "Pricing",
+    setupLabel: "Setup:",
+    exploreOthersLabel: "Explore other products",
     cards: [
       {
         id: "ops",
         name: "Hogback Ops",
         badge: "Public Safety",
         description:
-          "Incident‑ready software for fire, EMS, and public safety teams that need clarity when seconds matter.",
+          "A unified operations hub for Fire, EMS, and emergency services — consolidating CAD, AVL, ICS, staffing, and protocols into a single platform.",
         points: [
-          "Operational dashboards for command staff",
-          "Incident timelines and activity views",
-          "Built with frontline experience in mind",
+          "CAD ingestion & AVL",
+          "ICS tools & weather overlays",
+          "Staffing integration",
+          "Document libraries & situational feeds",
         ],
+        subtitle: "Public Safety Operations Platform",
+        pageDescription:
+          "A unified operations hub for Fire, EMS, and emergency services — consolidating CAD, AVL, ICS, staffing, and protocols into a single platform.",
+        features: [
+          "CAD ingestion & AVL",
+          "ICS tools & weather overlays",
+          "Staffing integration",
+          "Document libraries & situational feeds",
+        ],
+        tileImage: "/brand/products/ops.png",
+        pricingTiers: [
+          "Core $3,500/yr",
+          "Standard $7,500/yr",
+          "Pro $12,000–$18,000/yr",
+        ],
+        pricingSetup: "$2,000–$6,000",
+        appHref: "",
+        appCtaLabel: "",
+        talkCtaLabel: "Talk about Hogback Ops",
       },
       {
         id: "geo",
         name: "Hogback Geo",
         badge: "Fleet & Field",
         description:
-          "Location‑aware tools for fleets, apparatus, and field units—so you always know what's moving and why.",
+          "Real-time tracking and intelligence for fleet operators, utilities, public works, and public safety — Cradlepoint integrations plus the Geo map with live fire layers, AVL, and GIS overlays.",
         points: [
-          "Fleet and asset visibility",
-          "Route and coverage insights",
-          "Supports mixed public & contract fleets",
+          "Geo map with live NIFC fire & perimeter layers",
+          "VIIRS, MODIS & Landsat heat signatures",
+          "Surface wind lines & speed (mph)",
+          "Evacuations, engines, crews & unit locations",
         ],
+        subtitle: "Fleet Tracking & Situational Awareness",
+        pageDescription:
+          "Real-time tracking and intelligence for fleet operators, utilities, public works, and public safety — Cradlepoint integrations plus the Geo map with live fire layers, AVL, and GIS overlays.",
+        features: [
+          "Geo map with live NIFC fire & perimeter layers",
+          "VIIRS, MODIS & Landsat heat signatures",
+          "Surface wind lines & speed (mph)",
+          "Evacuations, engines, crews & unit locations",
+        ],
+        tileImage: "/brand/products/geo.png",
+        pricingTiers: ["Core $1,500/yr", "Standard $3,000/yr", "Pro $6,000/yr"],
+        pricingSetup: "$1,000–$3,000",
+        appHref: "/apps/geo",
+        appCtaLabel: "Open Geo map",
+        talkCtaLabel: "Talk about Hogback Geo",
       },
       {
         id: "docs",
         name: "Hogback Docs",
         badge: "Documents",
         description:
-          "Document workflows that match how agencies actually work—policies, inspections, and records in one place.",
+          "A lightweight, high-performance document system with full-text search, categories, workflows, and training modules — without enterprise bloat.",
         points: [
-          "Policy and SOP management",
-          "Inspection and checklist flows",
-          "Audit‑friendly, field‑friendly design",
+          "Full-text search",
+          "Categories & workflows",
+          "Training modules",
+          "Admin upload & user access",
         ],
+        subtitle: "Document Management & Search",
+        pageDescription:
+          "A lightweight, high-performance document system with full-text search, categories, workflows, and training modules — without enterprise bloat.",
+        features: [
+          "Full-text search",
+          "Categories & workflows",
+          "Training modules",
+          "Admin upload & user access",
+        ],
+        tileImage: "/brand/products/docs.png",
+        pricingTiers: ["Core $49/mo", "Standard $99/mo", "Pro $199/mo"],
+        pricingSetup: "$250–$750",
+        appHref: "",
+        appCtaLabel: "",
+        talkCtaLabel: "Talk about Hogback Docs",
       },
       {
         id: "forge",
         name: "Hogback Forge",
         badge: "Custom Development",
         description:
-          "When the off‑the‑shelf tools don't fit, Forge builds exactly what your organization needs.",
+          "Custom software engineering, integrations, mobile apps, dashboards, GIS tools, and automation workflows tailored to your organization.",
         points: [
-          "Custom integrations and data bridges",
-          "Purpose‑built internal tools",
-          "Long‑term partnership, not one‑off code",
+          "Custom software & mobile apps",
+          "GIS tools & dashboards",
+          "System integrations",
+          "Automation workflows",
         ],
+        subtitle: "Custom Development & Integrations",
+        pageDescription:
+          "Custom software engineering, integrations, mobile apps, dashboards, GIS tools, and automation workflows tailored to your organization.",
+        features: [
+          "Custom software & mobile apps",
+          "GIS tools & dashboards",
+          "System integrations",
+          "Automation workflows",
+        ],
+        tileImage: "/brand/products/forge.png",
+        pricingTiers: ["$125–$200/hr", "Projects $5,000–$200,000+"],
+        pricingSetup: "Scoped per project",
+        appHref: "",
+        appCtaLabel: "",
+        talkCtaLabel: "Talk about Hogback Forge",
       },
       {
         id: "sat",
         name: "Hogback Sat",
         badge: "Satellite",
         description:
-          "Near-real-time satellite imagery for wildfire smoke, thermal hotspots, and field situational awareness.",
+          "Near-real-time satellite imagery for public safety and field ops — true color, thermal/fire hotspots, and night lights powered by NASA GIBS.",
         points: [
-          "NASA GIBS live map feed",
-          "True color, fire, and night layers",
-          "Open the app and scrub recent passes",
+          "Live satellite map feed",
+          "True color & thermal/fire layers",
+          "Date scrubbing for recent passes",
+          "Built for PNW situational awareness",
         ],
+        subtitle: "Live Satellite Situational Awareness",
+        pageDescription:
+          "Near-real-time satellite imagery for public safety and field ops — true color, thermal/fire hotspots, and night lights powered by NASA GIBS.",
+        features: [
+          "Live satellite map feed",
+          "True color & thermal/fire layers",
+          "Date scrubbing for recent passes",
+          "Built for PNW situational awareness",
+        ],
+        tileImage: "/brand/products/sat.png",
+        pricingTiers: [
+          "Core $1,200/yr",
+          "Standard $2,500/yr",
+          "Pro $5,000/yr",
+        ],
+        pricingSetup: "$500–$2,000",
+        appHref: "/apps/sat",
+        appCtaLabel: "Open live feed",
+        talkCtaLabel: "Talk about Hogback Sat",
       },
     ],
   },
@@ -651,23 +763,29 @@ export function mergeSiteContent(partial: unknown): SiteContent {
     products: {
       ...defaultSiteContent.products,
       ...incoming.products,
-      cards:
-        incoming.products?.cards && incoming.products.cards.length > 0
-          ? incoming.products.cards.map((card, i) => {
-              const fallback =
-                defaultSiteContent.products.cards[
-                  Math.min(i, defaultSiteContent.products.cards.length - 1)
-                ];
-              return {
-                ...fallback,
-                ...card,
-                points:
-                  Array.isArray(card.points) && card.points.length > 0
-                    ? card.points.map((p) => (typeof p === "string" ? p : ""))
-                    : [...fallback.points],
-              };
-            })
-          : defaultSiteContent.products.cards,
+      cards: defaultSiteContent.products.cards.map((fallback, i) => {
+        const card =
+          incoming.products?.cards?.find((c) => c.id === fallback.id) ??
+          incoming.products?.cards?.[i];
+        if (!card) return fallback;
+        return {
+          ...fallback,
+          ...card,
+          id: fallback.id,
+          points:
+            Array.isArray(card.points) && card.points.length > 0
+              ? card.points.map((p) => (typeof p === "string" ? p : ""))
+              : [...fallback.points],
+          features:
+            Array.isArray(card.features) && card.features.length > 0
+              ? card.features.map((p) => (typeof p === "string" ? p : ""))
+              : [...fallback.features],
+          pricingTiers:
+            Array.isArray(card.pricingTiers) && card.pricingTiers.length > 0
+              ? card.pricingTiers.map((p) => (typeof p === "string" ? p : ""))
+              : [...fallback.pricingTiers],
+        };
+      }),
     },
     about: {
       ...defaultSiteContent.about,
@@ -704,6 +822,17 @@ export function mergeSiteContent(partial: unknown): SiteContent {
       fontTheme: getFontTheme(incoming.design?.fontTheme).id,
     },
   };
+}
+
+export function getProductCard(
+  content: SiteContent,
+  id: string,
+): ProductCardContent | undefined {
+  return content.products.cards.find((card) => card.id === id);
+}
+
+export function getProductIds(): string[] {
+  return defaultSiteContent.products.cards.map((card) => card.id);
 }
 
 export function textStyleToCss(style: TextStyle): {
