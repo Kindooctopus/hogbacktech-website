@@ -501,8 +501,9 @@ export const defaultSiteContent: SiteContent = {
         tileImage: "/brand/products/docs.png",
         pricingTiers: ["Core $49/mo", "Standard $99/mo", "Pro $199/mo"],
         pricingSetup: "$250–$750",
-        appHref: "",
-        appCtaLabel: "",
+        appHref:
+          "mailto:developer@hogbacktech.com?subject=Sign%20up%20organization%20for%20Hogback%20Docs&body=Hi%2C%0A%0AI%27d%20like%20to%20sign%20up%20my%20organization%20for%20Hogback%20Docs.%0A%0AOrganization%20name%3A%20%0AContact%20name%3A%20%0AEmail%3A%20%0APhone%3A%20%0A",
+        appCtaLabel: "Sign up your organization",
         talkCtaLabel: "Talk about Hogback Docs",
         screenshotsHeading: "App screenshots",
         screenshots: [
@@ -836,6 +837,16 @@ export function mergeSiteContent(partial: unknown): SiteContent {
             typeof card.screenshotsHeading === "string"
               ? card.screenshotsHeading
               : fallback.screenshotsHeading,
+          // Keep defaults when KV still has empty CTA fields (e.g. Docs signup).
+          appHref:
+            typeof card.appHref === "string" && card.appHref.trim().length > 0
+              ? card.appHref
+              : fallback.appHref,
+          appCtaLabel:
+            typeof card.appCtaLabel === "string" &&
+            card.appCtaLabel.trim().length > 0
+              ? card.appCtaLabel
+              : fallback.appCtaLabel,
         };
       }),
     },

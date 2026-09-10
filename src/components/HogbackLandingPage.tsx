@@ -12,6 +12,7 @@ import {
 } from "@/lib/site-content";
 import { useSiteContent } from "@/lib/use-site-content";
 import { FontThemeLoader } from "@/components/FontThemeLoader";
+import { ProductCtaLink } from "@/components/ProductCtaLink";
 import {
   BoxBlockSection,
   GroupBlockSection,
@@ -345,13 +346,13 @@ export function HogbackProducts({
                   <span aria-hidden="true">↗</span>
                 </Link>
                 {product.appHref && product.appCtaLabel ? (
-                  <Link
+                  <ProductCtaLink
                     href={product.appHref}
                     className="inline-flex items-center gap-2 text-sm text-navy-800 hover:text-copper-600"
                   >
                     {product.appCtaLabel}
                     <span aria-hidden="true">↗</span>
-                  </Link>
+                  </ProductCtaLink>
                 ) : null}
               </div>
             </article>

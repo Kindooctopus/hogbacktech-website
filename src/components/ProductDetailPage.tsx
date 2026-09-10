@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { HogbackFooter, HogbackHeader } from "@/components/HogbackLandingPage";
+import { ProductCtaLink } from "@/components/ProductCtaLink";
 import { ProductScreenshotGallery } from "@/components/ProductScreenshotGallery";
 import { company } from "@/lib/content";
 import {
@@ -153,13 +154,13 @@ function ProductCopy({
 
       <div className="flex flex-wrap items-center gap-3">
         {hasApp ? (
-          <Link
+          <ProductCtaLink
             href={product.appHref}
             className="inline-flex items-center gap-2 rounded-full bg-copper-500 px-6 py-2.5 text-sm font-semibold text-navy-950 hover:bg-copper-400"
           >
             {product.appCtaLabel}
             <span aria-hidden="true">↗</span>
-          </Link>
+          </ProductCtaLink>
         ) : null}
         <a
           href={`mailto:${email}?subject=${encodeURIComponent(`${product.name} inquiry`)}`}
