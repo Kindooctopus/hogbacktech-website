@@ -2,7 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { DocsSignupForm } from "@/components/DocsSignupForm";
 import { HogbackFooter, HogbackHeader } from "@/components/HogbackLandingPage";
+import { ProductCtaLink } from "@/components/ProductCtaLink";
 import { ProductScreenshotGallery } from "@/components/ProductScreenshotGallery";
 import { company } from "@/lib/content";
 import {
@@ -71,6 +73,8 @@ export function ProductDetailPage({ productId }: { productId: string }) {
           </section>
         ) : null}
 
+        {product.id === "docs" ? <DocsSignupForm email={email} /> : null}
+
         <section className="space-y-4 border-t border-slate-200 pt-10">
           <h2 className="font-display text-xl font-semibold text-navy-950">
             {content.products.exploreOthersLabel}
@@ -108,7 +112,11 @@ function ProductCopy({
   email: string;
   content: ReturnType<typeof useSiteContent>["content"];
 }) {
-  const hasApp = Boolean(product.appHref && product.appCtaLabel);
+  const isDocs = product.id === "docs";
+  const signupHref = isDocs ? "#signup" : product.appHref;
+  const hasApp = Boolean(
+    (isDocs || product.appHref) && product.appCtaLabel,
+  );
 
   return (
     <div className="space-y-6">
@@ -153,13 +161,13 @@ function ProductCopy({
 
       <div className="flex flex-wrap items-center gap-3">
         {hasApp ? (
-          <Link
-            href={product.appHref}
+          <ProductCtaLink
+            href={signupHref || product.appHref}
             className="inline-flex items-center gap-2 rounded-full bg-copper-500 px-6 py-2.5 text-sm font-semibold text-navy-950 hover:bg-copper-400"
           >
             {product.appCtaLabel}
-            <span aria-hidden="true">↗</span>
-          </Link>
+            <span aria-hidden="true">{isDocs ? "↓" : "↗"}</span>
+          </ProductCtaLink>
         ) : null}
         <a
           href={`mailto:${email}?subject=${encodeURIComponent(`${product.name} inquiry`)}`}

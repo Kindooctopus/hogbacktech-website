@@ -1602,7 +1602,7 @@ function BlockContentEditor({
                   }
                 />
                 <Field
-                  label="App link (optional, e.g. /apps/sat)"
+                  label="Primary CTA link (e.g. /products/docs#signup)"
                   value={card.appHref}
                   onChange={(v) =>
                     setContent((c) => {
@@ -1613,7 +1613,7 @@ function BlockContentEditor({
                   }
                 />
                 <Field
-                  label="App button label"
+                  label="Primary CTA label (e.g. Sign up your organization)"
                   value={card.appCtaLabel}
                   onChange={(v) =>
                     setContent((c) => {
