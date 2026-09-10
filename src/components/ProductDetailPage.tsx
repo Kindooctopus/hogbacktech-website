@@ -6,6 +6,7 @@ import { DocsSignupForm } from "@/components/DocsSignupForm";
 import { HogbackFooter, HogbackHeader } from "@/components/HogbackLandingPage";
 import { ProductCtaLink } from "@/components/ProductCtaLink";
 import { ProductScreenshotGallery } from "@/components/ProductScreenshotGallery";
+import { ProductSecuritySection } from "@/components/ProductSecuritySection";
 import { company } from "@/lib/content";
 import {
   defaultSiteContent,
@@ -61,6 +62,8 @@ export function ProductDetailPage({ productId }: { productId: string }) {
 
           <ProductCopy product={product} email={email} content={content} />
         </div>
+
+        <ProductSecuritySection product={product} />
 
         {product.screenshots.some((shot) => shot.src.trim().length > 0) ? (
           <section className="space-y-6 border-t border-slate-200 pt-10">

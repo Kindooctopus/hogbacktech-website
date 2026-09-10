@@ -521,7 +521,12 @@ export function HogbackFooter({ content }: { content: SiteContent }) {
           © <span suppressHydrationWarning>{new Date().getFullYear()}</span>{" "}
           Hogback Ridge Technologies · {content.footer.tagline}
         </p>
-        <p>{content.footer.brandLine}</p>
+        <div className="flex flex-wrap items-center gap-4">
+          <Link href="/privacy" className="hover:text-copper-600">
+            Privacy
+          </Link>
+          <p>{content.footer.brandLine}</p>
+        </div>
       </div>
     </footer>
   );
