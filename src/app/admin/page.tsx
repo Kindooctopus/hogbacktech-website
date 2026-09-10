@@ -1602,7 +1602,7 @@ function BlockContentEditor({
                   }
                 />
                 <Field
-                  label="Primary CTA link (app URL or mailto for signup)"
+                  label="Primary CTA link (e.g. /products/docs#signup)"
                   value={card.appHref}
                   onChange={(v) =>
                     setContent((c) => {
