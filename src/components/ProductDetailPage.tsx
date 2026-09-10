@@ -11,7 +11,6 @@ import { company } from "@/lib/content";
 import {
   defaultSiteContent,
   getProductCard,
-  splitPricingTier,
   type ProductCardContent,
 } from "@/lib/site-content";
 import { useSiteContent } from "@/lib/use-site-content";
@@ -159,24 +158,24 @@ function ProductCopy({
             </tr>
           </thead>
           <tbody>
-            {product.pricingTiers
-              .filter((tier) => tier.trim().length > 0)
-              .map((tier) => {
-                const { label, price } = splitPricingTier(tier);
-                return (
+            {(product.pricingRows?.length
+              ? product.pricingRows
+              : []
+            )
+              .filter((row) => row.plan.trim() || row.price.trim())
+              .map((row) => (
                   <tr
-                    key={tier}
+                    key={`${row.plan}-${row.price}`}
                     className="border-b border-slate-100 last:border-b-0"
                   >
                     <td className="py-2.5 pr-4 font-medium text-navy-950">
-                      {label}
+                      {row.plan || "—"}
                     </td>
                     <td className="py-2.5 text-right tabular-nums text-slate-700">
-                      {price}
+                      {row.price || "—"}
                     </td>
                   </tr>
-                );
-              })}
+                ))}
             {product.pricingSetup.trim().length > 0 ? (
               <tr className="border-t border-slate-200">
                 <td className="pt-3 pr-4 text-slate-500">
