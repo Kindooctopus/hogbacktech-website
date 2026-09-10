@@ -21,7 +21,9 @@ import {
   createImageTextBlock,
   createTextBlock,
   defaultSiteContent,
+  joinPricingTier,
   mergeSiteContent,
+  splitPricingTier,
   type BuiltinBlockType,
   type FontThemeId,
   type FontWeight,
@@ -1521,75 +1523,180 @@ function BlockContentEditor({
                 >
                   + Add feature
                 </button>
-                {card.pricingTiers.map((tier, tierIndex) => (
-                  <div key={tierIndex} className="flex items-end gap-2">
-                    <div className="min-w-0 flex-1">
-                      <Field
-                        label={`Pricing tier ${tierIndex + 1}`}
-                        value={tier}
-                        onChange={(v) =>
-                          setContent((c) => {
-                            const cards = [...c.products.cards];
-                            const pricingTiers = [...cards[index].pricingTiers];
-                            pricingTiers[tierIndex] = v;
-                            cards[index] = { ...cards[index], pricingTiers };
-                            return { ...c, products: { ...c.products, cards } };
-                          })
-                        }
-                      />
-                    </div>
+                <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+                  <div className="border-b border-slate-200 bg-slate-50 px-3 py-2">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                      Pricing table
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      Edit Plan and Price the same way they appear on the
+                      product page.
+                    </p>
+                  </div>
+                  <table className="w-full border-collapse text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-[0.14em] text-slate-500">
+                        <th className="px-3 py-2 font-medium">Plan</th>
+                        <th className="px-3 py-2 font-medium">Price</th>
+                        <th className="w-16 px-2 py-2 text-right font-medium">
+                          <span className="sr-only">Actions</span>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {card.pricingTiers.map((tier, tierIndex) => {
+                        const { label, price } = splitPricingTier(tier);
+                        return (
+                          <tr
+                            key={tierIndex}
+                            className="border-b border-slate-100 last:border-b-0"
+                          >
+                            <td className="px-3 py-2 align-middle">
+                              <input
+                                aria-label={`Plan name ${tierIndex + 1}`}
+                                value={label}
+                                placeholder="Core"
+                                onChange={(e) =>
+                                  setContent((c) => {
+                                    const cards = [...c.products.cards];
+                                    const pricingTiers = [
+                                      ...cards[index].pricingTiers,
+                                    ];
+                                    const current = splitPricingTier(
+                                      pricingTiers[tierIndex],
+                                    );
+                                    pricingTiers[tierIndex] = joinPricingTier(
+                                      e.target.value,
+                                      current.price,
+                                    );
+                                    cards[index] = {
+                                      ...cards[index],
+                                      pricingTiers,
+                                    };
+                                    return {
+                                      ...c,
+                                      products: { ...c.products, cards },
+                                    };
+                                  })
+                                }
+                                className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                              />
+                            </td>
+                            <td className="px-3 py-2 align-middle">
+                              <input
+                                aria-label={`Price ${tierIndex + 1}`}
+                                value={price}
+                                placeholder="$49/mo"
+                                onChange={(e) =>
+                                  setContent((c) => {
+                                    const cards = [...c.products.cards];
+                                    const pricingTiers = [
+                                      ...cards[index].pricingTiers,
+                                    ];
+                                    const current = splitPricingTier(
+                                      pricingTiers[tierIndex],
+                                    );
+                                    pricingTiers[tierIndex] = joinPricingTier(
+                                      current.label,
+                                      e.target.value,
+                                    );
+                                    cards[index] = {
+                                      ...cards[index],
+                                      pricingTiers,
+                                    };
+                                    return {
+                                      ...c,
+                                      products: { ...c.products, cards },
+                                    };
+                                  })
+                                }
+                                className="w-full rounded-lg border border-slate-300 px-3 py-2 tabular-nums"
+                              />
+                            </td>
+                            <td className="px-2 py-2 text-right align-middle">
+                              <button
+                                type="button"
+                                className="rounded-full px-2 py-2 text-xs text-slate-500 hover:bg-slate-50 hover:text-red-600"
+                                onClick={() =>
+                                  setContent((c) => {
+                                    const cards = [...c.products.cards];
+                                    const pricingTiers =
+                                      cards[index].pricingTiers.filter(
+                                        (_, i) => i !== tierIndex,
+                                      );
+                                    cards[index] = {
+                                      ...cards[index],
+                                      pricingTiers:
+                                        pricingTiers.length > 0
+                                          ? pricingTiers
+                                          : [""],
+                                    };
+                                    return {
+                                      ...c,
+                                      products: { ...c.products, cards },
+                                    };
+                                  })
+                                }
+                              >
+                                Remove
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                      <tr className="border-t border-slate-200 bg-slate-50/70">
+                        <td className="px-3 py-2 align-middle">
+                          <span className="text-sm text-slate-500">
+                            {content.products.setupLabel.replace(/:$/, "") ||
+                              "Setup"}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2 align-middle" colSpan={2}>
+                          <input
+                            aria-label="Setup price"
+                            value={card.pricingSetup}
+                            placeholder="$250–$750"
+                            onChange={(e) =>
+                              setContent((c) => {
+                                const cards = [...c.products.cards];
+                                cards[index] = {
+                                  ...cards[index],
+                                  pricingSetup: e.target.value,
+                                };
+                                return {
+                                  ...c,
+                                  products: { ...c.products, cards },
+                                };
+                              })
+                            }
+                            className="w-full rounded-lg border border-slate-300 px-3 py-2 tabular-nums"
+                          />
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div className="border-t border-slate-200 px-3 py-2">
                     <button
                       type="button"
-                      className="mb-[1px] rounded-full px-2 py-2 text-xs text-slate-500 hover:bg-slate-50 hover:text-red-600"
+                      className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm hover:bg-slate-50"
                       onClick={() =>
                         setContent((c) => {
                           const cards = [...c.products.cards];
-                          const pricingTiers = cards[index].pricingTiers.filter(
-                            (_, i) => i !== tierIndex,
-                          );
                           cards[index] = {
                             ...cards[index],
-                            pricingTiers:
-                              pricingTiers.length > 0 ? pricingTiers : [""],
+                            pricingTiers: [
+                              ...cards[index].pricingTiers,
+                              "New plan $0/mo",
+                            ],
                           };
                           return { ...c, products: { ...c.products, cards } };
                         })
                       }
                     >
-                      Remove
+                      + Add pricing row
                     </button>
                   </div>
-                ))}
-                <button
-                  type="button"
-                  className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm hover:bg-slate-50"
-                  onClick={() =>
-                    setContent((c) => {
-                      const cards = [...c.products.cards];
-                      cards[index] = {
-                        ...cards[index],
-                        pricingTiers: [
-                          ...cards[index].pricingTiers,
-                          "New pricing tier",
-                        ],
-                      };
-                      return { ...c, products: { ...c.products, cards } };
-                    })
-                  }
-                >
-                  + Add pricing tier
-                </button>
-                <Field
-                  label="Setup price / note"
-                  value={card.pricingSetup}
-                  onChange={(v) =>
-                    setContent((c) => {
-                      const cards = [...c.products.cards];
-                      cards[index] = { ...cards[index], pricingSetup: v };
-                      return { ...c, products: { ...c.products, cards } };
-                    })
-                  }
-                />
+                </div>
                 <Field
                   label="Image path"
                   value={card.tileImage}

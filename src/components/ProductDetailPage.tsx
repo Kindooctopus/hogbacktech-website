@@ -10,6 +10,7 @@ import { company } from "@/lib/content";
 import {
   defaultSiteContent,
   getProductCard,
+  splitPricingTier,
   type ProductCardContent,
 } from "@/lib/site-content";
 import { useSiteContent } from "@/lib/use-site-content";
@@ -101,15 +102,6 @@ export function ProductDetailPage({ productId }: { productId: string }) {
       <HogbackFooter content={content} />
     </div>
   );
-}
-
-function splitPricingTier(tier: string): { label: string; price: string } {
-  const trimmed = tier.trim();
-  const match = trimmed.match(/^(.+?)\s+(\$[\d$.,–\-—+/a-zA-Z\s]+)$/);
-  if (match) {
-    return { label: match[1].trim(), price: match[2].trim() };
-  }
-  return { label: "Plan", price: trimmed };
 }
 
 function ProductCopy({

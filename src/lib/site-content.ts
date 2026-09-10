@@ -32,6 +32,28 @@ export type ProductScreenshot = {
   caption: string;
 };
 
+/** Split stored tier strings like "Core $49/mo" into table columns. */
+export function splitPricingTier(tier: string): { label: string; price: string } {
+  const trimmed = tier.trim();
+  const match = trimmed.match(/^(.+?)\s+(\$[\d$.,–\-—+/a-zA-Z\s]+)$/);
+  if (match) {
+    return { label: match[1].trim(), price: match[2].trim() };
+  }
+  if (trimmed.startsWith("$")) {
+    return { label: "Plan", price: trimmed };
+  }
+  return { label: trimmed || "Plan", price: "" };
+}
+
+/** Join plan + price columns back into the stored tier string. */
+export function joinPricingTier(label: string, price: string): string {
+  const plan = label.trim();
+  const amount = price.trim();
+  if (plan && amount) return `${plan} ${amount}`;
+  return plan || amount;
+}
+
+
 export type TextAlign = "left" | "center" | "right";
 export type FontWeight = "400" | "500" | "600" | "700";
 
