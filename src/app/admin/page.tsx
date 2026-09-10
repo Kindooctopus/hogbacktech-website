@@ -7,6 +7,7 @@ import {
   useState,
   type CSSProperties,
   type DragEvent,
+  type ReactNode,
 } from "react";
 import Link from "next/link";
 import {
@@ -712,6 +713,47 @@ function PreviewCard({
   );
 }
 
+function CollapsiblePanel({
+  title,
+  subtitle,
+  defaultOpen = false,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  defaultOpen?: boolean;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+      <button
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-3 bg-slate-50 px-4 py-3 text-left transition hover:bg-slate-100"
+      >
+        <div className="min-w-0">
+          <p className="truncate text-sm font-medium text-navy-950">{title}</p>
+          {subtitle ? (
+            <p className="mt-0.5 truncate text-xs text-slate-500">{subtitle}</p>
+          ) : null}
+        </div>
+        <span
+          aria-hidden="true"
+          className="shrink-0 text-slate-500"
+        >
+          {open ? "▾" : "▸"}
+        </span>
+      </button>
+      {open ? (
+        <div className="space-y-3 border-t border-slate-200 p-4">{children}</div>
+      ) : null}
+    </div>
+  );
+}
+
 function Field({
   label,
   value,
@@ -1283,76 +1325,84 @@ function BlockContentEditor({
   if (block.type === "products") {
     return (
       <div className="space-y-3">
-        <Field
-          label="Section title (homepage)"
-          value={content.products.sectionTitle}
-          onChange={(v) =>
-            setContent((c) => ({
-              ...c,
-              products: { ...c.products, sectionTitle: v },
-            }))
-          }
-        />
-        <Area
-          label="Section intro (homepage)"
-          value={content.products.sectionBody}
-          onChange={(v) =>
-            setContent((c) => ({
-              ...c,
-              products: { ...c.products, sectionBody: v },
-            }))
-          }
-        />
-        <Field
-          label="Product page: Back link label"
-          value={content.products.backHomeLabel}
-          onChange={(v) =>
-            setContent((c) => ({
-              ...c,
-              products: { ...c.products, backHomeLabel: v },
-            }))
-          }
-        />
-        <Field
-          label="Product page: Pricing heading"
-          value={content.products.pricingLabel}
-          onChange={(v) =>
-            setContent((c) => ({
-              ...c,
-              products: { ...c.products, pricingLabel: v },
-            }))
-          }
-        />
-        <Field
-          label="Product page: Setup label"
-          value={content.products.setupLabel}
-          onChange={(v) =>
-            setContent((c) => ({
-              ...c,
-              products: { ...c.products, setupLabel: v },
-            }))
-          }
-        />
-        <Field
-          label="Product page: Explore others heading"
-          value={content.products.exploreOthersLabel}
-          onChange={(v) =>
-            setContent((c) => ({
-              ...c,
-              products: { ...c.products, exploreOthersLabel: v },
-            }))
-          }
-        />
-        {content.products.cards.map((card, index) => (
-          <div
-            key={card.id}
-            className="space-y-4 rounded-xl border border-slate-200 p-4"
-          >
-            <p className="text-xs font-semibold uppercase tracking-wide text-copper-600">
-              Product: {card.id}
-            </p>
+        <CollapsiblePanel
+          title="Products section labels"
+          subtitle="Homepage headings and shared product-page labels"
+        >
+          <Field
+            label="Section title (homepage)"
+            value={content.products.sectionTitle}
+            onChange={(v) =>
+              setContent((c) => ({
+                ...c,
+                products: { ...c.products, sectionTitle: v },
+              }))
+            }
+          />
+          <Area
+            label="Section intro (homepage)"
+            value={content.products.sectionBody}
+            onChange={(v) =>
+              setContent((c) => ({
+                ...c,
+                products: { ...c.products, sectionBody: v },
+              }))
+            }
+          />
+          <Field
+            label="Product page: Back link label"
+            value={content.products.backHomeLabel}
+            onChange={(v) =>
+              setContent((c) => ({
+                ...c,
+                products: { ...c.products, backHomeLabel: v },
+              }))
+            }
+          />
+          <Field
+            label="Product page: Pricing heading"
+            value={content.products.pricingLabel}
+            onChange={(v) =>
+              setContent((c) => ({
+                ...c,
+                products: { ...c.products, pricingLabel: v },
+              }))
+            }
+          />
+          <Field
+            label="Product page: Setup label"
+            value={content.products.setupLabel}
+            onChange={(v) =>
+              setContent((c) => ({
+                ...c,
+                products: { ...c.products, setupLabel: v },
+              }))
+            }
+          />
+          <Field
+            label="Product page: Explore others heading"
+            value={content.products.exploreOthersLabel}
+            onChange={(v) =>
+              setContent((c) => ({
+                ...c,
+                products: { ...c.products, exploreOthersLabel: v },
+              }))
+            }
+          />
+        </CollapsiblePanel>
 
-            <p className="text-sm font-medium text-navy-950">Homepage card</p>
+        <p className="pt-1 text-xs text-slate-500">
+          Products are collapsed by default. Open a product, then open only the
+          category you need.
+        </p>
+
+        {content.products.cards.map((card, index) => (
+          <CollapsiblePanel
+            key={card.id}
+            title={card.name || `Product: ${card.id}`}
+            subtitle={`ID: ${card.id}`}
+          >
+            <CollapsiblePanel title="Homepage card">
             <Field
               label="Name"
               value={card.name}
@@ -1440,11 +1490,12 @@ function BlockContentEditor({
             >
               + Add homepage bullet
             </button>
+            </CollapsiblePanel>
 
-            <div className="border-t border-slate-200 pt-4">
-              <p className="mb-3 text-sm font-medium text-navy-950">
-                Product page (/products/{card.id})
-              </p>
+            <CollapsiblePanel
+              title="Product page copy"
+              subtitle={`/products/${card.id}`}
+            >
               <div className="space-y-3">
                 <Field
                   label="Subtitle"
@@ -1522,12 +1573,13 @@ function BlockContentEditor({
                 >
                   + Add feature
                 </button>
+              </div>
+            </CollapsiblePanel>
+
+            <CollapsiblePanel title="Pricing table">
                 <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
                   <div className="border-b border-slate-200 bg-slate-50 px-3 py-2">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                      Pricing table
-                    </p>
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="text-xs text-slate-500">
                       Edit Plan and Price the same way they appear on the
                       product page.
                     </p>
@@ -1704,6 +1756,9 @@ function BlockContentEditor({
                     </button>
                   </div>
                 </div>
+            </CollapsiblePanel>
+
+            <CollapsiblePanel title="Image & buttons">
                 <Field
                   label="Image path"
                   value={card.tileImage}
@@ -1749,10 +1804,9 @@ function BlockContentEditor({
                   }
                 />
 
-                <div className="space-y-3 border-t border-slate-200 pt-4">
-                  <p className="text-sm font-medium text-navy-950">
-                    Security &amp; Privacy section
-                  </p>
+            </CollapsiblePanel>
+
+            <CollapsiblePanel title="Security & Privacy">
                   <p className="text-xs text-slate-500">
                     Shown on the product page when a heading and at least one
                     bullet are set. Leave blank to hide.
@@ -1893,12 +1947,9 @@ function BlockContentEditor({
                       })
                     }
                   />
-                </div>
+            </CollapsiblePanel>
 
-                <div className="space-y-3 border-t border-slate-200 pt-4">
-                  <p className="text-sm font-medium text-navy-950">
-                    App screenshots (iOS / phone)
-                  </p>
+            <CollapsiblePanel title="App screenshots">
                   <Field
                     label="Screenshots heading"
                     value={card.screenshotsHeading}
@@ -2003,10 +2054,8 @@ function BlockContentEditor({
                     </code>
                     ).
                   </p>
-                </div>
-              </div>
-            </div>
-          </div>
+            </CollapsiblePanel>
+          </CollapsiblePanel>
         ))}
         <TextStyleEditor
           label="Title style"
