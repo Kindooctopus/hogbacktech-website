@@ -25,6 +25,13 @@ export type ProductCardContent = {
   /** Product page screenshot gallery. */
   screenshots: ProductScreenshot[];
   screenshotsHeading: string;
+  /** Optional Security & Privacy section on the product page. */
+  securityHeading: string;
+  securityIntro: string;
+  securityItems: string[];
+  securityFootnote: string;
+  privacyHref: string;
+  privacyLabel: string;
 };
 
 export type ProductScreenshot = {
@@ -468,6 +475,12 @@ export const defaultSiteContent: SiteContent = {
         talkCtaLabel: "Talk about Hogback Ops",
         screenshotsHeading: "App screenshots",
         screenshots: [],
+        securityHeading: "",
+        securityIntro: "",
+        securityItems: [],
+        securityFootnote: "",
+        privacyHref: "",
+        privacyLabel: "",
       },
       {
         id: "geo",
@@ -498,6 +511,12 @@ export const defaultSiteContent: SiteContent = {
         talkCtaLabel: "Talk about Hogback Geo",
         screenshotsHeading: "App screenshots",
         screenshots: [],
+        securityHeading: "",
+        securityIntro: "",
+        securityItems: [],
+        securityFootnote: "",
+        privacyHref: "",
+        privacyLabel: "",
       },
       {
         id: "docs",
@@ -549,6 +568,21 @@ export const defaultSiteContent: SiteContent = {
             caption: "AI policy summaries with links back to source documents",
           },
         ],
+        securityHeading: "Security & Privacy",
+        securityIntro:
+          "Built for agencies and organizations that need practical control over sensitive documents—without enterprise theater.",
+        securityItems: [
+          "AES-256 encryption at rest (Google Cloud / Firebase defaults)",
+          "TLS 1.2+ encryption in transit",
+          "U.S. cloud infrastructure (Google Cloud us-west1 & Cloudflare)",
+          "Organization-scoped access with admin-controlled uploads",
+          "Role separation: administrators manage orgs; users access their library",
+          "No ads, no tracking pixels, and we do not sell your data",
+        ],
+        securityFootnote:
+          "Need a formal security review, data processing terms, or agency-specific compliance discussion? Contact us—we will walk through your requirements honestly.",
+        privacyHref: "/privacy",
+        privacyLabel: "Read our privacy policy",
       },
       {
         id: "forge",
@@ -579,6 +613,12 @@ export const defaultSiteContent: SiteContent = {
         talkCtaLabel: "Talk about Hogback Forge",
         screenshotsHeading: "App screenshots",
         screenshots: [],
+        securityHeading: "",
+        securityIntro: "",
+        securityItems: [],
+        securityFootnote: "",
+        privacyHref: "",
+        privacyLabel: "",
       },
       {
         id: "sat",
@@ -613,6 +653,12 @@ export const defaultSiteContent: SiteContent = {
         talkCtaLabel: "Talk about Hogback Sat",
         screenshotsHeading: "App screenshots",
         screenshots: [],
+        securityHeading: "",
+        securityIntro: "",
+        securityItems: [],
+        securityFootnote: "",
+        privacyHref: "",
+        privacyLabel: "",
       },
     ],
   },
@@ -868,6 +914,35 @@ export function mergeSiteContent(partial: unknown): SiteContent {
             card.appCtaLabel.trim().length > 0
               ? card.appCtaLabel
               : fallback.appCtaLabel,
+          securityHeading:
+            typeof card.securityHeading === "string" &&
+            card.securityHeading.trim().length > 0
+              ? card.securityHeading
+              : fallback.securityHeading,
+          securityIntro:
+            typeof card.securityIntro === "string" &&
+            card.securityIntro.trim().length > 0
+              ? card.securityIntro
+              : fallback.securityIntro,
+          securityItems:
+            Array.isArray(card.securityItems) && card.securityItems.length > 0
+              ? card.securityItems.map((p) => (typeof p === "string" ? p : ""))
+              : [...fallback.securityItems],
+          securityFootnote:
+            typeof card.securityFootnote === "string" &&
+            card.securityFootnote.trim().length > 0
+              ? card.securityFootnote
+              : fallback.securityFootnote,
+          privacyHref:
+            typeof card.privacyHref === "string" &&
+            card.privacyHref.trim().length > 0
+              ? card.privacyHref
+              : fallback.privacyHref,
+          privacyLabel:
+            typeof card.privacyLabel === "string" &&
+            card.privacyLabel.trim().length > 0
+              ? card.privacyLabel
+              : fallback.privacyLabel,
         };
       }),
     },

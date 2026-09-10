@@ -1744,6 +1744,152 @@ function BlockContentEditor({
 
                 <div className="space-y-3 border-t border-slate-200 pt-4">
                   <p className="text-sm font-medium text-navy-950">
+                    Security &amp; Privacy section
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    Shown on the product page when a heading and at least one
+                    bullet are set. Leave blank to hide.
+                  </p>
+                  <Field
+                    label="Section heading"
+                    value={card.securityHeading}
+                    onChange={(v) =>
+                      setContent((c) => {
+                        const cards = [...c.products.cards];
+                        cards[index] = {
+                          ...cards[index],
+                          securityHeading: v,
+                        };
+                        return { ...c, products: { ...c.products, cards } };
+                      })
+                    }
+                  />
+                  <Area
+                    label="Intro paragraph"
+                    value={card.securityIntro}
+                    onChange={(v) =>
+                      setContent((c) => {
+                        const cards = [...c.products.cards];
+                        cards[index] = { ...cards[index], securityIntro: v };
+                        return { ...c, products: { ...c.products, cards } };
+                      })
+                    }
+                  />
+                  {(card.securityItems.length > 0
+                    ? card.securityItems
+                    : [""]
+                  ).map((item, itemIndex) => (
+                    <div key={itemIndex} className="flex items-end gap-2">
+                      <div className="min-w-0 flex-1">
+                        <Field
+                          label={`Security bullet ${itemIndex + 1}`}
+                          value={item}
+                          onChange={(v) =>
+                            setContent((c) => {
+                              const cards = [...c.products.cards];
+                              const securityItems = [
+                                ...(cards[index].securityItems.length > 0
+                                  ? cards[index].securityItems
+                                  : [""]),
+                              ];
+                              securityItems[itemIndex] = v;
+                              cards[index] = {
+                                ...cards[index],
+                                securityItems,
+                              };
+                              return {
+                                ...c,
+                                products: { ...c.products, cards },
+                              };
+                            })
+                          }
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        className="mb-[1px] rounded-full px-2 py-2 text-xs text-slate-500 hover:bg-slate-50 hover:text-red-600"
+                        onClick={() =>
+                          setContent((c) => {
+                            const cards = [...c.products.cards];
+                            const securityItems = (
+                              cards[index].securityItems.length > 0
+                                ? cards[index].securityItems
+                                : [""]
+                            ).filter((_, i) => i !== itemIndex);
+                            cards[index] = {
+                              ...cards[index],
+                              securityItems,
+                            };
+                            return {
+                              ...c,
+                              products: { ...c.products, cards },
+                            };
+                          })
+                        }
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm hover:bg-slate-50"
+                    onClick={() =>
+                      setContent((c) => {
+                        const cards = [...c.products.cards];
+                        cards[index] = {
+                          ...cards[index],
+                          securityItems: [
+                            ...(cards[index].securityItems || []),
+                            "New security point",
+                          ],
+                        };
+                        return { ...c, products: { ...c.products, cards } };
+                      })
+                    }
+                  >
+                    + Add security bullet
+                  </button>
+                  <Area
+                    label="Footnote"
+                    value={card.securityFootnote}
+                    onChange={(v) =>
+                      setContent((c) => {
+                        const cards = [...c.products.cards];
+                        cards[index] = {
+                          ...cards[index],
+                          securityFootnote: v,
+                        };
+                        return { ...c, products: { ...c.products, cards } };
+                      })
+                    }
+                  />
+                  <Field
+                    label="Privacy policy link"
+                    value={card.privacyHref}
+                    onChange={(v) =>
+                      setContent((c) => {
+                        const cards = [...c.products.cards];
+                        cards[index] = { ...cards[index], privacyHref: v };
+                        return { ...c, products: { ...c.products, cards } };
+                      })
+                    }
+                  />
+                  <Field
+                    label="Privacy policy link label"
+                    value={card.privacyLabel}
+                    onChange={(v) =>
+                      setContent((c) => {
+                        const cards = [...c.products.cards];
+                        cards[index] = { ...cards[index], privacyLabel: v };
+                        return { ...c, products: { ...c.products, cards } };
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="space-y-3 border-t border-slate-200 pt-4">
+                  <p className="text-sm font-medium text-navy-950">
                     App screenshots (iOS / phone)
                   </p>
                   <Field
