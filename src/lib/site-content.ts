@@ -632,33 +632,34 @@ export const defaultSiteContent: SiteContent = {
       {
         id: "geo",
         name: "Hogback Geo",
-        badge: "Fleet & Field",
+        badge: "Field Mapping",
         description:
-          "Real-time tracking and intelligence for fleet operators, utilities, public works, and public safety — Cradlepoint integrations plus the Geo map with live fire layers, AVL, and GIS overlays.",
+          "Field mapping for polygons, points, and notes—export shapefiles and common GIS formats, overlay base maps, work offline, then sync when you’re back online. iOS, Android, and web.",
         points: [
-          "Geo map with live NIFC fire & perimeter layers",
-          "VIIRS, MODIS & Landsat heat signatures",
-          "Surface wind lines & speed (mph)",
-          "Evacuations, engines, crews & unit locations",
+          "Draw polygons & export shapefiles",
+          "Points, markings & base-map overlays",
+          "Offline notes—sync when back online",
+          "iOS, Android & web · priced by users",
         ],
-        subtitle: "Fleet Tracking & Situational Awareness",
+        subtitle: "Field Polygons, Notes & GIS Exchange",
         pageDescription:
-          "Real-time tracking and intelligence for fleet operators, utilities, public works, and public safety—Cradlepoint integrations plus the Geo map with live fire perimeters, heat signatures, wind, AVL, and GIS overlays so field leaders see the same picture.",
+          "Hogback Geo is built for field use: create polygons and send them to other systems as shapefiles or other commonly received GIS formats. It receives feeds from systems that provide verifiable, updated information. Share point locations, map markings, and polygons of interest overlaid on common map base layers. Work in the field and easily make notes or send landscape details to others with ease and reliability. Capture notes without data reception, then send information when you are back online. Pricing is based on your organization’s users. Available as iOS, Android, and web apps.",
         features: [
-          "Geo map with live NIFC fire and perimeter layers",
-          "VIIRS, MODIS, and Landsat heat signatures",
-          "Surface wind lines and speed (mph)",
-          "Evacuations, engines, crews, and unit locations",
-          "Cradlepoint-friendly fleet and field workflows",
+          "Create field polygons and export shapefiles or other common GIS formats",
+          "Receive verifiable, updated feeds from other systems",
+          "Send point locations, map markings, and polygons of interest",
+          "Overlay on common map base layers",
+          "Field notes and landscape details shared reliably with your team",
+          "Offline note-taking—send when you reconnect",
+          "Pricing based on your organization’s users",
+          "iOS, Android, and web app delivery",
         ],
         tileImage: "/brand/products/geo.png",
         pricingRows: [
-          { plan: "Core", price: "$1,500/yr" },
-          { plan: "Standard", price: "$3,000/yr" },
-          { plan: "Pro", price: "$6,000/yr" },
+          { plan: "Organization", price: "Based on users" },
         ],
-        pricingTiers: ["Core $1,500/yr", "Standard $3,000/yr", "Pro $6,000/yr"],
-        pricingSetup: "$1,000–$3,000",
+        pricingTiers: ["Organization Based on users"],
+        pricingSetup: "Scoped to your user count",
         appHref: "/apps/geo",
         appCtaLabel: "Open Geo map",
         talkCtaLabel: "Talk about Hogback Geo",
@@ -666,12 +667,12 @@ export const defaultSiteContent: SiteContent = {
         screenshots: [],
         securityHeading: "Security & Privacy",
         securityIntro:
-          "Built for fleets and field teams that need a shared map picture without exposing more than your organization intends.",
+          "Built for field teams that capture sensitive locations and notes—with practical control over what syncs back to your organization.",
         securityItems: [
           "AES-256 encryption at rest (Google Cloud / Firebase defaults)",
           "TLS 1.2+ encryption in transit",
           "U.S. cloud infrastructure (Google Cloud us-west1 & Cloudflare)",
-          "Organization-scoped map and unit visibility",
+          "Organization-scoped maps, polygons, and field notes",
           "Admin-controlled access for operators and viewers",
           "No ads, no tracking pixels, and we do not sell your data",
         ],
@@ -1069,11 +1070,19 @@ function normalizeBlock(raw: unknown, fallbackIndex: number): PageBlock | null {
   return null;
 }
 
-/** Older Ops marketing copy still stored in KV — prefer current defaults. */
-const OPS_LEGACY_DESCRIPTIONS = new Set([
-  "A unified operations hub for Fire, EMS, and emergency services — consolidating CAD, AVL, ICS, staffing, and protocols into a single platform.",
-  "A unified operations hub for Fire, EMS, and emergency services—bringing CAD ingestion, AVL, ICS tools, staffing, protocols, and situational feeds into one clear workspace so crews spend less time hunting systems and more time on the call.",
-]);
+/** Older product marketing copy still stored in KV — prefer current defaults. */
+const PRODUCT_LEGACY_COPY: Record<string, Set<string>> = {
+  ops: new Set([
+    "A unified operations hub for Fire, EMS, and emergency services — consolidating CAD, AVL, ICS, staffing, and protocols into a single platform.",
+    "A unified operations hub for Fire, EMS, and emergency services—bringing CAD ingestion, AVL, ICS tools, staffing, protocols, and situational feeds into one clear workspace so crews spend less time hunting systems and more time on the call.",
+  ]),
+  geo: new Set([
+    "Real-time tracking and intelligence for fleet operators, utilities, public works, and public safety — Cradlepoint integrations plus the Geo map with live fire layers, AVL, and GIS overlays.",
+    "Real-time tracking and intelligence for fleet operators, utilities, public works, and public safety—Cradlepoint integrations plus the Geo map with live fire perimeters, heat signatures, wind, AVL, and GIS overlays so field leaders see the same picture.",
+    "Location‑aware tools for fleets, apparatus, and field units—so you always know what's moving and why.",
+    "Location-aware tools for fleets, apparatus, and field units—so you always know what's moving and why.",
+  ]),
+};
 
 export function mergeSiteContent(partial: unknown): SiteContent {
   if (!partial || typeof partial !== "object") return defaultSiteContent;
@@ -1121,35 +1130,37 @@ export function mergeSiteContent(partial: unknown): SiteContent {
           typeof card.pageDescription === "string"
             ? card.pageDescription.trim()
             : "";
-        const preferOpsDefaults =
-          fallback.id === "ops" &&
-          (!incomingDesc ||
-            OPS_LEGACY_DESCRIPTIONS.has(incomingDesc) ||
-            OPS_LEGACY_DESCRIPTIONS.has(incomingPage));
+        const legacyCopy = PRODUCT_LEGACY_COPY[fallback.id];
+        const preferProductDefaults = Boolean(
+          legacyCopy &&
+            (!incomingDesc ||
+              legacyCopy.has(incomingDesc) ||
+              legacyCopy.has(incomingPage)),
+        );
         return {
           ...fallback,
           ...card,
           id: fallback.id,
-          badge: preferOpsDefaults
+          badge: preferProductDefaults
             ? fallback.badge
             : typeof card.badge === "string" && card.badge.trim().length > 0
               ? card.badge
               : fallback.badge,
-          description: preferOpsDefaults
+          description: preferProductDefaults
             ? fallback.description
             : incomingDesc || fallback.description,
-          subtitle: preferOpsDefaults
+          subtitle: preferProductDefaults
             ? fallback.subtitle
             : typeof card.subtitle === "string" && card.subtitle.trim().length > 0
               ? card.subtitle
               : fallback.subtitle,
-          points: preferOpsDefaults
+          points: preferProductDefaults
             ? [...fallback.points]
             : Array.isArray(card.points) && card.points.length > 0
               ? card.points.map((p) => (typeof p === "string" ? p : ""))
               : [...fallback.points],
           features: (() => {
-            if (preferOpsDefaults) return [...fallback.features];
+            if (preferProductDefaults) return [...fallback.features];
             const incomingFeatures =
               Array.isArray(card.features) && card.features.length > 0
                 ? card.features.map((p) => (typeof p === "string" ? p : ""))
@@ -1176,6 +1187,7 @@ export function mergeSiteContent(partial: unknown): SiteContent {
             return incomingFeatures;
           })(),
           pricingRows: (() => {
+            if (preferProductDefaults) return [...fallback.pricingRows];
             const fromRows = normalizePricingRows(
               (card as { pricingRows?: unknown }).pricingRows,
               [],
@@ -1190,6 +1202,7 @@ export function mergeSiteContent(partial: unknown): SiteContent {
             return [...fallback.pricingRows];
           })(),
           pricingTiers: (() => {
+            if (preferProductDefaults) return [...fallback.pricingTiers];
             const fromRows = normalizePricingRows(
               (card as { pricingRows?: unknown }).pricingRows,
               [],
@@ -1202,6 +1215,12 @@ export function mergeSiteContent(partial: unknown): SiteContent {
               ? card.pricingTiers.map((p) => (typeof p === "string" ? p : ""))
               : [...fallback.pricingTiers];
           })(),
+          pricingSetup: preferProductDefaults
+            ? fallback.pricingSetup
+            : typeof card.pricingSetup === "string" &&
+                card.pricingSetup.trim().length > 0
+              ? card.pricingSetup
+              : fallback.pricingSetup,
           screenshots:
             Array.isArray(card.screenshots)
               ? card.screenshots
@@ -1226,7 +1245,7 @@ export function mergeSiteContent(partial: unknown): SiteContent {
               ? card.appCtaLabel
               : fallback.appCtaLabel,
           pageDescription: (() => {
-            if (preferOpsDefaults) return fallback.pageDescription;
+            if (preferProductDefaults) return fallback.pageDescription;
             const incomingPage =
               typeof card.pageDescription === "string"
                 ? card.pageDescription.trim()
@@ -1240,7 +1259,7 @@ export function mergeSiteContent(partial: unknown): SiteContent {
               !incomingPage ||
               incomingPage === incomingDesc ||
               incomingPage === fallback.description.trim() ||
-              OPS_LEGACY_DESCRIPTIONS.has(incomingPage)
+              Boolean(legacyCopy?.has(incomingPage))
             ) {
               return fallback.pageDescription;
             }
@@ -1251,13 +1270,13 @@ export function mergeSiteContent(partial: unknown): SiteContent {
             card.securityHeading.trim().length > 0
               ? card.securityHeading
               : fallback.securityHeading,
-          securityIntro: preferOpsDefaults
+          securityIntro: preferProductDefaults
             ? fallback.securityIntro
             : typeof card.securityIntro === "string" &&
                 card.securityIntro.trim().length > 0
               ? card.securityIntro
               : fallback.securityIntro,
-          securityItems: preferOpsDefaults
+          securityItems: preferProductDefaults
             ? [...fallback.securityItems]
             : Array.isArray(card.securityItems) && card.securityItems.length > 0
               ? card.securityItems.map((p) => (typeof p === "string" ? p : ""))
