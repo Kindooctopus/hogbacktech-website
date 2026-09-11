@@ -35,13 +35,12 @@ import {
   type TextStyle,
 } from "@/lib/site-content";
 
-const PASSWORD_KEY = "hogback-admin-password";
-
 type SectionId = "layout" | "theme" | "content";
 
 export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [authed, setAuthed] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
   const [content, setContent] = useState<SiteContent>(defaultSiteContent);
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
@@ -50,19 +49,16 @@ export default function AdminPage() {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    const saved = sessionStorage.getItem(PASSWORD_KEY);
-    if (saved) {
-      setPassword(saved);
-      void bootstrap(saved);
-    } else {
-      void loadPublicContent();
-    }
+    void restoreSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function loadPublicContent() {
     try {
-      const res = await fetch("/api/content", { cache: "no-store" });
+      const res = await fetch("/api/content", {
+        cache: "no-store",
+        credentials: "same-origin",
+      });
       if (res.ok) {
         const merged = mergeSiteContent(await res.json());
         setContent(merged);
@@ -73,17 +69,45 @@ export default function AdminPage() {
     }
   }
 
-  async function bootstrap(pwd: string) {
+  async function restoreSession() {
+    setBusy(true);
+    try {
+      const session = await fetch("/api/admin/session", {
+        cache: "no-store",
+        credentials: "same-origin",
+      });
+      if (session.ok) {
+        const data = (await session.json()) as { ok?: boolean };
+        if (data.ok) {
+          setAuthed(true);
+          await loadPublicContent();
+          setStatus("Signed in.");
+          return;
+        }
+      }
+      setAuthed(false);
+      await loadPublicContent();
+    } catch {
+      setAuthed(false);
+      setStatus("Could not reach the admin API. Is the Worker deployed?");
+    } finally {
+      setAuthChecked(true);
+      setBusy(false);
+    }
+  }
+
+  async function onLogin(e: FormEvent) {
+    e.preventDefault();
     setBusy(true);
     setStatus("");
     try {
       const login = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ password: pwd }),
+        credentials: "same-origin",
+        body: JSON.stringify({ password }),
       });
       if (!login.ok) {
-        sessionStorage.removeItem(PASSWORD_KEY);
         setAuthed(false);
         const err = (await login.json().catch(() => ({}))) as {
           error?: string;
@@ -94,7 +118,7 @@ export default function AdminPage() {
         );
         return;
       }
-      sessionStorage.setItem(PASSWORD_KEY, pwd);
+      setPassword("");
       setAuthed(true);
       await loadPublicContent();
       setStatus("Signed in.");
@@ -105,9 +129,21 @@ export default function AdminPage() {
     }
   }
 
-  async function onLogin(e: FormEvent) {
-    e.preventDefault();
-    await bootstrap(password);
+  async function onLogout() {
+    setBusy(true);
+    try {
+      await fetch("/api/admin/logout", {
+        method: "POST",
+        credentials: "same-origin",
+      });
+    } catch {
+      /* still clear local auth */
+    } finally {
+      setAuthed(false);
+      setPassword("");
+      setStatus("Signed out.");
+      setBusy(false);
+    }
   }
 
   async function onSave() {
@@ -116,12 +152,15 @@ export default function AdminPage() {
     try {
       const res = await fetch("/api/content", {
         method: "PUT",
-        headers: {
-          "content-type": "application/json",
-          "x-admin-password": password,
-        },
+        headers: { "content-type": "application/json" },
+        credentials: "same-origin",
         body: JSON.stringify(content),
       });
+      if (res.status === 401) {
+        setAuthed(false);
+        setStatus("Session expired — sign in again to save.");
+        return;
+      }
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         setStatus(`Save failed: ${(err as { error?: string }).error ?? res.status}`);
@@ -228,6 +267,14 @@ export default function AdminPage() {
     [content.design],
   );
 
+  if (!authChecked) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#eef2f6] px-4 text-sm text-slate-600">
+        Checking session…
+      </div>
+    );
+  }
+
   if (!authed) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#eef2f6] px-4">
@@ -240,7 +287,8 @@ export default function AdminPage() {
           </h1>
           <p className="text-sm text-slate-600">
             Sign in with the <code className="text-copper-600">ADMIN_PASSWORD</code>{" "}
-            Worker secret to edit layout, fonts, and content.
+            Worker secret. A secure HttpOnly session cookie is issued — the
+            password is not kept in the browser after login.
           </p>
           <label className="block text-sm">
             <span className="mb-1 block text-slate-500">Password</span>
@@ -299,6 +347,14 @@ export default function AdminPage() {
               className="rounded-full border border-slate-300 bg-white px-4 py-1.5 text-sm hover:bg-slate-50"
             >
               Reset defaults
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void onLogout()}
+              className="rounded-full border border-slate-300 bg-white px-4 py-1.5 text-sm hover:bg-slate-50"
+            >
+              Sign out
             </button>
             <button
               type="button"

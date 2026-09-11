@@ -41,15 +41,26 @@ Edit homepage text, product boxes, spacing, and colors in the browser at **`/adm
 
    Add the returned IDs to `wrangler.jsonc` under `kv_namespaces` with binding `CONTENT` (see comments in that file).
 
-2. **Set the admin password** (Worker secret):
+2. **Set admin secrets** (Worker secrets):
 
    ```bash
    npx wrangler secret put ADMIN_PASSWORD --name hogbacktech-website
+   npx wrangler secret put SESSION_SECRET --name hogbacktech-website
    ```
+
+   Use a strong unique password. `SESSION_SECRET` should be a random 32+ character string
+   (signs the HttpOnly admin session cookie). If omitted, the Worker falls back to
+   `ADMIN_PASSWORD` for signing.
 
 3. **Deploy** (`npm run build && npm run deploy`), then open `https://hogbacktech.com/admin`.
 
-Without KV, the site still loads bundled defaults; Save in `/admin` returns an error until the binding is configured. Without `ADMIN_PASSWORD`, login is disabled.
+Without KV, the site still loads bundled defaults; Save in `/admin` returns an error until the
+binding is configured. Without `ADMIN_PASSWORD`, login is disabled.
+
+Login creates a **12-hour HttpOnly, Secure, SameSite=Strict** session cookie. The password is
+not stored in the browser after sign-in. Failed logins are rate-limited. For multifactor, put
+**Cloudflare Access** in front of `/admin` (email one-time codes) — that is the recommended pro
+MFA path for this site.
 
 ### What you can edit
 
@@ -76,5 +87,5 @@ src/
     ├── site-content.ts     # Editable homepage schema + defaults
     └── use-site-content.ts # Client fetch of /api/content
 worker/
-└── index.ts                # GET/PUT /api/content, POST /api/admin/login
+└── index.ts                # Content API + cookie session admin auth
 ```
