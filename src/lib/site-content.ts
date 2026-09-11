@@ -35,6 +35,8 @@ export type ProductCardContent = {
   securityFootnote: string;
   privacyHref: string;
   privacyLabel: string;
+  /** Organization signup form on the product page (Docs). */
+  signup: ProductSignupContent;
 };
 
 export type ProductScreenshot = {
@@ -45,6 +47,58 @@ export type ProductScreenshot = {
 export type PricingRow = {
   plan: string;
   price: string;
+};
+
+export type CapabilityTile = {
+  label: string;
+  image: string;
+};
+
+export type ProductSignupContent = {
+  enabled: boolean;
+  eyebrow: string;
+  title: string;
+  body: string;
+  organizationLabel: string;
+  organizationPlaceholder: string;
+  contactLabel: string;
+  contactPlaceholder: string;
+  emailLabel: string;
+  emailPlaceholder: string;
+  phoneLabel: string;
+  phonePlaceholder: string;
+  notesLabel: string;
+  notesPlaceholder: string;
+  submitLabel: string;
+  successTitle: string;
+  successBody: string;
+  editAgainLabel: string;
+  mailtoSubject: string;
+  mailtoIntro: string;
+};
+
+export const emptyProductSignup: ProductSignupContent = {
+  enabled: false,
+  eyebrow: "",
+  title: "",
+  body: "",
+  organizationLabel: "Organization name",
+  organizationPlaceholder: "Agency, department, or company",
+  contactLabel: "Contact name",
+  contactPlaceholder: "Your name",
+  emailLabel: "Work email",
+  emailPlaceholder: "you@agency.gov",
+  phoneLabel: "Phone (optional)",
+  phonePlaceholder: "(555) 555-5555",
+  notesLabel: "Anything we should know (optional)",
+  notesPlaceholder: "Team size, document types, go-live timing…",
+  submitLabel: "Submit signup request",
+  successTitle: "Request ready to send",
+  successBody:
+    "Your email app should open with the signup details filled in. If it doesn't, email us and we'll get your organization set up.",
+  editAgainLabel: "Edit and try again",
+  mailtoSubject: "Organization signup request",
+  mailtoIntro: "I'd like to sign up my organization.",
 };
 
 /** Split stored tier strings like "Core $49/mo" into table columns. */
@@ -277,6 +331,7 @@ export type SiteContent = {
      * - below-titles: titles first, then banner
      */
     bannerPosition: "above-titles" | "below-titles";
+    capabilities: CapabilityTile[];
   };
   products: {
     sectionTitle: string;
@@ -284,6 +339,9 @@ export type SiteContent = {
     backHomeLabel: string;
     pricingLabel: string;
     setupLabel: string;
+    planColumnLabel: string;
+    priceColumnLabel: string;
+    securityEyebrow: string;
     exploreOthersLabel: string;
     cards: ProductCardContent[];
   };
@@ -470,6 +528,28 @@ export const defaultSiteContent: SiteContent = {
     primaryCta: "Explore products",
     secondaryCta: "Schedule a conversation",
     bannerPosition: "above-titles",
+    capabilities: [
+      {
+        label: "Software Development",
+        image: "/brand/tiles/software-dark.png",
+      },
+      {
+        label: "Mobile App Development",
+        image: "/brand/tiles/mobile-app-dark.png",
+      },
+      {
+        label: "Customized for Your Organization",
+        image: "/brand/tiles/customize-dark.png",
+      },
+      {
+        label: "Secure Platforms",
+        image: "/brand/tiles/secure-platform-dark.png",
+      },
+      {
+        label: "Communication & Development Strategy",
+        image: "/brand/tiles/comms-strategy-dark.png",
+      },
+    ],
   },
   products: {
     sectionTitle: "Products built on the ridge",
@@ -478,6 +558,9 @@ export const defaultSiteContent: SiteContent = {
     backHomeLabel: "Back to home",
     pricingLabel: "Pricing",
     setupLabel: "Setup:",
+    planColumnLabel: "Plan",
+    priceColumnLabel: "Price",
+    securityEyebrow: "Security",
     exploreOthersLabel: "Explore other products",
     cards: [
       {
@@ -524,6 +607,7 @@ export const defaultSiteContent: SiteContent = {
         securityFootnote: "",
         privacyHref: "",
         privacyLabel: "",
+        signup: { ...emptyProductSignup },
       },
       {
         id: "geo",
@@ -565,6 +649,7 @@ export const defaultSiteContent: SiteContent = {
         securityFootnote: "",
         privacyHref: "",
         privacyLabel: "",
+        signup: { ...emptyProductSignup },
       },
       {
         id: "docs",
@@ -636,6 +721,29 @@ export const defaultSiteContent: SiteContent = {
           "Need a formal security review, data processing terms, or agency-specific compliance discussion? Contact us—we will walk through your requirements honestly.",
         privacyHref: "/privacy",
         privacyLabel: "Read our privacy policy",
+        signup: {
+          enabled: true,
+          eyebrow: "Get started",
+          title: "Sign up your organization",
+          body: "Tell us about your agency or company. We'll create your Hogback Docs organization and send you an organization code to sign in.",
+          organizationLabel: "Organization name",
+          organizationPlaceholder: "Agency, department, or company",
+          contactLabel: "Contact name",
+          contactPlaceholder: "Your name",
+          emailLabel: "Work email",
+          emailPlaceholder: "you@agency.gov",
+          phoneLabel: "Phone (optional)",
+          phonePlaceholder: "(555) 555-5555",
+          notesLabel: "Anything we should know (optional)",
+          notesPlaceholder: "Team size, document types, go-live timing…",
+          submitLabel: "Submit signup request",
+          successTitle: "Request ready to send",
+          successBody:
+            "Your email app should open with the signup details filled in. If it doesn't, email us and we'll get your organization set up.",
+          editAgainLabel: "Edit and try again",
+          mailtoSubject: "Sign up organization for Hogback Docs",
+          mailtoIntro: "I'd like to sign up my organization for Hogback Docs.",
+        },
       },
       {
         id: "forge",
@@ -676,6 +784,7 @@ export const defaultSiteContent: SiteContent = {
         securityFootnote: "",
         privacyHref: "",
         privacyLabel: "",
+        signup: { ...emptyProductSignup },
       },
       {
         id: "sat",
@@ -721,6 +830,7 @@ export const defaultSiteContent: SiteContent = {
         securityFootnote: "",
         privacyHref: "",
         privacyLabel: "",
+        signup: { ...emptyProductSignup },
       },
     ],
   },
@@ -928,6 +1038,13 @@ export function mergeSiteContent(partial: unknown): SiteContent {
         incoming.hero?.bannerPosition === "above-titles"
           ? incoming.hero.bannerPosition
           : defaultSiteContent.hero.bannerPosition,
+      capabilities: Array.isArray(incoming.hero?.capabilities) &&
+        incoming.hero.capabilities.length > 0
+        ? incoming.hero.capabilities.map((item) => ({
+            label: typeof item?.label === "string" ? item.label : "",
+            image: typeof item?.image === "string" ? item.image : "",
+          }))
+        : [...defaultSiteContent.hero.capabilities],
     },
     products: {
       ...defaultSiteContent.products,
@@ -1028,6 +1145,15 @@ export function mergeSiteContent(partial: unknown): SiteContent {
             card.privacyLabel.trim().length > 0
               ? card.privacyLabel
               : fallback.privacyLabel,
+          signup: {
+            ...fallback.signup,
+            ...(card.signup && typeof card.signup === "object" ? card.signup : {}),
+            enabled: Boolean(
+              card.signup && typeof card.signup === "object"
+                ? (card.signup as ProductSignupContent).enabled ?? fallback.signup.enabled
+                : fallback.signup.enabled,
+            ),
+          },
         };
       }),
     },

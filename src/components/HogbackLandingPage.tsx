@@ -3,7 +3,6 @@
 import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { capabilities } from "@/lib/content";
 import {
   textStyleToCss,
   type BuiltinBlock,
@@ -120,7 +119,7 @@ export function HogbackHeader({ content }: { content: SiteContent }) {
 
         <a
           href="#contact"
-          className="shrink-0 rounded-full bg-copper-500 px-4 py-1.5 text-sm font-semibold text-navy-950 hover:bg-copper-400"
+          className="shrink-0 rounded-md bg-copper-500 px-4 py-1.5 text-sm font-semibold text-navy-950 hover:bg-copper-400"
         >
           {content.header.ctaLabel}
         </a>
@@ -230,21 +229,23 @@ export function HogbackHero({
       <div className="flex flex-wrap items-center gap-4">
         <a
           href="#products"
-          className="rounded-full bg-copper-500 px-6 py-2.5 text-sm font-semibold text-navy-950 hover:bg-copper-400 sm:text-base"
+          className="rounded-md bg-copper-500 px-6 py-2.5 text-sm font-semibold text-navy-950 hover:bg-copper-400 sm:text-base"
         >
           {content.hero.primaryCta}
         </a>
         <a
           href="#contact"
-          className="rounded-full border border-slate-300 bg-white/70 px-6 py-2.5 text-sm text-navy-950 hover:bg-white sm:text-base"
+          className="rounded-md border border-slate-300 bg-white/70 px-6 py-2.5 text-sm text-navy-950 hover:bg-white sm:text-base"
         >
           {content.hero.secondaryCta}
         </a>
       </div>
 
       <ul className="hidden grid-cols-2 gap-3 pt-2 sm:grid-cols-3 md:grid lg:grid-cols-5">
-        {capabilities.map((capability) => (
-          <li key={capability.label} className="flex justify-center">
+        {(content.hero.capabilities || [])
+          .filter((capability) => capability.image.trim().length > 0)
+          .map((capability) => (
+          <li key={capability.label || capability.image} className="flex justify-center">
             <Image
               src={capability.image}
               alt={capability.label}
@@ -314,24 +315,26 @@ export function HogbackProducts({
           {content.products.cards.map((product) => (
             <article
               key={product.id}
-              className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_30px_-24px_rgba(10,17,26,0.35)]"
+              className="flex flex-col justify-between border border-slate-200 bg-white/90 p-5"
             >
               <div className="space-y-3">
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex items-baseline justify-between gap-3">
                   <h3 className="font-display text-xl font-semibold text-navy-950">
                     {product.name}
                   </h3>
-                  <span className="rounded-full border border-copper-500/30 bg-copper-500/10 px-3 py-1 text-xs font-medium text-copper-600">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-copper-600">
                     {product.badge}
                   </span>
                 </div>
-                <p className="text-sm text-slate-600">{product.description}</p>
+                <p className="text-sm leading-relaxed text-slate-600">
+                  {product.description}
+                </p>
                 <ul className="mt-3 space-y-1.5 text-sm text-slate-600">
                   {product.points
                     .filter((point) => point.trim().length > 0)
                     .map((point) => (
                     <li key={point} className="flex gap-2">
-                      <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-copper-500" />
+                      <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-copper-500" />
                       <span>{point}</span>
                     </li>
                   ))}
@@ -501,7 +504,7 @@ export function HogbackContact({
           <div className="pt-2">
             <a
               href={`mailto:${content.contact.email}?subject=Hogback%20Ridge%20Technologies%20Inquiry`}
-              className="inline-flex items-center gap-2 rounded-full bg-copper-500 px-5 py-2 text-sm font-semibold text-navy-950 hover:bg-copper-400"
+              className="inline-flex items-center gap-2 rounded-md bg-copper-500 px-5 py-2 text-sm font-semibold text-navy-950 hover:bg-copper-400"
             >
               {content.contact.ctaLabel} {content.contact.email}
               <span aria-hidden="true">↗</span>

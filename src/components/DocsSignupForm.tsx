@@ -1,12 +1,14 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import type { ProductSignupContent } from "@/lib/site-content";
 
 type DocsSignupFormProps = {
   email: string;
+  copy: ProductSignupContent;
 };
 
-export function DocsSignupForm({ email }: DocsSignupFormProps) {
+export function DocsSignupForm({ email, copy }: DocsSignupFormProps) {
   const [submitted, setSubmitted] = useState(false);
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -20,84 +22,88 @@ export function DocsSignupForm({ email }: DocsSignupFormProps) {
     const notes = String(data.get("notes") || "").trim();
 
     const body = [
-      "I'd like to sign up my organization for Hogback Docs.",
+      copy.mailtoIntro,
       "",
-      `Organization name: ${organization}`,
-      `Contact name: ${contactName}`,
-      `Email: ${contactEmail}`,
-      `Phone: ${phone || "—"}`,
-      notes ? `Notes: ${notes}` : null,
+      `${copy.organizationLabel}: ${organization}`,
+      `${copy.contactLabel}: ${contactName}`,
+      `${copy.emailLabel}: ${contactEmail}`,
+      `${copy.phoneLabel}: ${phone || "—"}`,
+      notes ? `${copy.notesLabel}: ${notes}` : null,
     ]
       .filter(Boolean)
       .join("\n");
 
     const mailto = `mailto:${email}?subject=${encodeURIComponent(
-      "Sign up organization for Hogback Docs",
+      copy.mailtoSubject,
     )}&body=${encodeURIComponent(body)}`;
 
     window.location.href = mailto;
     setSubmitted(true);
   }
 
+  const inputClass =
+    "mt-2 w-full border-0 border-b border-slate-300 bg-transparent px-0 py-2.5 text-navy-950 outline-none transition focus:border-copper-500";
+
   return (
     <section
       id="signup"
-      className="scroll-mt-24 space-y-6 border-t border-slate-200 pt-10"
+      className="scroll-mt-24 space-y-8 border-t border-slate-200 pt-12"
     >
-      <div className="max-w-2xl space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-copper-600">
-          Get started
-        </p>
+      <div className="max-w-2xl space-y-3">
+        {copy.eyebrow.trim() ? (
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-copper-600">
+            {copy.eyebrow}
+          </p>
+        ) : null}
         <h2 className="font-display text-2xl font-semibold text-navy-950 sm:text-3xl">
-          Sign up your organization
+          {copy.title}
         </h2>
-        <p className="text-sm text-slate-600 sm:text-base">
-          Tell us about your agency or company. We&apos;ll create your Hogback
-          Docs organization and send you an organization code to sign in.
-        </p>
+        {copy.body.trim() ? (
+          <p className="text-sm leading-relaxed text-slate-600 sm:text-base">
+            {copy.body}
+          </p>
+        ) : null}
       </div>
 
-      <div className="max-w-2xl rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_10px_30px_-24px_rgba(10,17,26,0.35)] sm:p-8">
+      <div className="max-w-2xl">
         {submitted ? (
-          <div className="space-y-3 py-6 text-center">
+          <div className="space-y-3 border-l-2 border-copper-500 pl-5 py-2">
             <h3 className="font-display text-xl font-semibold text-navy-950">
-              Request ready to send
+              {copy.successTitle}
             </h3>
             <p className="text-sm text-slate-600">
-              Your email app should open with the signup details filled in. If
-              it doesn&apos;t, email{" "}
+              {copy.successBody}{" "}
               <a
                 href={`mailto:${email}`}
                 className="font-medium text-copper-600 hover:text-copper-500"
               >
                 {email}
-              </a>{" "}
-              and we&apos;ll get your organization set up.
+              </a>
             </p>
             <button
               type="button"
               onClick={() => setSubmitted(false)}
               className="text-sm font-medium text-navy-800 underline-offset-2 hover:underline"
             >
-              Edit and try again
+              {copy.editAgainLabel}
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="grid gap-5 sm:grid-cols-2">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid gap-6 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <label
                   htmlFor="docs-org"
                   className="block text-sm font-medium text-navy-950"
                 >
-                  Organization name
+                  {copy.organizationLabel}
                 </label>
                 <input
                   id="docs-org"
                   name="organization"
                   required
-                  className="mt-2 w-full rounded-lg border border-slate-200 bg-[#f8fafc] px-4 py-3 text-navy-950 outline-none focus:border-copper-500/60"
-                  placeholder="Agency, department, or company"
+                  className={inputClass}
+                  placeholder={copy.organizationPlaceholder}
                 />
               </div>
               <div>
@@ -105,14 +111,14 @@ export function DocsSignupForm({ email }: DocsSignupFormProps) {
                   htmlFor="docs-contact"
                   className="block text-sm font-medium text-navy-950"
                 >
-                  Contact name
+                  {copy.contactLabel}
                 </label>
                 <input
                   id="docs-contact"
                   name="contactName"
                   required
-                  className="mt-2 w-full rounded-lg border border-slate-200 bg-[#f8fafc] px-4 py-3 text-navy-950 outline-none focus:border-copper-500/60"
-                  placeholder="Your name"
+                  className={inputClass}
+                  placeholder={copy.contactPlaceholder}
                 />
               </div>
               <div>
@@ -120,15 +126,15 @@ export function DocsSignupForm({ email }: DocsSignupFormProps) {
                   htmlFor="docs-email"
                   className="block text-sm font-medium text-navy-950"
                 >
-                  Work email
+                  {copy.emailLabel}
                 </label>
                 <input
                   id="docs-email"
                   name="contactEmail"
                   type="email"
                   required
-                  className="mt-2 w-full rounded-lg border border-slate-200 bg-[#f8fafc] px-4 py-3 text-navy-950 outline-none focus:border-copper-500/60"
-                  placeholder="you@agency.gov"
+                  className={inputClass}
+                  placeholder={copy.emailPlaceholder}
                 />
               </div>
               <div className="sm:col-span-2">
@@ -136,15 +142,14 @@ export function DocsSignupForm({ email }: DocsSignupFormProps) {
                   htmlFor="docs-phone"
                   className="block text-sm font-medium text-navy-950"
                 >
-                  Phone{" "}
-                  <span className="font-normal text-slate-500">(optional)</span>
+                  {copy.phoneLabel}
                 </label>
                 <input
                   id="docs-phone"
                   name="phone"
                   type="tel"
-                  className="mt-2 w-full rounded-lg border border-slate-200 bg-[#f8fafc] px-4 py-3 text-navy-950 outline-none focus:border-copper-500/60"
-                  placeholder="(555) 555-5555"
+                  className={inputClass}
+                  placeholder={copy.phonePlaceholder}
                 />
               </div>
               <div className="sm:col-span-2">
@@ -152,23 +157,22 @@ export function DocsSignupForm({ email }: DocsSignupFormProps) {
                   htmlFor="docs-notes"
                   className="block text-sm font-medium text-navy-950"
                 >
-                  Anything we should know{" "}
-                  <span className="font-normal text-slate-500">(optional)</span>
+                  {copy.notesLabel}
                 </label>
                 <textarea
                   id="docs-notes"
                   name="notes"
                   rows={3}
-                  className="mt-2 w-full resize-none rounded-lg border border-slate-200 bg-[#f8fafc] px-4 py-3 text-navy-950 outline-none focus:border-copper-500/60"
-                  placeholder="Team size, document types, go-live timing…"
+                  className={`${inputClass} resize-none`}
+                  placeholder={copy.notesPlaceholder}
                 />
               </div>
             </div>
             <button
               type="submit"
-              className="inline-flex w-full items-center justify-center rounded-full bg-copper-500 px-6 py-3 text-sm font-semibold text-navy-950 hover:bg-copper-400 sm:w-auto"
+              className="inline-flex items-center justify-center rounded-md bg-copper-500 px-6 py-3 text-sm font-semibold text-navy-950 transition hover:bg-copper-400"
             >
-              Submit signup request
+              {copy.submitLabel}
             </button>
           </form>
         )}
