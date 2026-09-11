@@ -1303,59 +1303,119 @@ function BlockContentEditor({
             Capability tiles (under hero)
           </p>
           <p className="text-xs text-slate-500">
-            These appear beneath the hero buttons. Leave image blank to hide a
-            tile.
+            These appear beneath the hero buttons. Click a tile on the homepage
+            to open its detail panel. Leave image blank to hide a tile.
           </p>
           {(content.hero.capabilities || []).map((cap, capIndex) => (
             <div
               key={capIndex}
-              className="grid gap-2 rounded-lg border border-slate-100 bg-slate-50 p-3 sm:grid-cols-[1fr_1fr_auto]"
+              className="space-y-2 rounded-lg border border-slate-100 bg-slate-50 p-3"
             >
+              <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
+                <Field
+                  label={`Tile ${capIndex + 1} label`}
+                  value={cap.label}
+                  onChange={(v) =>
+                    setContent((c) => {
+                      const capabilities = [...(c.hero.capabilities || [])];
+                      capabilities[capIndex] = {
+                        ...capabilities[capIndex],
+                        label: v,
+                      };
+                      return { ...c, hero: { ...c.hero, capabilities } };
+                    })
+                  }
+                />
+                <Field
+                  label="Image path"
+                  value={cap.image}
+                  onChange={(v) =>
+                    setContent((c) => {
+                      const capabilities = [...(c.hero.capabilities || [])];
+                      capabilities[capIndex] = {
+                        ...capabilities[capIndex],
+                        image: v,
+                      };
+                      return { ...c, hero: { ...c.hero, capabilities } };
+                    })
+                  }
+                />
+                <button
+                  type="button"
+                  className="self-end rounded-full px-2 py-2 text-xs text-slate-500 hover:bg-white hover:text-red-600"
+                  onClick={() =>
+                    setContent((c) => ({
+                      ...c,
+                      hero: {
+                        ...c.hero,
+                        capabilities: (c.hero.capabilities || []).filter(
+                          (_, i) => i !== capIndex,
+                        ),
+                      },
+                    }))
+                  }
+                >
+                  Remove
+                </button>
+              </div>
               <Field
-                label={`Tile ${capIndex + 1} label`}
-                value={cap.label}
+                label="Detail title"
+                value={cap.title ?? ""}
                 onChange={(v) =>
                   setContent((c) => {
                     const capabilities = [...(c.hero.capabilities || [])];
                     capabilities[capIndex] = {
                       ...capabilities[capIndex],
-                      label: v,
+                      title: v,
                     };
                     return { ...c, hero: { ...c.hero, capabilities } };
                   })
                 }
               />
-              <Field
-                label="Image path"
-                value={cap.image}
+              <Area
+                label="Detail body"
+                value={cap.body ?? ""}
                 onChange={(v) =>
                   setContent((c) => {
                     const capabilities = [...(c.hero.capabilities || [])];
                     capabilities[capIndex] = {
                       ...capabilities[capIndex],
-                      image: v,
+                      body: v,
                     };
                     return { ...c, hero: { ...c.hero, capabilities } };
                   })
                 }
               />
-              <button
-                type="button"
-                className="self-end rounded-full px-2 py-2 text-xs text-slate-500 hover:bg-white hover:text-red-600"
-                onClick={() =>
-                  setContent((c) => ({
-                    ...c,
-                    hero: {
-                      ...c.hero,
-                      capabilities: (c.hero.capabilities || []).filter(
-                        (_, i) => i !== capIndex,
-                      ),
-                    },
-                  }))
-                }
-              >
-                Remove
-              </button>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <Field
+                  label="Detail CTA label"
+                  value={cap.ctaLabel ?? ""}
+                  onChange={(v) =>
+                    setContent((c) => {
+                      const capabilities = [...(c.hero.capabilities || [])];
+                      capabilities[capIndex] = {
+                        ...capabilities[capIndex],
+                        ctaLabel: v,
+                      };
+                      return { ...c, hero: { ...c.hero, capabilities } };
+                    })
+                  }
+                />
+                <Field
+                  label="Detail CTA link (#contact, /privacy, …)"
+                  value={cap.ctaHref ?? ""}
+                  onChange={(v) =>
+                    setContent((c) => {
+                      const capabilities = [...(c.hero.capabilities || [])];
+                      capabilities[capIndex] = {
+                        ...capabilities[capIndex],
+                        ctaHref: v,
+                      };
+                      return { ...c, hero: { ...c.hero, capabilities } };
+                    })
+                  }
+                />
+              </div>
             </div>
           ))}
           <button
@@ -1368,7 +1428,14 @@ function BlockContentEditor({
                   ...c.hero,
                   capabilities: [
                     ...(c.hero.capabilities || []),
-                    { label: "New capability", image: "/brand/tiles/" },
+                    {
+                      label: "New capability",
+                      image: "/brand/tiles/",
+                      title: "New capability",
+                      body: "",
+                      ctaLabel: "Contact for details",
+                      ctaHref: "#contact",
+                    },
                   ],
                 },
               }))

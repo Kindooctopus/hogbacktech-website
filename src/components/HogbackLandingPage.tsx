@@ -11,6 +11,7 @@ import {
 } from "@/lib/site-content";
 import { useSiteContent } from "@/lib/use-site-content";
 import { FontThemeLoader } from "@/components/FontThemeLoader";
+import { CapabilityTiles } from "@/components/CapabilityTiles";
 import { ProductCtaLink } from "@/components/ProductCtaLink";
 import {
   BoxBlockSection,
@@ -246,21 +247,7 @@ export function HogbackHero({
         </a>
       </div>
 
-      <ul className="hidden grid-cols-2 gap-3 pt-2 sm:grid-cols-3 md:grid lg:grid-cols-5">
-        {(content.hero.capabilities || [])
-          .filter((capability) => capability.image.trim().length > 0)
-          .map((capability) => (
-          <li key={capability.label || capability.image} className="flex justify-center">
-            <Image
-              src={capability.image}
-              alt={capability.label}
-              width={512}
-              height={512}
-              className="h-24 w-auto object-contain sm:h-28 lg:h-32"
-            />
-          </li>
-        ))}
-      </ul>
+      <CapabilityTiles tiles={content.hero.capabilities || []} />
     </div>
   );
 

@@ -52,6 +52,13 @@ export type PricingRow = {
 export type CapabilityTile = {
   label: string;
   image: string;
+  /** Detail panel title when the tile is clicked (falls back to label). */
+  title: string;
+  /** Detail panel body copy. */
+  body: string;
+  /** Optional CTA in the detail panel. */
+  ctaLabel: string;
+  ctaHref: string;
 };
 
 export type ProductSignupContent = {
@@ -538,22 +545,42 @@ export const defaultSiteContent: SiteContent = {
       {
         label: "Software Development",
         image: "/brand/tiles/software-dark.png",
+        title: "Software development",
+        body: "We design and build practical software for public safety, fleets, and field operations—from focused tools to full platforms. Hogback Ops, Geo, Docs, Sat, and Forge all come from the same ground-up engineering approach.",
+        ctaLabel: "Explore products",
+        ctaHref: "#products",
       },
       {
         label: "Mobile App Development",
         image: "/brand/tiles/mobile-app-dark.png",
+        title: "Mobile app development",
+        body: "Deliver where the work happens. We build iOS, Android, and web apps—including Apple CarPlay where it helps responders on the road—so your team can run the same workflows in station, in the cab, and in the field.",
+        ctaLabel: "Talk about a mobile build",
+        ctaHref: "#contact",
       },
       {
         label: "Customized for Your Organization",
         image: "/brand/tiles/customize-dark.png",
+        title: "Customized for your organization",
+        body: "Your branding, your workflows, your systems. Hogback is a custom app developer—we scope apps around your apparatus labels, CAD feeds, maps, documents, and the way your organization actually operates.",
+        ctaLabel: "Contact for details",
+        ctaHref: "#contact",
       },
       {
         label: "Secure Platforms",
         image: "/brand/tiles/secure-platform-dark.png",
+        title: "Secure platforms",
+        body: "Practical security without enterprise theater: encryption in transit and at rest, U.S. cloud infrastructure, organization-scoped access, and no ads or data selling. We will walk through agency requirements honestly.",
+        ctaLabel: "Read our privacy policy",
+        ctaHref: "/privacy",
       },
       {
         label: "Communication & Development Strategy",
         image: "/brand/tiles/comms-strategy-dark.png",
+        title: "Communication & development strategy",
+        body: "Before we write code, we map the problem: who needs what, which systems talk to each other, and what a grounded rollout looks like. Share your goals and we will outline a practical path forward.",
+        ctaLabel: "Schedule a conversation",
+        ctaHref: "#contact",
       },
     ],
   },
@@ -1110,11 +1137,35 @@ export function mergeSiteContent(partial: unknown): SiteContent {
           : defaultSiteContent.hero.bannerPosition,
       capabilities: Array.isArray(incoming.hero?.capabilities) &&
         incoming.hero.capabilities.length > 0
-        ? incoming.hero.capabilities.map((item) => ({
-            label: typeof item?.label === "string" ? item.label : "",
-            image: typeof item?.image === "string" ? item.image : "",
-          }))
-        : [...defaultSiteContent.hero.capabilities],
+        ? incoming.hero.capabilities.map((item, i) => {
+            const fallback = defaultSiteContent.hero.capabilities[i];
+            return {
+              label:
+                typeof item?.label === "string" && item.label.trim().length > 0
+                  ? item.label
+                  : (fallback?.label ?? ""),
+              image:
+                typeof item?.image === "string" ? item.image : (fallback?.image ?? ""),
+              title:
+                typeof item?.title === "string" && item.title.trim().length > 0
+                  ? item.title
+                  : (fallback?.title ??
+                    (typeof item?.label === "string" ? item.label : "")),
+              body:
+                typeof item?.body === "string" && item.body.trim().length > 0
+                  ? item.body
+                  : (fallback?.body ?? ""),
+              ctaLabel:
+                typeof item?.ctaLabel === "string" && item.ctaLabel.trim().length > 0
+                  ? item.ctaLabel
+                  : (fallback?.ctaLabel ?? ""),
+              ctaHref:
+                typeof item?.ctaHref === "string" && item.ctaHref.trim().length > 0
+                  ? item.ctaHref
+                  : (fallback?.ctaHref ?? ""),
+            };
+          })
+        : defaultSiteContent.hero.capabilities.map((item) => ({ ...item })),
     },
     products: {
       ...defaultSiteContent.products,
