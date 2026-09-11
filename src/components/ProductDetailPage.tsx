@@ -7,7 +7,9 @@ import { HogbackFooter, HogbackHeader } from "@/components/HogbackLandingPage";
 import { ProductCtaLink } from "@/components/ProductCtaLink";
 import { ProductScreenshotGallery } from "@/components/ProductScreenshotGallery";
 import { ProductSecuritySection } from "@/components/ProductSecuritySection";
-import { company } from "@/lib/content";
+import {
+  company,
+} from "@/lib/content";
 import {
   defaultSiteContent,
   getProductCard,
@@ -62,7 +64,10 @@ export function ProductDetailPage({ productId }: { productId: string }) {
           <ProductCopy product={product} email={email} content={content} />
         </div>
 
-        <ProductSecuritySection product={product} />
+        <ProductSecuritySection
+          product={product}
+          eyebrow={content.products.securityEyebrow}
+        />
 
         {product.screenshots.some((shot) => shot.src.trim().length > 0) ? (
           <section className="space-y-6 border-t border-slate-200 pt-10">
@@ -76,7 +81,9 @@ export function ProductDetailPage({ productId }: { productId: string }) {
           </section>
         ) : null}
 
-        {product.id === "docs" ? <DocsSignupForm email={email} /> : null}
+        {product.signup?.enabled ? (
+          <DocsSignupForm email={email} copy={product.signup} />
+        ) : null}
 
         <section className="space-y-4 border-t border-slate-200 pt-10">
           <h2 className="font-display text-xl font-semibold text-navy-950">
@@ -115,22 +122,22 @@ function ProductCopy({
   email: string;
   content: ReturnType<typeof useSiteContent>["content"];
 }) {
-  const isDocs = product.id === "docs";
-  const signupHref = isDocs ? "#signup" : product.appHref;
+  const showSignup = Boolean(product.signup?.enabled);
+  const signupHref = showSignup ? "#signup" : product.appHref;
   const hasApp = Boolean(
-    (isDocs || product.appHref) && product.appCtaLabel,
+    (showSignup || product.appHref) && product.appCtaLabel,
   );
 
   return (
     <div className="space-y-6">
       <div className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-copper-600">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-copper-600">
           {product.subtitle}
         </p>
         <h1 className="font-display text-4xl font-semibold text-navy-950 sm:text-5xl">
           {product.name}
         </h1>
-        <p className="text-base text-slate-600 sm:text-lg">
+        <p className="text-base leading-relaxed text-slate-600 sm:text-lg">
           {product.pageDescription}
         </p>
       </div>
@@ -140,42 +147,43 @@ function ProductCopy({
           .filter((feature) => feature.trim().length > 0)
           .map((feature) => (
             <li key={feature} className="flex gap-2">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-copper-500" />
+              <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-copper-500" />
               <span>{feature}</span>
             </li>
           ))}
       </ul>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_30px_-24px_rgba(10,17,26,0.35)]">
-        <p className="mb-3 text-xs uppercase tracking-[0.25em] text-copper-600">
+      <div className="border border-slate-200 bg-white/80 p-5">
+        <p className="mb-3 text-xs uppercase tracking-[0.22em] text-copper-600">
           {content.products.pricingLabel}
         </p>
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-[0.14em] text-slate-500">
-              <th className="pb-2 pr-4 font-medium">Plan</th>
-              <th className="pb-2 text-right font-medium">Price</th>
+              <th className="pb-2 pr-4 font-medium">
+                {content.products.planColumnLabel || "Plan"}
+              </th>
+              <th className="pb-2 text-right font-medium">
+                {content.products.priceColumnLabel || "Price"}
+              </th>
             </tr>
           </thead>
           <tbody>
-            {(product.pricingRows?.length
-              ? product.pricingRows
-              : []
-            )
+            {(product.pricingRows?.length ? product.pricingRows : [])
               .filter((row) => row.plan.trim() || row.price.trim())
               .map((row) => (
-                  <tr
-                    key={`${row.plan}-${row.price}`}
-                    className="border-b border-slate-100 last:border-b-0"
-                  >
-                    <td className="py-2.5 pr-4 font-medium text-navy-950">
-                      {row.plan || "—"}
-                    </td>
-                    <td className="py-2.5 text-right tabular-nums text-slate-700">
-                      {row.price || "—"}
-                    </td>
-                  </tr>
-                ))}
+                <tr
+                  key={`${row.plan}-${row.price}`}
+                  className="border-b border-slate-100 last:border-b-0"
+                >
+                  <td className="py-2.5 pr-4 font-medium text-navy-950">
+                    {row.plan || "—"}
+                  </td>
+                  <td className="py-2.5 text-right tabular-nums text-slate-700">
+                    {row.price || "—"}
+                  </td>
+                </tr>
+              ))}
             {product.pricingSetup.trim().length > 0 ? (
               <tr className="border-t border-slate-200">
                 <td className="pt-3 pr-4 text-slate-500">
@@ -194,15 +202,15 @@ function ProductCopy({
         {hasApp ? (
           <ProductCtaLink
             href={signupHref || product.appHref}
-            className="inline-flex items-center gap-2 rounded-full bg-copper-500 px-6 py-2.5 text-sm font-semibold text-navy-950 hover:bg-copper-400"
+            className="inline-flex items-center gap-2 rounded-md bg-copper-500 px-5 py-2.5 text-sm font-semibold text-navy-950 hover:bg-copper-400"
           >
             {product.appCtaLabel}
-            <span aria-hidden="true">{isDocs ? "↓" : "↗"}</span>
+            <span aria-hidden="true">{showSignup ? "↓" : "↗"}</span>
           </ProductCtaLink>
         ) : null}
         <a
           href={`mailto:${email}?subject=${encodeURIComponent(`${product.name} inquiry`)}`}
-          className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold ${
+          className={`inline-flex items-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold ${
             hasApp
               ? "border border-slate-300 bg-white text-navy-950 hover:bg-slate-50"
               : "bg-copper-500 text-navy-950 hover:bg-copper-400"

@@ -1,3 +1,10 @@
+/**
+ * Legacy static marketing data.
+ *
+ * Live homepage + product pages read from SiteContent (editable in /admin).
+ * Pricing and product copy here are NOT used by the live site — keep only
+ * company metadata and any leftover unused components in sync intentionally.
+ */
 export const company = {
   name: "Hogback Ridge Technologies",
   shortName: "Hogback",

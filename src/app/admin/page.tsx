@@ -1298,6 +1298,85 @@ function BlockContentEditor({
             setContent((c) => ({ ...c, hero: { ...c.hero, secondaryCta: v } }))
           }
         />
+        <div className="space-y-3 rounded-xl border border-slate-200 p-3">
+          <p className="text-sm font-medium text-navy-950">
+            Capability tiles (under hero)
+          </p>
+          <p className="text-xs text-slate-500">
+            These appear beneath the hero buttons. Leave image blank to hide a
+            tile.
+          </p>
+          {(content.hero.capabilities || []).map((cap, capIndex) => (
+            <div
+              key={capIndex}
+              className="grid gap-2 rounded-lg border border-slate-100 bg-slate-50 p-3 sm:grid-cols-[1fr_1fr_auto]"
+            >
+              <Field
+                label={`Tile ${capIndex + 1} label`}
+                value={cap.label}
+                onChange={(v) =>
+                  setContent((c) => {
+                    const capabilities = [...(c.hero.capabilities || [])];
+                    capabilities[capIndex] = {
+                      ...capabilities[capIndex],
+                      label: v,
+                    };
+                    return { ...c, hero: { ...c.hero, capabilities } };
+                  })
+                }
+              />
+              <Field
+                label="Image path"
+                value={cap.image}
+                onChange={(v) =>
+                  setContent((c) => {
+                    const capabilities = [...(c.hero.capabilities || [])];
+                    capabilities[capIndex] = {
+                      ...capabilities[capIndex],
+                      image: v,
+                    };
+                    return { ...c, hero: { ...c.hero, capabilities } };
+                  })
+                }
+              />
+              <button
+                type="button"
+                className="self-end rounded-full px-2 py-2 text-xs text-slate-500 hover:bg-white hover:text-red-600"
+                onClick={() =>
+                  setContent((c) => ({
+                    ...c,
+                    hero: {
+                      ...c.hero,
+                      capabilities: (c.hero.capabilities || []).filter(
+                        (_, i) => i !== capIndex,
+                      ),
+                    },
+                  }))
+                }
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm hover:bg-slate-50"
+            onClick={() =>
+              setContent((c) => ({
+                ...c,
+                hero: {
+                  ...c.hero,
+                  capabilities: [
+                    ...(c.hero.capabilities || []),
+                    { label: "New capability", image: "/brand/tiles/" },
+                  ],
+                },
+              }))
+            }
+          >
+            + Add capability tile
+          </button>
+        </div>
         <Field
           label="Header CTA"
           value={content.header.ctaLabel}
@@ -1376,6 +1455,36 @@ function BlockContentEditor({
               setContent((c) => ({
                 ...c,
                 products: { ...c.products, setupLabel: v },
+              }))
+            }
+          />
+          <Field
+            label="Pricing table: Plan column"
+            value={content.products.planColumnLabel}
+            onChange={(v) =>
+              setContent((c) => ({
+                ...c,
+                products: { ...c.products, planColumnLabel: v },
+              }))
+            }
+          />
+          <Field
+            label="Pricing table: Price column"
+            value={content.products.priceColumnLabel}
+            onChange={(v) =>
+              setContent((c) => ({
+                ...c,
+                products: { ...c.products, priceColumnLabel: v },
+              }))
+            }
+          />
+          <Field
+            label="Security section eyebrow"
+            value={content.products.securityEyebrow}
+            onChange={(v) =>
+              setContent((c) => ({
+                ...c,
+                products: { ...c.products, securityEyebrow: v },
               }))
             }
           />
@@ -1947,6 +2056,120 @@ function BlockContentEditor({
                       })
                     }
                   />
+            </CollapsiblePanel>
+
+            <CollapsiblePanel title="Organization signup form">
+              <label className="flex items-center gap-2 text-sm text-navy-950">
+                <input
+                  type="checkbox"
+                  checked={Boolean(card.signup?.enabled)}
+                  onChange={(e) =>
+                    setContent((c) => {
+                      const cards = [...c.products.cards];
+                      cards[index] = {
+                        ...cards[index],
+                        signup: {
+                          ...cards[index].signup,
+                          enabled: e.target.checked,
+                        },
+                      };
+                      return { ...c, products: { ...c.products, cards } };
+                    })
+                  }
+                />
+                Show signup form on this product page
+              </label>
+              <Field
+                label="Eyebrow"
+                value={card.signup?.eyebrow || ""}
+                onChange={(v) =>
+                  setContent((c) => {
+                    const cards = [...c.products.cards];
+                    cards[index] = {
+                      ...cards[index],
+                      signup: { ...cards[index].signup, eyebrow: v },
+                    };
+                    return { ...c, products: { ...c.products, cards } };
+                  })
+                }
+              />
+              <Field
+                label="Title"
+                value={card.signup?.title || ""}
+                onChange={(v) =>
+                  setContent((c) => {
+                    const cards = [...c.products.cards];
+                    cards[index] = {
+                      ...cards[index],
+                      signup: { ...cards[index].signup, title: v },
+                    };
+                    return { ...c, products: { ...c.products, cards } };
+                  })
+                }
+              />
+              <Area
+                label="Intro"
+                value={card.signup?.body || ""}
+                onChange={(v) =>
+                  setContent((c) => {
+                    const cards = [...c.products.cards];
+                    cards[index] = {
+                      ...cards[index],
+                      signup: { ...cards[index].signup, body: v },
+                    };
+                    return { ...c, products: { ...c.products, cards } };
+                  })
+                }
+              />
+              <Field
+                label="Submit button"
+                value={card.signup?.submitLabel || ""}
+                onChange={(v) =>
+                  setContent((c) => {
+                    const cards = [...c.products.cards];
+                    cards[index] = {
+                      ...cards[index],
+                      signup: { ...cards[index].signup, submitLabel: v },
+                    };
+                    return { ...c, products: { ...c.products, cards } };
+                  })
+                }
+              />
+              <Field
+                label="Mailto subject"
+                value={card.signup?.mailtoSubject || ""}
+                onChange={(v) =>
+                  setContent((c) => {
+                    const cards = [...c.products.cards];
+                    cards[index] = {
+                      ...cards[index],
+                      signup: { ...cards[index].signup, mailtoSubject: v },
+                    };
+                    return { ...c, products: { ...c.products, cards } };
+                  })
+                }
+              />
+              <Area
+                label="Mailto intro line"
+                value={card.signup?.mailtoIntro || ""}
+                onChange={(v) =>
+                  setContent((c) => {
+                    const cards = [...c.products.cards];
+                    cards[index] = {
+                      ...cards[index],
+                      signup: { ...cards[index].signup, mailtoIntro: v },
+                    };
+                    return { ...c, products: { ...c.products, cards } };
+                  })
+                }
+              />
+              <p className="text-xs text-slate-500">
+                Field labels and placeholders for the form also live on this
+                product’s signup object in content (organization, contact,
+                email, phone, notes). Edit them here as needed after save/reload
+                if you extend the admin later; core visitor-facing copy above is
+                enough for most updates.
+              </p>
             </CollapsiblePanel>
 
             <CollapsiblePanel title="App screenshots">
