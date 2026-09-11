@@ -572,24 +572,28 @@ export const defaultSiteContent: SiteContent = {
       {
         id: "ops",
         name: "Hogback Ops",
-        badge: "Public Safety",
+        badge: "Emergency Response",
         description:
-          "A unified operations hub for Fire, EMS, and emergency services — consolidating CAD, AVL, ICS, staffing, and protocols into a single platform.",
+          "Custom emergency responder apps with your organization's branding—AVL, live 911/CAD dispatch, maps, messaging, and CarPlay on iOS, Android, and web.",
         points: [
-          "CAD ingestion & AVL",
-          "ICS tools & weather overlays",
-          "Staffing integration",
-          "Document libraries & situational feeds",
+          "Your branding, your application",
+          "AVL from MDTs, cellular, Starlink, Cradlepoint & APIs",
+          "Live 911 dispatch from CAD or your dispatch center",
+          "iOS, Android, web & Apple CarPlay",
         ],
-        subtitle: "Public Safety Operations Platform",
+        subtitle: "Custom Emergency Responder Apps",
         pageDescription:
-          "A unified operations hub for Fire, EMS, and emergency services—bringing CAD ingestion, AVL, ICS tools, staffing, protocols, and situational feeds into one clear workspace so crews spend less time hunting systems and more time on the call.",
+          "Hogback Ops is a custom emergency responder application built for your organization—with your branding and your operational workflows. Track apparatus AVL from mobile data terminals, cell or Starlink connections, mobile devices, Cradlepoint, or any other source that exposes an API. Hogback does not charge for new API integrations. Bring your own mapping overlay or choose one of our base maps. Collect live 911 dispatches through a CAD API or alternative feeds from your dispatch center. Customize apparatus labels to match how your agency runs. When your organization allows it, use in-app messaging, plus Apple CarPlay for responders on the road. Delivered as iOS, Android, and web apps.",
         features: [
-          "CAD ingestion and unit AVL in one operational view",
-          "ICS tools with weather and situational overlays",
-          "Staffing integration for roster and coverage awareness",
-          "Document libraries and protocol access under pressure",
-          "Built for Fire, EMS, and multi-agency coordination",
+          "Custom app with your organization's branding and identity",
+          "AVL apparatus location from MDTs, cellular, Starlink, mobile devices, Cradlepoint, and other API sources",
+          "New API integrations at no extra charge",
+          "Bring your own map overlay—or use Hogback base maps",
+          "Live 911 dispatch from CAD API or dispatch-center alternatives",
+          "Customizable apparatus labels for your operational needs",
+          "Optional in-app messaging when your organization enables it",
+          "Apple CarPlay integration for in-vehicle response",
+          "iOS, Android, and web app delivery",
         ],
         tileImage: "/brand/products/ops.png",
         pricingRows: [
@@ -610,12 +614,12 @@ export const defaultSiteContent: SiteContent = {
         screenshots: [],
         securityHeading: "Security & Privacy",
         securityIntro:
-          "Built for public safety teams that need practical control over operational data—without enterprise theater.",
+          "Built for agencies that need a branded responder app with practical control over operational and location data—without enterprise theater.",
         securityItems: [
           "AES-256 encryption at rest (Google Cloud / Firebase defaults)",
           "TLS 1.2+ encryption in transit",
           "U.S. cloud infrastructure (Google Cloud us-west1 & Cloudflare)",
-          "Organization-scoped access for agencies and departments",
+          "Organization-scoped access for your agency's branded app",
           "Role separation for administrators and operational users",
           "No ads, no tracking pixels, and we do not sell your data",
         ],
@@ -1065,6 +1069,12 @@ function normalizeBlock(raw: unknown, fallbackIndex: number): PageBlock | null {
   return null;
 }
 
+/** Older Ops marketing copy still stored in KV — prefer current defaults. */
+const OPS_LEGACY_DESCRIPTIONS = new Set([
+  "A unified operations hub for Fire, EMS, and emergency services — consolidating CAD, AVL, ICS, staffing, and protocols into a single platform.",
+  "A unified operations hub for Fire, EMS, and emergency services—bringing CAD ingestion, AVL, ICS tools, staffing, protocols, and situational feeds into one clear workspace so crews spend less time hunting systems and more time on the call.",
+]);
+
 export function mergeSiteContent(partial: unknown): SiteContent {
   if (!partial || typeof partial !== "object") return defaultSiteContent;
   const incoming = partial as Partial<SiteContent>;
@@ -1105,15 +1115,41 @@ export function mergeSiteContent(partial: unknown): SiteContent {
           incoming.products?.cards?.find((c) => c.id === fallback.id) ??
           incoming.products?.cards?.[i];
         if (!card) return fallback;
+        const incomingDesc =
+          typeof card.description === "string" ? card.description.trim() : "";
+        const incomingPage =
+          typeof card.pageDescription === "string"
+            ? card.pageDescription.trim()
+            : "";
+        const preferOpsDefaults =
+          fallback.id === "ops" &&
+          (!incomingDesc ||
+            OPS_LEGACY_DESCRIPTIONS.has(incomingDesc) ||
+            OPS_LEGACY_DESCRIPTIONS.has(incomingPage));
         return {
           ...fallback,
           ...card,
           id: fallback.id,
-          points:
-            Array.isArray(card.points) && card.points.length > 0
+          badge: preferOpsDefaults
+            ? fallback.badge
+            : typeof card.badge === "string" && card.badge.trim().length > 0
+              ? card.badge
+              : fallback.badge,
+          description: preferOpsDefaults
+            ? fallback.description
+            : incomingDesc || fallback.description,
+          subtitle: preferOpsDefaults
+            ? fallback.subtitle
+            : typeof card.subtitle === "string" && card.subtitle.trim().length > 0
+              ? card.subtitle
+              : fallback.subtitle,
+          points: preferOpsDefaults
+            ? [...fallback.points]
+            : Array.isArray(card.points) && card.points.length > 0
               ? card.points.map((p) => (typeof p === "string" ? p : ""))
               : [...fallback.points],
           features: (() => {
+            if (preferOpsDefaults) return [...fallback.features];
             const incomingFeatures =
               Array.isArray(card.features) && card.features.length > 0
                 ? card.features.map((p) => (typeof p === "string" ? p : ""))
@@ -1190,6 +1226,7 @@ export function mergeSiteContent(partial: unknown): SiteContent {
               ? card.appCtaLabel
               : fallback.appCtaLabel,
           pageDescription: (() => {
+            if (preferOpsDefaults) return fallback.pageDescription;
             const incomingPage =
               typeof card.pageDescription === "string"
                 ? card.pageDescription.trim()
@@ -1202,7 +1239,8 @@ export function mergeSiteContent(partial: unknown): SiteContent {
             if (
               !incomingPage ||
               incomingPage === incomingDesc ||
-              incomingPage === fallback.description.trim()
+              incomingPage === fallback.description.trim() ||
+              OPS_LEGACY_DESCRIPTIONS.has(incomingPage)
             ) {
               return fallback.pageDescription;
             }
@@ -1213,13 +1251,15 @@ export function mergeSiteContent(partial: unknown): SiteContent {
             card.securityHeading.trim().length > 0
               ? card.securityHeading
               : fallback.securityHeading,
-          securityIntro:
-            typeof card.securityIntro === "string" &&
-            card.securityIntro.trim().length > 0
+          securityIntro: preferOpsDefaults
+            ? fallback.securityIntro
+            : typeof card.securityIntro === "string" &&
+                card.securityIntro.trim().length > 0
               ? card.securityIntro
               : fallback.securityIntro,
-          securityItems:
-            Array.isArray(card.securityItems) && card.securityItems.length > 0
+          securityItems: preferOpsDefaults
+            ? [...fallback.securityItems]
+            : Array.isArray(card.securityItems) && card.securityItems.length > 0
               ? card.securityItems.map((p) => (typeof p === "string" ? p : ""))
               : [...fallback.securityItems],
           securityFootnote:
