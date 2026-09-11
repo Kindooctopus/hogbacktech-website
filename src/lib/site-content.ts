@@ -365,6 +365,12 @@ export type SiteContent = {
     tips: [string, string, string];
     ctaLabel: string;
   };
+  /** Homepage callout under products — custom app development. */
+  customDev: {
+    title: string;
+    body: string;
+    ctaLabel: string;
+  };
   footer: {
     tagline: string;
     brandLine: string;
@@ -524,7 +530,7 @@ export const defaultSiteContent: SiteContent = {
   hero: {
     titleLine1: "Solid Foundation.",
     titleLine2: "Smart Solutions.",
-    body: "Hogback Ridge Technologies builds software for the people who keep communities moving—public safety, fleets, and field operations. Grounded in real-world experience, engineered for what comes next.",
+    body: "Hogback Ridge Technologies builds software for the people who keep communities moving—public safety, fleets, and field operations. We are also a custom app developer: tell us what you need, and we will scope a practical build.",
     primaryCta: "Explore products",
     secondaryCta: "Schedule a conversation",
     bannerPosition: "above-titles",
@@ -577,12 +583,13 @@ export const defaultSiteContent: SiteContent = {
         ],
         subtitle: "Public Safety Operations Platform",
         pageDescription:
-          "A unified operations hub for Fire, EMS, and emergency services — consolidating CAD, AVL, ICS, staffing, and protocols into a single platform.",
+          "A unified operations hub for Fire, EMS, and emergency services—bringing CAD ingestion, AVL, ICS tools, staffing, protocols, and situational feeds into one clear workspace so crews spend less time hunting systems and more time on the call.",
         features: [
-          "CAD ingestion & AVL",
-          "ICS tools & weather overlays",
-          "Staffing integration",
-          "Document libraries & situational feeds",
+          "CAD ingestion and unit AVL in one operational view",
+          "ICS tools with weather and situational overlays",
+          "Staffing integration for roster and coverage awareness",
+          "Document libraries and protocol access under pressure",
+          "Built for Fire, EMS, and multi-agency coordination",
         ],
         tileImage: "/brand/products/ops.png",
         pricingRows: [
@@ -601,12 +608,21 @@ export const defaultSiteContent: SiteContent = {
         talkCtaLabel: "Talk about Hogback Ops",
         screenshotsHeading: "App screenshots",
         screenshots: [],
-        securityHeading: "",
-        securityIntro: "",
-        securityItems: [],
-        securityFootnote: "",
-        privacyHref: "",
-        privacyLabel: "",
+        securityHeading: "Security & Privacy",
+        securityIntro:
+          "Built for public safety teams that need practical control over operational data—without enterprise theater.",
+        securityItems: [
+          "AES-256 encryption at rest (Google Cloud / Firebase defaults)",
+          "TLS 1.2+ encryption in transit",
+          "U.S. cloud infrastructure (Google Cloud us-west1 & Cloudflare)",
+          "Organization-scoped access for agencies and departments",
+          "Role separation for administrators and operational users",
+          "No ads, no tracking pixels, and we do not sell your data",
+        ],
+        securityFootnote:
+          "Need a formal security review, data processing terms, or agency-specific compliance discussion? Contact us—we will walk through your requirements honestly.",
+        privacyHref: "/privacy",
+        privacyLabel: "Read our privacy policy",
         signup: { ...emptyProductSignup },
       },
       {
@@ -623,12 +639,13 @@ export const defaultSiteContent: SiteContent = {
         ],
         subtitle: "Fleet Tracking & Situational Awareness",
         pageDescription:
-          "Real-time tracking and intelligence for fleet operators, utilities, public works, and public safety — Cradlepoint integrations plus the Geo map with live fire layers, AVL, and GIS overlays.",
+          "Real-time tracking and intelligence for fleet operators, utilities, public works, and public safety—Cradlepoint integrations plus the Geo map with live fire perimeters, heat signatures, wind, AVL, and GIS overlays so field leaders see the same picture.",
         features: [
-          "Geo map with live NIFC fire & perimeter layers",
-          "VIIRS, MODIS & Landsat heat signatures",
-          "Surface wind lines & speed (mph)",
-          "Evacuations, engines, crews & unit locations",
+          "Geo map with live NIFC fire and perimeter layers",
+          "VIIRS, MODIS, and Landsat heat signatures",
+          "Surface wind lines and speed (mph)",
+          "Evacuations, engines, crews, and unit locations",
+          "Cradlepoint-friendly fleet and field workflows",
         ],
         tileImage: "/brand/products/geo.png",
         pricingRows: [
@@ -643,12 +660,21 @@ export const defaultSiteContent: SiteContent = {
         talkCtaLabel: "Talk about Hogback Geo",
         screenshotsHeading: "App screenshots",
         screenshots: [],
-        securityHeading: "",
-        securityIntro: "",
-        securityItems: [],
-        securityFootnote: "",
-        privacyHref: "",
-        privacyLabel: "",
+        securityHeading: "Security & Privacy",
+        securityIntro:
+          "Built for fleets and field teams that need a shared map picture without exposing more than your organization intends.",
+        securityItems: [
+          "AES-256 encryption at rest (Google Cloud / Firebase defaults)",
+          "TLS 1.2+ encryption in transit",
+          "U.S. cloud infrastructure (Google Cloud us-west1 & Cloudflare)",
+          "Organization-scoped map and unit visibility",
+          "Admin-controlled access for operators and viewers",
+          "No ads, no tracking pixels, and we do not sell your data",
+        ],
+        securityFootnote:
+          "Need a formal security review, data processing terms, or agency-specific compliance discussion? Contact us—we will walk through your requirements honestly.",
+        privacyHref: "/privacy",
+        privacyLabel: "Read our privacy policy",
         signup: { ...emptyProductSignup },
       },
       {
@@ -759,12 +785,13 @@ export const defaultSiteContent: SiteContent = {
         ],
         subtitle: "Custom Development & Integrations",
         pageDescription:
-          "Custom software engineering, integrations, mobile apps, dashboards, GIS tools, and automation workflows tailored to your organization.",
+          "Hogback Technologies is a custom app developer. Forge is how we turn your specific operational need into software—mobile apps, dashboards, GIS tools, integrations, and automation workflows scoped to your team, systems, and budget.",
         features: [
-          "Custom software & mobile apps",
-          "GIS tools & dashboards",
-          "System integrations",
-          "Automation workflows",
+          "Custom software and mobile apps for your workflows",
+          "GIS tools, maps, and operational dashboards",
+          "System integrations with the platforms you already run",
+          "Automation workflows that cut repetitive field and office work",
+          "Scoped engagements from discovery through delivery and support",
         ],
         tileImage: "/brand/products/forge.png",
         pricingRows: [
@@ -778,12 +805,21 @@ export const defaultSiteContent: SiteContent = {
         talkCtaLabel: "Talk about Hogback Forge",
         screenshotsHeading: "App screenshots",
         screenshots: [],
-        securityHeading: "",
-        securityIntro: "",
-        securityItems: [],
-        securityFootnote: "",
-        privacyHref: "",
-        privacyLabel: "",
+        securityHeading: "Security & Privacy",
+        securityIntro:
+          "Custom engagements handle sensitive operational context. We keep access tight, communicate clearly, and only retain what the project needs.",
+        securityItems: [
+          "Engagement-scoped access to your systems and data",
+          "NDA-friendly process for agency and enterprise work",
+          "Credentials and secrets handled through agreed secure channels",
+          "Deliverables hosted on infrastructure you approve",
+          "No ads, no tracking pixels, and we do not sell your data",
+          "Clear handoff of ownership for code and content you fund",
+        ],
+        securityFootnote:
+          "Need a formal security review, data processing terms, or agency-specific compliance discussion before kickoff? Contact us—we will walk through your requirements honestly.",
+        privacyHref: "/privacy",
+        privacyLabel: "Read our privacy policy",
         signup: { ...emptyProductSignup },
       },
       {
@@ -800,12 +836,13 @@ export const defaultSiteContent: SiteContent = {
         ],
         subtitle: "Live Satellite Situational Awareness",
         pageDescription:
-          "Near-real-time satellite imagery for public safety and field ops — true color, thermal/fire hotspots, and night lights powered by NASA GIBS.",
+          "Near-real-time satellite imagery for public safety and field ops—true color, thermal/fire hotspots, and night lights powered by NASA GIBS, with date scrubbing so teams can review recent passes when the ground picture changes fast.",
         features: [
-          "Live satellite map feed",
-          "True color & thermal/fire layers",
-          "Date scrubbing for recent passes",
-          "Built for PNW situational awareness",
+          "Live satellite map feed for operational context",
+          "True color and thermal/fire hotspot layers",
+          "Night lights for after-dark situational awareness",
+          "Date scrubbing across recent satellite passes",
+          "Built for Pacific Northwest public safety and field ops",
         ],
         tileImage: "/brand/products/sat.png",
         pricingRows: [
@@ -824,12 +861,21 @@ export const defaultSiteContent: SiteContent = {
         talkCtaLabel: "Talk about Hogback Sat",
         screenshotsHeading: "App screenshots",
         screenshots: [],
-        securityHeading: "",
-        securityIntro: "",
-        securityItems: [],
-        securityFootnote: "",
-        privacyHref: "",
-        privacyLabel: "",
+        securityHeading: "Security & Privacy",
+        securityIntro:
+          "Built for agencies and field teams that need satellite context quickly—with practical control over who can open the feed.",
+        securityItems: [
+          "AES-256 encryption at rest (Google Cloud / Firebase defaults)",
+          "TLS 1.2+ encryption in transit",
+          "U.S. cloud infrastructure (Google Cloud us-west1 & Cloudflare)",
+          "Organization-scoped access to the live feed",
+          "Admin-controlled rollout for operators and viewers",
+          "No ads, no tracking pixels, and we do not sell your data",
+        ],
+        securityFootnote:
+          "Need a formal security review, data processing terms, or agency-specific compliance discussion? Contact us—we will walk through your requirements honestly.",
+        privacyHref: "/privacy",
+        privacyLabel: "Read our privacy policy",
         signup: { ...emptyProductSignup },
       },
     ],
@@ -855,7 +901,7 @@ export const defaultSiteContent: SiteContent = {
   contact: {
     title: "Start a conversation from solid ground",
     paragraphs: [
-      "Whether you're exploring Hogback Ops, Geo, Docs, Forge—or you're not sure where to start—the first step is a simple conversation about what you're trying to solve.",
+      "Whether you're exploring Hogback Ops, Geo, Docs, Forge, Sat—or you need a custom app for a specific workflow—the first step is a simple conversation about what you're trying to solve.",
       "Share a bit about your agency, fleet, or organization, and we'll talk through what a practical, grounded path forward could look like.",
     ],
     emailLabel: "Email:",
@@ -865,10 +911,15 @@ export const defaultSiteContent: SiteContent = {
     tipsTitle: "When you reach out, it helps to include:",
     tips: [
       "Your role and organization",
-      'Which areas you\'re exploring (Ops, Geo, Docs, Forge, or "not sure yet")',
+      'Which areas you\'re exploring (Ops, Geo, Docs, Forge, Sat, custom app, or "not sure yet")',
       "Any systems you already use that we should be aware of",
     ],
     ctaLabel: "Email",
+  },
+  customDev: {
+    title: "Custom app development",
+    body: "Hogback Technologies is a custom app developer. Tell us about your workflow, hardware, or operational need—and we will scope a build that fits your team. Contact us for details on your specific need.",
+    ctaLabel: "Contact for details",
   },
   footer: {
     tagline: "Solid Foundation. Smart Solutions.",
@@ -1062,10 +1113,32 @@ export function mergeSiteContent(partial: unknown): SiteContent {
             Array.isArray(card.points) && card.points.length > 0
               ? card.points.map((p) => (typeof p === "string" ? p : ""))
               : [...fallback.points],
-          features:
-            Array.isArray(card.features) && card.features.length > 0
-              ? card.features.map((p) => (typeof p === "string" ? p : ""))
-              : [...fallback.features],
+          features: (() => {
+            const incomingFeatures =
+              Array.isArray(card.features) && card.features.length > 0
+                ? card.features.map((p) => (typeof p === "string" ? p : ""))
+                : [];
+            const incomingPoints =
+              Array.isArray(card.points) && card.points.length > 0
+                ? card.points.map((p) => (typeof p === "string" ? p : ""))
+                : fallback.points;
+            const sameAsPoints =
+              incomingFeatures.length > 0 &&
+              incomingFeatures.length === incomingPoints.length &&
+              incomingFeatures.every((f, i) => f === incomingPoints[i]);
+            const sameAsLegacyPoints =
+              incomingFeatures.length > 0 &&
+              incomingFeatures.length === fallback.points.length &&
+              incomingFeatures.every((f, i) => f === fallback.points[i]);
+            if (
+              incomingFeatures.length === 0 ||
+              sameAsPoints ||
+              sameAsLegacyPoints
+            ) {
+              return [...fallback.features];
+            }
+            return incomingFeatures;
+          })(),
           pricingRows: (() => {
             const fromRows = normalizePricingRows(
               (card as { pricingRows?: unknown }).pricingRows,
@@ -1116,6 +1189,25 @@ export function mergeSiteContent(partial: unknown): SiteContent {
             card.appCtaLabel.trim().length > 0
               ? card.appCtaLabel
               : fallback.appCtaLabel,
+          pageDescription: (() => {
+            const incomingPage =
+              typeof card.pageDescription === "string"
+                ? card.pageDescription.trim()
+                : "";
+            const incomingDesc =
+              typeof card.description === "string"
+                ? card.description.trim()
+                : "";
+            // Legacy content often mirrored the homepage blurb onto the product page.
+            if (
+              !incomingPage ||
+              incomingPage === incomingDesc ||
+              incomingPage === fallback.description.trim()
+            ) {
+              return fallback.pageDescription;
+            }
+            return incomingPage;
+          })(),
           securityHeading:
             typeof card.securityHeading === "string" &&
             card.securityHeading.trim().length > 0
@@ -1183,6 +1275,27 @@ export function mergeSiteContent(partial: unknown): SiteContent {
         incoming.contact?.tips?.[1] ?? defaultSiteContent.contact.tips[1],
         incoming.contact?.tips?.[2] ?? defaultSiteContent.contact.tips[2],
       ],
+    },
+    customDev: {
+      ...defaultSiteContent.customDev,
+      ...(incoming.customDev && typeof incoming.customDev === "object"
+        ? incoming.customDev
+        : {}),
+      title:
+        typeof incoming.customDev?.title === "string" &&
+        incoming.customDev.title.trim().length > 0
+          ? incoming.customDev.title
+          : defaultSiteContent.customDev.title,
+      body:
+        typeof incoming.customDev?.body === "string" &&
+        incoming.customDev.body.trim().length > 0
+          ? incoming.customDev.body
+          : defaultSiteContent.customDev.body,
+      ctaLabel:
+        typeof incoming.customDev?.ctaLabel === "string" &&
+        incoming.customDev.ctaLabel.trim().length > 0
+          ? incoming.customDev.ctaLabel
+          : defaultSiteContent.customDev.ctaLabel,
     },
     footer: { ...defaultSiteContent.footer, ...incoming.footer },
     blocks: mergedBlocks.length > 0 ? mergedBlocks : defaultSiteContent.blocks,

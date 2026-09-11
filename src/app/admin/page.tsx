@@ -1500,6 +1500,42 @@ function BlockContentEditor({
           />
         </CollapsiblePanel>
 
+        <CollapsiblePanel
+          title="Custom app development callout"
+          subtitle="Homepage section under products"
+        >
+          <Field
+            label="Title"
+            value={content.customDev?.title ?? ""}
+            onChange={(v) =>
+              setContent((c) => ({
+                ...c,
+                customDev: { ...c.customDev, title: v },
+              }))
+            }
+          />
+          <Area
+            label="Body"
+            value={content.customDev?.body ?? ""}
+            onChange={(v) =>
+              setContent((c) => ({
+                ...c,
+                customDev: { ...c.customDev, body: v },
+              }))
+            }
+          />
+          <Field
+            label="CTA label (links to Contact)"
+            value={content.customDev?.ctaLabel ?? ""}
+            onChange={(v) =>
+              setContent((c) => ({
+                ...c,
+                customDev: { ...c.customDev, ctaLabel: v },
+              }))
+            }
+          />
+        </CollapsiblePanel>
+
         <p className="pt-1 text-xs text-slate-500">
           Products are collapsed by default. Open a product, then open only the
           category you need.

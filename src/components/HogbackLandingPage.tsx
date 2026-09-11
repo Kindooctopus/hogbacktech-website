@@ -62,7 +62,12 @@ function PageBlockView({
     case "hero":
       return <HogbackHero content={content} block={block} />;
     case "products":
-      return <HogbackProducts content={content} block={block} />;
+      return (
+        <>
+          <HogbackProducts content={content} block={block} />
+          <HogbackCustomDev content={content} />
+        </>
+      );
     case "about":
       return <HogbackAbout content={content} block={block} />;
     case "contact":
@@ -360,6 +365,43 @@ export function HogbackProducts({
               </div>
             </article>
           ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function HogbackCustomDev({ content }: { content: SiteContent }) {
+  const title = content.customDev?.title?.trim();
+  const body = content.customDev?.body?.trim();
+  const ctaLabel = content.customDev?.ctaLabel?.trim();
+  if (!title && !body) return null;
+
+  return (
+    <section id="custom-development" className="scroll-mt-24">
+      <div className="mx-auto max-w-6xl px-6">
+        <div className="border border-copper-500/30 bg-gradient-to-br from-white via-white to-copper-500/10 px-6 py-8 sm:px-8 sm:py-10">
+          <div className="max-w-3xl space-y-4">
+            {title ? (
+              <h2 className="font-display text-2xl font-semibold text-navy-950 sm:text-3xl">
+                {title}
+              </h2>
+            ) : null}
+            {body ? (
+              <p className="text-base leading-relaxed text-slate-600 sm:text-lg">
+                {body}
+              </p>
+            ) : null}
+            {ctaLabel ? (
+              <a
+                href="#contact"
+                className="inline-flex items-center gap-2 rounded-md bg-copper-500 px-5 py-2.5 text-sm font-semibold text-navy-950 hover:bg-copper-400"
+              >
+                {ctaLabel}
+                <span aria-hidden="true">↓</span>
+              </a>
+            ) : null}
+          </div>
         </div>
       </div>
     </section>
