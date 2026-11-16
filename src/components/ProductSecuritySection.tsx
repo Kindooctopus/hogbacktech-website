@@ -14,17 +14,17 @@ export function ProductSecuritySection({
   return (
     <section
       id="security"
-      className="scroll-mt-24 space-y-6 border-t border-slate-200 pt-12"
+      className="scroll-mt-24 space-y-6 border-t border-khaki/25 pt-12"
     >
       <div className="max-w-3xl space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-copper-600">
+        <p className="kicker">
           {eyebrow?.trim() || "Security"}
         </p>
-        <h2 className="font-display text-2xl font-semibold text-navy-950 sm:text-3xl">
+        <h2 className="font-display text-3xl font-semibold uppercase tracking-wide text-bone">
           {product.securityHeading}
         </h2>
         {product.securityIntro.trim() ? (
-          <p className="text-sm leading-relaxed text-slate-600 sm:text-base">
+          <p className="text-sm leading-relaxed text-bone/75 sm:text-base">
             {product.securityIntro}
           </p>
         ) : null}
@@ -34,11 +34,11 @@ export function ProductSecuritySection({
         {items.map((item) => (
           <li
             key={item}
-            className="flex gap-3 border-b border-slate-100 pb-3 text-sm leading-relaxed text-slate-700 last:border-b-0"
+            className="flex gap-3 border-b border-khaki/15 pb-3 text-sm leading-relaxed text-bone/80 last:border-b-0"
           >
             <span
               aria-hidden="true"
-              className="mt-2 h-1 w-1 shrink-0 rounded-full bg-copper-500"
+              className="mt-2 h-1 w-1 shrink-0 rounded-full bg-khaki"
             />
             <span>{item}</span>
           </li>
@@ -49,13 +49,13 @@ export function ProductSecuritySection({
         {product.privacyHref.trim() && product.privacyLabel.trim() ? (
           <Link
             href={product.privacyHref}
-            className="font-medium text-copper-600 hover:text-copper-500"
+            className="font-medium text-khaki hover:text-bone"
           >
             {product.privacyLabel}
           </Link>
         ) : null}
         {product.securityFootnote.trim() ? (
-          <p className="max-w-3xl text-slate-500">{product.securityFootnote}</p>
+          <p className="max-w-3xl text-sage">{product.securityFootnote}</p>
         ) : null}
       </div>
     </section>

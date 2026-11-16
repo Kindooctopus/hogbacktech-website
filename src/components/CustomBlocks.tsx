@@ -1,6 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import { isDarkColor } from "@/lib/field-theme";
 import {
   textStyleToCss,
   type BoxBlock,
@@ -10,6 +11,14 @@ import {
   type NestedBox,
   type TextBlock,
 } from "@/lib/site-content";
+
+function ink(background?: string) {
+  const light = Boolean(background) && !isDarkColor(background || "");
+  return {
+    title: light ? "text-navy-950" : "text-bone",
+    body: light ? "text-slate-700" : "text-bone/75",
+  };
+}
 
 function SafeImage({
   src,
@@ -31,17 +40,17 @@ export function TextBlockSection({ block }: { block: TextBlock }) {
     <section className="scroll-mt-24" id={block.id}>
       <div className="mx-auto max-w-6xl px-6">
         <div
-          className="rounded-2xl border border-slate-200 p-6 shadow-[0_10px_30px_-24px_rgba(10,17,26,0.35)] sm:p-8"
+          className={`rounded-xl border border-khaki/35 p-6 sm:p-8 ${ink(block.background).body}`}
           style={{ background: block.background }}
         >
           <h2
-            className="font-display text-navy-950"
+            className={`font-display ${ink(block.background).title}`}
             style={textStyleToCss(block.titleStyle)}
           >
             {block.title}
           </h2>
           <p
-            className="mt-3 whitespace-pre-wrap text-slate-600"
+            className="mt-3 whitespace-pre-wrap"
             style={textStyleToCss(block.bodyStyle)}
           >
             {block.body}
@@ -56,14 +65,14 @@ export function ImageBlockSection({ block }: { block: ImageBlock }) {
   return (
     <section className="scroll-mt-24" id={block.id}>
       <div className="mx-auto max-w-6xl px-6">
-        <figure className="overflow-hidden rounded-2xl border border-slate-200 shadow-[0_14px_40px_-28px_rgba(10,17,26,0.4)]">
+        <figure className="overflow-hidden rounded-xl border border-khaki/35">
           <SafeImage
             src={block.src}
             alt={block.alt}
             className="h-auto w-full object-cover"
           />
           {block.caption ? (
-            <figcaption className="bg-white px-4 py-3 text-sm text-slate-500">
+            <figcaption className="bg-dusk/90 px-4 py-3 text-sm text-sage">
               {block.caption}
             </figcaption>
           ) : null}
@@ -81,7 +90,7 @@ export function ImageTextBlockSection({ block }: { block: ImageTextBlock }) {
     return (
       <section className="scroll-mt-24" id={block.id}>
         <div className="mx-auto max-w-6xl px-6">
-          <div className="relative overflow-hidden rounded-2xl border border-slate-200 shadow-[0_14px_40px_-28px_rgba(10,17,26,0.4)]">
+          <div className="relative overflow-hidden rounded-xl border border-khaki/35">
             <SafeImage
               src={block.src}
               alt={block.alt}
@@ -106,17 +115,17 @@ export function ImageTextBlockSection({ block }: { block: ImageTextBlock }) {
     return (
       <section className="scroll-mt-24" id={block.id}>
         <div className="mx-auto max-w-6xl space-y-4 px-6">
-          <div className="overflow-hidden rounded-2xl border border-slate-200">
+          <div className="overflow-hidden rounded-xl border border-khaki/35">
             <SafeImage
               src={block.src}
               alt={block.alt}
               className="h-auto w-full object-cover"
             />
           </div>
-          <h2 className="font-display text-navy-950" style={titleStyle}>
+          <h2 className="font-display text-bone" style={titleStyle}>
             {block.title}
           </h2>
-          <p className="whitespace-pre-wrap text-slate-600" style={bodyStyle}>
+          <p className="whitespace-pre-wrap text-bone/75" style={bodyStyle}>
             {block.body}
           </p>
         </div>
@@ -133,7 +142,7 @@ export function ImageTextBlockSection({ block }: { block: ImageTextBlock }) {
         }`}
       >
         <div className={imageFirst ? "lg:order-2" : ""}>
-          <div className="overflow-hidden rounded-2xl border border-slate-200">
+          <div className="overflow-hidden rounded-xl border border-khaki/35">
             <SafeImage
               src={block.src}
               alt={block.alt}
@@ -142,10 +151,10 @@ export function ImageTextBlockSection({ block }: { block: ImageTextBlock }) {
           </div>
         </div>
         <div className={`space-y-3 ${imageFirst ? "lg:order-1" : ""}`}>
-          <h2 className="font-display text-navy-950" style={titleStyle}>
+          <h2 className="font-display text-bone" style={titleStyle}>
             {block.title}
           </h2>
-          <p className="whitespace-pre-wrap text-slate-600" style={bodyStyle}>
+          <p className="whitespace-pre-wrap text-bone/75" style={bodyStyle}>
             {block.body}
           </p>
         </div>
@@ -159,7 +168,7 @@ export function BoxBlockSection({ block }: { block: BoxBlock }) {
     <section className="scroll-mt-24" id={block.id}>
       <div className="mx-auto max-w-6xl px-6">
         <article
-          className="flex flex-col gap-4 rounded-2xl border border-slate-200 p-5 shadow-[0_10px_30px_-24px_rgba(10,17,26,0.35)] sm:flex-row sm:items-start"
+          className={`flex flex-col gap-4 rounded-xl border border-khaki/35 p-5 sm:flex-row sm:items-start ${ink(block.background).body}`}
           style={{ background: block.background }}
         >
           {block.imageSrc ? (
@@ -171,13 +180,13 @@ export function BoxBlockSection({ block }: { block: BoxBlock }) {
           ) : null}
           <div className="min-w-0 space-y-2">
             <h3
-              className="font-display text-navy-950"
+              className={`font-display ${ink(block.background).title}`}
               style={textStyleToCss(block.titleStyle)}
             >
               {block.title}
             </h3>
             <p
-              className="whitespace-pre-wrap text-slate-600"
+              className="whitespace-pre-wrap"
               style={textStyleToCss(block.bodyStyle)}
             >
               {block.body}
@@ -200,7 +209,7 @@ export function GroupBlockSection({
     <section className="scroll-mt-24" id={block.id}>
       <div className="mx-auto max-w-6xl space-y-6 px-6">
         {block.title ? (
-          <h2 className="font-display text-3xl font-semibold text-navy-950">
+          <h2 className="font-display text-3xl font-semibold uppercase tracking-wide text-bone">
             {block.title}
           </h2>
         ) : null}
@@ -223,17 +232,17 @@ function NestedBoxView({ block }: { block: NestedBox }) {
   if (block.type === "text") {
     return (
       <div
-        className="rounded-2xl border border-slate-200 p-5 shadow-[0_10px_30px_-24px_rgba(10,17,26,0.35)]"
+        className={`rounded-xl border border-khaki/35 p-5 ${ink(block.background).body}`}
         style={{ background: block.background }}
       >
         <h3
-          className="font-display text-navy-950"
+          className={`font-display ${ink(block.background).title}`}
           style={textStyleToCss(block.titleStyle)}
         >
           {block.title}
         </h3>
         <p
-          className="mt-2 whitespace-pre-wrap text-slate-600"
+          className="mt-2 whitespace-pre-wrap"
           style={textStyleToCss(block.bodyStyle)}
         >
           {block.body}
@@ -244,14 +253,14 @@ function NestedBoxView({ block }: { block: NestedBox }) {
 
   if (block.type === "image") {
     return (
-      <figure className="overflow-hidden rounded-2xl border border-slate-200">
+      <figure className="overflow-hidden rounded-xl border border-khaki/35">
         <SafeImage
           src={block.src}
           alt={block.alt}
           className="h-auto w-full object-cover"
         />
         {block.caption ? (
-          <figcaption className="bg-white px-3 py-2 text-sm text-slate-500">
+          <figcaption className="bg-dusk/90 px-3 py-2 text-sm text-sage">
             {block.caption}
           </figcaption>
         ) : null}
@@ -262,7 +271,7 @@ function NestedBoxView({ block }: { block: NestedBox }) {
   if (block.type === "imageText") {
     if (block.textPosition === "overlay") {
       return (
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200">
+        <div className="relative overflow-hidden rounded-xl border border-khaki/35">
           <SafeImage
             src={block.src}
             alt={block.alt}
@@ -281,20 +290,20 @@ function NestedBoxView({ block }: { block: NestedBox }) {
       );
     }
     return (
-      <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
+      <div className="space-y-3 rounded-xl border border-khaki/35 bg-dusk/80 p-4">
         <SafeImage
           src={block.src}
           alt={block.alt}
           className="h-40 w-full rounded-xl object-cover"
         />
         <h3
-          className="font-display text-navy-950"
+          className="font-display text-bone"
           style={textStyleToCss(block.titleStyle)}
         >
           {block.title}
         </h3>
         <p
-          className="whitespace-pre-wrap text-slate-600"
+          className="whitespace-pre-wrap text-bone/75"
           style={textStyleToCss(block.bodyStyle)}
         >
           {block.body}
@@ -305,7 +314,7 @@ function NestedBoxView({ block }: { block: NestedBox }) {
 
   return (
     <article
-      className="flex flex-col gap-3 rounded-2xl border border-slate-200 p-5 shadow-[0_10px_30px_-24px_rgba(10,17,26,0.35)] sm:flex-row"
+      className={`flex flex-col gap-3 rounded-xl border border-khaki/35 p-5 sm:flex-row ${ink(block.background).body}`}
       style={{ background: block.background }}
     >
       {block.imageSrc ? (
@@ -317,13 +326,13 @@ function NestedBoxView({ block }: { block: NestedBox }) {
       ) : null}
       <div className="space-y-2">
         <h3
-          className="font-display text-navy-950"
+          className={`font-display ${ink(block.background).title}`}
           style={textStyleToCss(block.titleStyle)}
         >
           {block.title}
         </h3>
         <p
-          className="whitespace-pre-wrap text-slate-600"
+          className="whitespace-pre-wrap"
           style={textStyleToCss(block.bodyStyle)}
         >
           {block.body}

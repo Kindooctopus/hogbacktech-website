@@ -15,7 +15,9 @@ import {
   getProductCard,
   type ProductCardContent,
 } from "@/lib/site-content";
+import { fieldPageStyle } from "@/lib/field-theme";
 import { useSiteContent } from "@/lib/use-site-content";
+import { TacticalFrame } from "@/components/TacticalFrame";
 
 export function ProductDetailPage({ productId }: { productId: string }) {
   const { content } = useSiteContent();
@@ -25,7 +27,7 @@ export function ProductDetailPage({ productId }: { productId: string }) {
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-[#eef2f6] p-8 text-slate-600">
+      <div className="field-surface min-h-screen p-8 text-bone">
         Product not found.
       </div>
     );
@@ -36,21 +38,21 @@ export function ProductDetailPage({ productId }: { productId: string }) {
 
   return (
     <div
-      className="min-h-screen text-slate-600"
-      style={{ backgroundColor: content.design.pageBackground }}
+      className="field-surface min-h-screen text-bone/80"
+      style={fieldPageStyle(content.design)}
     >
       <HogbackHeader content={content} />
       <main className="mx-auto max-w-6xl space-y-12 px-6 py-12">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-sm text-slate-500 transition hover:text-copper-600"
+          className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em] text-sage transition hover:text-khaki"
         >
           <span aria-hidden="true">←</span>
           {content.products.backHomeLabel}
         </Link>
 
         <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
-          <div className="overflow-hidden rounded-2xl border border-copper-500/40 bg-navy-950 shadow-[0_18px_50px_-28px_rgba(10,17,26,0.35)]">
+          <TacticalFrame>
             <Image
               src={product.tileImage}
               alt={product.name}
@@ -59,7 +61,7 @@ export function ProductDetailPage({ productId }: { productId: string }) {
               className="h-auto w-full object-contain"
               priority
             />
-          </div>
+          </TacticalFrame>
 
           <ProductCopy product={product} email={email} content={content} />
         </div>
@@ -70,8 +72,8 @@ export function ProductDetailPage({ productId }: { productId: string }) {
         />
 
         {product.screenshots.some((shot) => shot.src.trim().length > 0) ? (
-          <section className="space-y-6 border-t border-slate-200 pt-10">
-            <h2 className="font-display text-2xl font-semibold text-navy-950">
+          <section className="space-y-6 border-t border-khaki/25 pt-10">
+            <h2 className="font-display text-3xl font-semibold uppercase tracking-wide text-bone">
               {product.screenshotsHeading || "App screenshots"}
             </h2>
             <ProductScreenshotGallery
@@ -85,8 +87,8 @@ export function ProductDetailPage({ productId }: { productId: string }) {
           <DocsSignupForm email={email} copy={product.signup} />
         ) : null}
 
-        <section className="space-y-4 border-t border-slate-200 pt-10">
-          <h2 className="font-display text-xl font-semibold text-navy-950">
+        <section className="space-y-4 border-t border-khaki/25 pt-10">
+          <h2 className="font-display text-2xl font-semibold uppercase tracking-wide text-bone">
             {content.products.exploreOthersLabel}
           </h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -94,7 +96,7 @@ export function ProductDetailPage({ productId }: { productId: string }) {
               <Link
                 key={other.id}
                 href={`/products/${other.id}`}
-                className="group overflow-hidden rounded-xl border border-slate-200 bg-white transition hover:border-copper-500/50 hover:ring-1 hover:ring-copper-500/30"
+                className="group overflow-hidden rounded-xl border border-khaki/30 bg-dusk transition hover:border-khaki"
               >
                 <Image
                   src={other.tileImage}
@@ -131,18 +133,18 @@ function ProductCopy({
   return (
     <div className="space-y-6">
       <div className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-copper-600">
+        <p className="kicker">
           {product.subtitle}
         </p>
-        <h1 className="font-display text-4xl font-semibold text-navy-950 sm:text-5xl">
+        <h1 className="font-display text-4xl font-semibold uppercase tracking-wide text-bone sm:text-5xl">
           {product.name}
         </h1>
-        <p className="text-base leading-relaxed text-slate-600 sm:text-lg">
+        <p className="text-base leading-relaxed text-bone/80 sm:text-lg">
           {product.pageDescription}
         </p>
       </div>
 
-      <ul className="space-y-2 text-sm text-slate-600">
+      <ul className="space-y-2 text-sm text-bone/75">
         {product.features
           .filter((feature) => feature.trim().length > 0)
           .map((feature) => (
@@ -153,13 +155,14 @@ function ProductCopy({
           ))}
       </ul>
 
-      <div className="border border-slate-200 bg-white/80 p-5">
-        <p className="mb-3 text-xs uppercase tracking-[0.22em] text-copper-600">
+      <TacticalFrame>
+        <div className="p-5">
+        <p className="kicker mb-3">
           {content.products.pricingLabel}
         </p>
         <table className="w-full border-collapse text-sm">
           <thead>
-            <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-[0.14em] text-slate-500">
+            <tr className="border-b border-khaki/25 text-left font-mono text-[10px] uppercase tracking-[0.16em] text-sage">
               <th className="pb-2 pr-4 font-medium">
                 {content.products.planColumnLabel || "Plan"}
               </th>
@@ -174,35 +177,36 @@ function ProductCopy({
               .map((row) => (
                 <tr
                   key={`${row.plan}-${row.price}`}
-                  className="border-b border-slate-100 last:border-b-0"
+                  className="border-b border-khaki/15 last:border-b-0"
                 >
-                  <td className="py-2.5 pr-4 font-medium text-navy-950">
+                  <td className="py-2.5 pr-4 font-medium text-bone">
                     {row.plan || "—"}
                   </td>
-                  <td className="py-2.5 text-right tabular-nums text-slate-700">
+                  <td className="py-2.5 text-right font-mono tabular-nums text-khaki">
                     {row.price || "—"}
                   </td>
                 </tr>
               ))}
             {product.pricingSetup.trim().length > 0 ? (
-              <tr className="border-t border-slate-200">
-                <td className="pt-3 pr-4 text-slate-500">
+              <tr className="border-t border-khaki/25">
+                <td className="pt-3 pr-4 text-sage">
                   {content.products.setupLabel.replace(/:$/, "") || "Setup"}
                 </td>
-                <td className="pt-3 text-right tabular-nums text-slate-600">
+                <td className="pt-3 text-right font-mono tabular-nums text-bone/80">
                   {product.pricingSetup}
                 </td>
               </tr>
             ) : null}
           </tbody>
         </table>
-      </div>
+        </div>
+      </TacticalFrame>
 
       <div className="flex flex-wrap items-center gap-3">
         {hasApp ? (
           <ProductCtaLink
             href={signupHref || product.appHref}
-            className="inline-flex items-center gap-2 rounded-md bg-copper-500 px-5 py-2.5 text-sm font-semibold text-navy-950 hover:bg-copper-400"
+            className="inline-flex items-center gap-2 rounded-md bg-khaki px-5 py-2.5 text-sm font-semibold tracking-wide text-ink hover:brightness-110"
           >
             {product.appCtaLabel}
             <span aria-hidden="true">{showSignup ? "↓" : "↗"}</span>
@@ -212,8 +216,8 @@ function ProductCopy({
           href={`mailto:${email}?subject=${encodeURIComponent(`${product.name} inquiry`)}`}
           className={`inline-flex items-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold ${
             hasApp
-              ? "border border-slate-300 bg-white text-navy-950 hover:bg-slate-50"
-              : "bg-copper-500 text-navy-950 hover:bg-copper-400"
+              ? "border border-khaki/45 text-bone hover:border-khaki hover:bg-khaki/10"
+              : "bg-khaki text-ink hover:brightness-110"
           }`}
         >
           {product.talkCtaLabel}

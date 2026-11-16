@@ -1,138 +1,138 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useId, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { CapabilityTile } from "@/lib/site-content";
+import { TacticalFrame } from "@/components/TacticalFrame";
 
 export function CapabilityTiles({ tiles }: { tiles: CapabilityTile[] }) {
-  const visible = tiles.filter((tile) => tile.image.trim().length > 0);
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const titleId = useId();
-  const active = activeIndex === null ? null : visible[activeIndex];
+  const visible = tiles.filter(
+    (tile) => tile.label.trim().length > 0 || tile.title.trim().length > 0,
+  );
+  const [activeIndex, setActiveIndex] = useState(0);
+  const baseId = useId();
+  const active = visible[activeIndex] ?? visible[0];
 
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (active) {
-      if (!dialog.open) dialog.showModal();
-    } else if (dialog.open) {
-      dialog.close();
-    }
-  }, [active]);
-
-  if (visible.length === 0) return null;
+  if (!active) return null;
 
   return (
-    <>
-      <ul className="hidden grid-cols-2 gap-3 pt-2 sm:grid-cols-3 md:grid lg:grid-cols-5">
-        {visible.map((capability, index) => {
-          const isActive = activeIndex === index;
-          return (
-            <li
-              key={`${capability.label}-${capability.image}`}
-              className="flex justify-center"
-            >
-              <button
-                type="button"
-                aria-pressed={isActive}
-                aria-haspopup="dialog"
-                onClick={() => setActiveIndex(index)}
-                className={`group rounded-md p-1 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-copper-500 ${
-                  isActive
-                    ? "ring-2 ring-copper-500/70"
-                    : "hover:ring-1 hover:ring-copper-500/40"
-                }`}
-              >
-                <Image
-                  src={capability.image}
-                  alt={capability.label}
-                  width={512}
-                  height={512}
-                  className="h-24 w-auto object-contain transition duration-200 group-hover:scale-[1.03] sm:h-28 lg:h-32"
-                />
-                <span className="sr-only">
-                  Learn more about {capability.label}
-                </span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-
-      <dialog
-        ref={dialogRef}
-        aria-labelledby={titleId}
-        className="m-auto w-[min(100%,28rem)] max-w-[calc(100vw-2rem)] rounded-lg border border-slate-200 bg-white p-0 text-slate-600 shadow-[0_24px_60px_-28px_rgba(10,17,26,0.45)] backdrop:bg-navy-950/45"
-        onClose={() => setActiveIndex(null)}
-        onClick={(event) => {
-          if (event.target === dialogRef.current) setActiveIndex(null);
+    <div className="grid items-stretch gap-4 pt-2 lg:grid-cols-[minmax(16rem,0.86fr)_minmax(0,1.35fr)]">
+      <div
+        role="tablist"
+        aria-label="Capabilities"
+        className="flex flex-col gap-2"
+        onKeyDown={(event) => {
+          let next = activeIndex;
+          if (event.key === "ArrowDown" || event.key === "ArrowRight") {
+            next = activeIndex + 1;
+          } else if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
+            next = activeIndex - 1;
+          } else if (event.key === "Home") {
+            next = 0;
+          } else if (event.key === "End") {
+            next = visible.length - 1;
+          } else {
+            return;
+          }
+          event.preventDefault();
+          const resolved = (next + visible.length) % visible.length;
+          setActiveIndex(resolved);
+          document.getElementById(`${baseId}-tab-${resolved}`)?.focus();
         }}
       >
-        {active ? (
-          <div className="space-y-4 p-5 sm:p-6">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <Image
-                  src={active.image}
-                  alt=""
-                  width={96}
-                  height={96}
-                  className="h-14 w-auto object-contain"
-                  aria-hidden
-                />
-                <h2
-                  id={titleId}
-                  className="font-display text-xl font-semibold text-navy-950 sm:text-2xl"
-                >
-                  {active.title.trim() || active.label}
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => setActiveIndex(null)}
-                className="rounded-md px-2 py-1 text-sm text-slate-500 hover:bg-slate-100 hover:text-navy-950"
-                aria-label="Close"
-              >
-                Close
-              </button>
+        {visible.map((capability, index) => {
+          const isActive = index === activeIndex;
+          return (
+            <button
+              key={`${capability.label}-${capability.image}`}
+              id={`${baseId}-tab-${index}`}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              aria-controls={`${baseId}-panel`}
+              tabIndex={isActive ? 0 : -1}
+              onClick={() => setActiveIndex(index)}
+              onPointerEnter={(event) => {
+                if (event.pointerType === "mouse") setActiveIndex(index);
+              }}
+              onFocus={() => setActiveIndex(index)}
+              className={`tactical-tab w-full ${isActive ? "tactical-tab-active" : ""}`}
+            >
+              <span className="font-mono text-[10px] font-semibold tracking-[0.18em]">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <span className="font-display text-sm font-semibold uppercase tracking-[0.12em]">
+                {capability.label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      <TacticalFrame className="min-h-full">
+        <div
+          key={activeIndex}
+          id={`${baseId}-panel`}
+          role="tabpanel"
+          aria-labelledby={`${baseId}-tab-${activeIndex}`}
+          className="capability-panel flex h-full flex-col justify-between gap-6 p-6 sm:p-8"
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-3">
+              <p className="kicker">Capability</p>
+              <h3 className="font-display text-3xl font-semibold uppercase leading-none tracking-wide text-bone sm:text-4xl">
+                {active.title.trim() || active.label}
+              </h3>
             </div>
-            {active.body.trim() ? (
-              <p className="text-sm leading-relaxed text-slate-600 sm:text-base">
-                {active.body}
-              </p>
-            ) : null}
-            {active.ctaLabel.trim() && active.ctaHref.trim() ? (
-              <div className="pt-1">
-                {active.ctaHref.startsWith("#") ||
-                active.ctaHref.startsWith("/") ? (
-                  <Link
-                    href={active.ctaHref}
-                    onClick={() => setActiveIndex(null)}
-                    className="inline-flex items-center gap-2 rounded-md bg-copper-500 px-4 py-2 text-sm font-semibold text-navy-950 hover:bg-copper-400"
-                  >
-                    {active.ctaLabel}
-                    <span aria-hidden="true">
-                      {active.ctaHref.startsWith("#") ? "↓" : "↗"}
-                    </span>
-                  </Link>
-                ) : (
-                  <a
-                    href={active.ctaHref}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-2 rounded-md bg-copper-500 px-4 py-2 text-sm font-semibold text-navy-950 hover:bg-copper-400"
-                  >
-                    {active.ctaLabel}
-                    <span aria-hidden="true">↗</span>
-                  </a>
-                )}
-              </div>
+            {active.image.trim() ? (
+              <Image
+                src={active.image}
+                alt=""
+                width={96}
+                height={96}
+                className="hidden h-16 w-16 shrink-0 rounded-md object-cover ring-1 ring-khaki/40 sm:block"
+                aria-hidden
+              />
             ) : null}
           </div>
-        ) : null}
-      </dialog>
-    </>
+          {active.body.trim() ? (
+            <p className="max-w-xl text-base leading-relaxed text-bone/80">
+              {active.body}
+            </p>
+          ) : null}
+          {active.ctaLabel.trim() && active.ctaHref.trim() ? (
+            <div>
+              <CapabilityCta
+                href={active.ctaHref}
+                label={active.ctaLabel}
+              />
+            </div>
+          ) : null}
+        </div>
+      </TacticalFrame>
+    </div>
+  );
+}
+
+function CapabilityCta({ href, label }: { href: string; label: string }) {
+  const className =
+    "inline-flex items-center gap-2 rounded-md bg-khaki px-4 py-2 text-sm font-semibold tracking-wide text-ink transition hover:brightness-110";
+  const mark = href.startsWith("#") ? "↓" : "↗";
+
+  if (href.startsWith("#") || href.startsWith("/")) {
+    return (
+      <Link href={href} className={className}>
+        {label}
+        <span aria-hidden="true">{mark}</span>
+      </Link>
+    );
+  }
+
+  return (
+    <a href={href} target="_blank" rel="noreferrer" className={className}>
+      {label}
+      <span aria-hidden="true">↗</span>
+    </a>
   );
 }

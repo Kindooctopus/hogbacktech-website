@@ -243,6 +243,7 @@ export type PageBlock =
   | GroupBlock;
 
 export type FontThemeId =
+  | "field"
   | "ridge"
   | "modern"
   | "editorial"
@@ -261,8 +262,21 @@ export type FontTheme = {
 
 export const FONT_THEMES: FontTheme[] = [
   {
+    id: "field",
+    label: "Field (default)",
+    description: "Source Sans body · Barlow Condensed headings — Hogback Geo",
+    googleFamilies: [
+      "Source+Sans+3:wght@400;500;600;700",
+      "Barlow+Condensed:wght@500;600;700",
+      "IBM+Plex+Mono:wght@500;600;700",
+    ],
+    bodyFamily: '"Source Sans 3", ui-sans-serif, system-ui, sans-serif',
+    displayFamily:
+      '"Barlow Condensed", "Avenir Next Condensed", ui-sans-serif, sans-serif',
+  },
+  {
     id: "ridge",
-    label: "Ridge (default)",
+    label: "Ridge",
     description: "DM Sans body · Barlow headings",
     googleFamilies: [
       "DM+Sans:wght@400;500;600;700",
@@ -439,7 +453,7 @@ export function createTextBlock(): TextBlock {
     body: "Write your message here.",
     titleStyle: { ...defaultTitleStyle, fontSizePx: 32 },
     bodyStyle: { ...defaultBodyStyle, fontSizePx: 17 },
-    background: "#ffffff",
+    background: "#1c2118",
   };
 }
 
@@ -489,7 +503,7 @@ export function createBoxBlock(): BoxBlock {
     imageSrc: "",
     titleStyle: { ...defaultTitleStyle, fontSizePx: 24 },
     bodyStyle: { ...defaultBodyStyle },
-    background: "#ffffff",
+    background: "#1c2118",
   };
 }
 
@@ -964,15 +978,21 @@ export const defaultSiteContent: SiteContent = {
     createBuiltinBlock("contact"),
   ],
   design: {
-    pageBackground: "#eef2f6",
+    pageBackground: "#121510",
     sectionSpacingPx: 96,
-    cardGapPx: 24,
-    copper: "#b87333",
-    navy: "#0a111a",
-    fontTheme: "ridge",
-    bodySizePx: 16,
+    cardGapPx: 20,
+    copper: "#c4a870",
+    navy: "#0c1520",
+    fontTheme: "field",
+    bodySizePx: 17,
     headingScale: 1,
   },
+};
+
+const LEGACY_LIGHT_THEME = {
+  pageBackground: "#eef2f6",
+  copper: "#b87333",
+  navy: "#0a111a",
 };
 
 function mergeTextStyle(
@@ -1409,11 +1429,31 @@ export function mergeSiteContent(partial: unknown): SiteContent {
     },
     footer: { ...defaultSiteContent.footer, ...incoming.footer },
     blocks: mergedBlocks.length > 0 ? mergedBlocks : defaultSiteContent.blocks,
-    design: {
-      ...defaultSiteContent.design,
-      ...incoming.design,
-      fontTheme: getFontTheme(incoming.design?.fontTheme).id,
-    },
+    design: resolveDesign(incoming.design),
+  };
+}
+
+/** Saved copies of the old light theme adopt the Hogback Geo field palette. */
+function resolveDesign(incoming?: Partial<SiteContent["design"]> | null) {
+  const merged = {
+    ...defaultSiteContent.design,
+    ...incoming,
+    fontTheme: getFontTheme(incoming?.fontTheme).id,
+  };
+  const legacyColors =
+    incoming?.pageBackground === LEGACY_LIGHT_THEME.pageBackground &&
+    incoming?.copper === LEGACY_LIGHT_THEME.copper &&
+    incoming?.navy === LEGACY_LIGHT_THEME.navy;
+  if (!legacyColors) return merged;
+  return {
+    ...merged,
+    pageBackground: defaultSiteContent.design.pageBackground,
+    copper: defaultSiteContent.design.copper,
+    navy: defaultSiteContent.design.navy,
+    fontTheme:
+      !incoming?.fontTheme || incoming.fontTheme === "ridge"
+        ? defaultSiteContent.design.fontTheme
+        : merged.fontTheme,
   };
 }
 

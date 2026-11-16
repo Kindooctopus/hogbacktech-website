@@ -61,13 +61,10 @@ function ScreenshotFrame({
   return (
     <figure
       className="space-y-3"
-      style={{
-        transform: `translateY(${shift.translateY}) rotate(${shift.rotate})`,
-        zIndex: shift.z,
-      }}
+      style={{ zIndex: shift.z }}
     >
       <div
-        className={`overflow-hidden border border-slate-300/90 bg-navy-950 shadow-[0_18px_40px_-24px_rgba(10,17,26,0.55)] transition duration-300 ease-out hover:-translate-y-1.5 hover:shadow-[0_28px_55px_-22px_rgba(10,17,26,0.45)] ${
+        className={`overflow-hidden border border-khaki/40 bg-dusk shadow-[0_18px_40px_-24px_rgba(18,21,16,0.7)] ${
           isTablet
             ? "rounded-[1.25rem] p-2.5 sm:p-3"
             : "rounded-[1.75rem] p-2 sm:rounded-[2rem] sm:p-2.5"
@@ -94,7 +91,7 @@ function ScreenshotFrame({
         </div>
       </div>
       {shot.caption ? (
-        <figcaption className="px-2 text-center text-sm leading-snug text-slate-600">
+        <figcaption className="px-2 text-center text-sm leading-snug text-sage">
           {shot.caption}
         </figcaption>
       ) : null}

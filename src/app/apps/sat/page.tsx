@@ -17,26 +17,26 @@ export const metadata: Metadata = {
 
 export default function HogbackSatAppPage() {
   return (
-    <div className="flex h-dvh flex-col bg-navy-950 text-slate-300">
-      <header className="z-20 flex items-center justify-between gap-4 border-b border-white/10 bg-navy-950/95 px-4 py-3 backdrop-blur-sm sm:px-6">
+    <div className="flex h-dvh flex-col bg-dusk text-bone/80">
+      <header className="z-20 flex items-center justify-between gap-4 border-b border-khaki/25 bg-dusk/95 px-4 py-3 backdrop-blur-sm sm:px-6">
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-copper-400">
+          <p className="kicker">
             Hogback Sat
           </p>
-          <h1 className="truncate font-display text-lg font-semibold text-white sm:text-xl">
+          <h1 className="truncate font-display text-lg font-semibold uppercase tracking-wide text-bone sm:text-xl">
             Live satellite feed
           </h1>
         </div>
         <div className="flex shrink-0 items-center gap-3 text-sm">
           <Link
             href="/products/sat"
-            className="hidden text-slate-400 transition hover:text-white sm:inline"
+            className="hidden font-mono text-[11px] uppercase tracking-[0.16em] text-sage transition hover:text-bone sm:inline"
           >
             Product
           </Link>
           <Link
             href="/"
-            className="rounded-full border border-white/15 px-3 py-1.5 text-white hover:bg-white/5"
+            className="rounded-md border border-khaki/40 px-3 py-1.5 text-bone hover:bg-khaki/10"
           >
             Home
           </Link>
@@ -47,11 +47,11 @@ export default function HogbackSatAppPage() {
         <SatelliteMap />
       </main>
 
-      <footer className="border-t border-white/10 px-4 py-2 text-[11px] text-slate-500 sm:px-6">
+      <footer className="border-t border-khaki/20 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.12em] text-sage sm:px-6">
         Near-real-time imagery via{" "}
         <a
           href="https://earthdata.nasa.gov/gibs"
-          className="text-copper-400 hover:underline"
+          className="text-khaki hover:text-bone"
           target="_blank"
           rel="noreferrer"
         >

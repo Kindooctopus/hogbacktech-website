@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -10,9 +10,12 @@ import {
   type SiteContent,
 } from "@/lib/site-content";
 import { useSiteContent } from "@/lib/use-site-content";
+import { fieldPageStyle } from "@/lib/field-theme";
 import { FontThemeLoader } from "@/components/FontThemeLoader";
 import { CapabilityTiles } from "@/components/CapabilityTiles";
+import { HogbackLogo } from "@/components/HogbackLogo";
 import { ProductCtaLink } from "@/components/ProductCtaLink";
+import { TacticalFrame } from "@/components/TacticalFrame";
 import {
   BoxBlockSection,
   GroupBlockSection,
@@ -21,27 +24,24 @@ import {
   TextBlockSection,
 } from "@/components/CustomBlocks";
 
+const primaryButton =
+  "inline-flex items-center gap-2 rounded-md bg-khaki px-5 py-2.5 text-sm font-semibold tracking-wide text-ink transition hover:brightness-110";
+const secondaryButton =
+  "inline-flex items-center gap-2 rounded-md border border-khaki/45 px-5 py-2.5 text-sm font-semibold tracking-wide text-bone transition hover:border-khaki hover:bg-khaki/10";
+
 export function HogbackLandingPage() {
   const { content } = useSiteContent();
-  const d = content.design;
-
-  const pageStyle = {
-    backgroundColor: d.pageBackground,
-    fontSize: d.bodySizePx,
-    ["--color-copper-500" as string]: d.copper,
-    ["--color-copper-600" as string]: d.copper,
-    ["--color-copper-400" as string]: d.copper,
-    ["--color-navy-950" as string]: d.navy,
-    ["--heading-scale" as string]: String(d.headingScale),
-  } as CSSProperties;
 
   return (
-    <div className="min-h-screen text-slate-600" style={pageStyle}>
-      <FontThemeLoader themeId={d.fontTheme} />
+    <div
+      className="field-surface min-h-screen text-bone/85"
+      style={fieldPageStyle(content.design)}
+    >
+      <FontThemeLoader themeId={content.design.fontTheme} />
       <HogbackHeader content={content} />
       <main
         className="flex flex-col pb-24"
-        style={{ gap: d.sectionSpacingPx }}
+        style={{ gap: content.design.sectionSpacingPx }}
       >
         {content.blocks.map((block) => (
           <PageBlockView key={block.id} block={block} content={content} />
@@ -93,43 +93,72 @@ function PageBlockView({
   }
 }
 
+const navLinks = [
+  { href: "#products", label: "Products" },
+  { href: "#about", label: "About" },
+  { href: "#contact", label: "Contact" },
+];
+
 export function HogbackHeader({ content }: { content: SiteContent }) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <header
-      className="sticky top-0 z-30 border-b border-slate-200/80 backdrop-blur-sm"
-      style={{ backgroundColor: `${content.design.pageBackground}e6` }}
-    >
+    <header className="sticky top-0 z-30 border-b border-khaki/25 bg-dusk/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <a href="#top" aria-label="Hogback Ridge Technologies home" className="shrink-0">
-          <Image
-            src="/brand/logo-mark.png"
-            alt="Hogback Ridge Technologies"
-            width={1024}
-            height={1024}
-            className="h-10 w-auto sm:h-11"
-            priority
-          />
+          <HogbackLogo compact />
         </a>
 
-        <nav className="hidden items-center gap-8 text-sm text-slate-600 md:flex">
-          <a href="#products" className="transition-colors hover:text-navy-950">
-            Products
-          </a>
-          <a href="#about" className="transition-colors hover:text-navy-950">
-            About
-          </a>
-          <a href="#contact" className="transition-colors hover:text-navy-950">
-            Contact
-          </a>
+        <nav className="hidden items-center gap-8 md:flex" aria-label="Main">
+          {navLinks.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-sage transition-colors hover:text-bone"
+            >
+              {link.label}
+            </a>
+          ))}
         </nav>
 
-        <a
-          href="#contact"
-          className="shrink-0 rounded-md bg-copper-500 px-4 py-1.5 text-sm font-semibold text-navy-950 hover:bg-copper-400"
-        >
-          {content.header.ctaLabel}
-        </a>
+        <div className="flex items-center gap-2">
+          <a href="#contact" className={`${primaryButton} px-4 py-1.5`}>
+            {content.header.ctaLabel}
+          </a>
+          <button
+            type="button"
+            className="flex h-9 w-9 items-center justify-center rounded-md border border-khaki/40 text-bone md:hidden"
+            aria-expanded={open}
+            aria-label="Toggle menu"
+            onClick={() => setOpen((value) => !value)}
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              {open ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
+        </div>
       </div>
+
+      {open ? (
+        <nav className="border-t border-khaki/20 px-6 py-4 md:hidden" aria-label="Mobile">
+          <div className="flex flex-col gap-4">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-sage hover:text-bone"
+                onClick={() => setOpen(false)}
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
+        </nav>
+      ) : null}
     </header>
   );
 }
@@ -154,95 +183,57 @@ export function HogbackHero({
 
   const banner = (
     <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-      <div className="overflow-hidden rounded-sm border-y border-copper-500/70 bg-navy-950 shadow-[0_18px_50px_-28px_rgba(10,17,26,0.45)]">
-        <div className="relative">
-          <Image
-            src="/brand/top-logo.png"
-            alt="Hogback Technologies — Solid Foundation. Smart Solutions."
-            width={1022}
-            height={694}
-            className="block h-auto w-full object-contain"
-            priority
-          />
-
-          <div className="absolute inset-y-5 right-2 z-10 hidden w-[13%] max-w-[8.75rem] grid-rows-5 gap-2 sm:right-3 md:grid lg:right-4 lg:w-[14%] xl:max-w-[9.75rem]">
-            {content.products.cards.map((product) => (
-              <Link
-                key={product.id}
-                href={`/products/${product.id}`}
-                className="group relative min-h-0 overflow-hidden rounded-md ring-1 ring-white/25 transition duration-200 hover:ring-copper-400/70 hover:opacity-95"
-                aria-label={`Learn more about ${product.name}`}
-              >
-                <Image
-                  src={`/brand/products/${product.id}.png`}
-                  alt={product.name}
-                  fill
-                  sizes="156px"
-                  className="object-contain object-center"
-                />
-              </Link>
-            ))}
-          </div>
-
-          <div className="absolute inset-x-0 bottom-0 z-10 grid grid-cols-5 gap-1 p-1.5 sm:gap-1.5 sm:p-2 md:hidden">
-            {content.products.cards.map((product) => (
-              <Link
-                key={product.id}
-                href={`/products/${product.id}`}
-                className="group flex flex-col items-center gap-1 rounded-lg px-0.5 py-1 text-center transition hover:bg-black/25"
-                aria-label={`Learn more about ${product.name}`}
-              >
-                <Image
-                  src={`/brand/products/${product.id}.png`}
-                  alt=""
-                  width={1024}
-                  height={1024}
-                  aria-hidden
-                  className="h-[5.221125rem] w-[5.221125rem] object-contain sm:h-[5.967rem] sm:w-[5.967rem]"
-                />
-                <span className="text-[7px] font-semibold uppercase leading-tight tracking-wide text-white drop-shadow-sm group-hover:text-copper-300 sm:text-[8px]">
-                  {product.name.replace("Hogback ", "")}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
+      <TacticalFrame>
+        <Image
+          src="/brand/top-logo.png"
+          alt="Hogback Technologies — Solid Foundation. Smart Solutions."
+          width={1022}
+          height={694}
+          className="block h-auto w-full object-cover"
+          priority
+        />
+      </TacticalFrame>
+      <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+        {content.products.cards.map((product) => (
+          <Link
+            key={product.id}
+            href={`/products/${product.id}`}
+            className="tactical-tab w-auto shrink-0 px-3 py-2"
+          >
+            <span className="font-display text-xs font-bold tracking-[0.16em]">
+              {product.name.replace("Hogback ", "").toUpperCase()}
+            </span>
+          </Link>
+        ))}
       </div>
     </div>
   );
 
   const copy = (
-    <div
-      className={`mx-auto max-w-6xl space-y-5 px-6 pb-6 lg:pb-8 ${
-        titlesFirst ? "pt-6" : "pt-6"
-      }`}
-    >
-      <h1
-        className="font-display text-4xl font-semibold leading-tight text-navy-950 sm:text-5xl lg:text-6xl"
-        style={titleStyle}
-      >
-        {content.hero.titleLine1}
-        <br />
-        <span className="text-copper-600">{content.hero.titleLine2}</span>
-      </h1>
-      <p
-        className="max-w-xl text-base text-slate-600 sm:text-lg"
-        style={bodyStyle}
-      >
-        {content.hero.body}
-      </p>
-
-      <div className="flex flex-wrap items-center gap-4">
-        <a
-          href="#products"
-          className="rounded-md bg-copper-500 px-6 py-2.5 text-sm font-semibold text-navy-950 hover:bg-copper-400 sm:text-base"
+    <div className="mx-auto max-w-6xl space-y-6 px-6">
+      <div className="space-y-4">
+        <p className="kicker">Hogback Ridge Technologies</p>
+        <h1
+          className="font-display text-5xl font-semibold uppercase leading-[0.92] tracking-wide text-bone sm:text-6xl lg:text-7xl"
+          style={titleStyle}
         >
+          {content.hero.titleLine1}
+          <br />
+          <span className="text-khaki">{content.hero.titleLine2}</span>
+        </h1>
+        <p
+          className="max-w-xl text-base leading-relaxed text-bone/80 sm:text-lg"
+          style={bodyStyle}
+        >
+          {content.hero.body}
+        </p>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3">
+        <a href="#products" className={primaryButton}>
           {content.hero.primaryCta}
         </a>
-        <a
-          href="#contact"
-          className="rounded-md border border-slate-300 bg-white/70 px-6 py-2.5 text-sm text-navy-950 hover:bg-white sm:text-base"
-        >
+        <a href="#contact" className={secondaryButton}>
           {content.hero.secondaryCta}
         </a>
       </div>
@@ -252,7 +243,7 @@ export function HogbackHero({
   );
 
   return (
-    <section id="top" className="scroll-mt-16">
+    <section id="top" className="scroll-mt-16 space-y-8 pt-8">
       {titlesFirst ? (
         <>
           {copy}
@@ -289,13 +280,14 @@ export function HogbackProducts({
     <section id="products" className="scroll-mt-24">
       <div className="mx-auto max-w-6xl space-y-8 px-6">
         <div className="space-y-3">
+          <p className="kicker">Product line</p>
           <h2
-            className="font-display text-3xl font-semibold text-navy-950"
+            className="font-display text-4xl font-semibold uppercase tracking-wide text-bone"
             style={titleStyle}
           >
             {content.products.sectionTitle}
           </h2>
-          <p className="max-w-2xl text-slate-600" style={bodyStyle}>
+          <p className="max-w-2xl text-bone/75" style={bodyStyle}>
             {content.products.sectionBody}
           </p>
         </div>
@@ -305,52 +297,65 @@ export function HogbackProducts({
           style={{ gap: content.design.cardGapPx }}
         >
           {content.products.cards.map((product) => (
-            <article
-              key={product.id}
-              className="flex flex-col justify-between border border-slate-200 bg-white/90 p-5"
-            >
-              <div className="space-y-3">
-                <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="font-display text-xl font-semibold text-navy-950">
-                    {product.name}
-                  </h3>
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-copper-600">
-                    {product.badge}
-                  </span>
-                </div>
-                <p className="text-sm leading-relaxed text-slate-600">
-                  {product.description}
-                </p>
-                <ul className="mt-3 space-y-1.5 text-sm text-slate-600">
-                  {product.points
-                    .filter((point) => point.trim().length > 0)
-                    .map((point) => (
-                    <li key={point} className="flex gap-2">
-                      <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-copper-500" />
-                      <span>{point}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="mt-4 flex flex-wrap items-center gap-4">
+            <TacticalFrame key={product.id}>
+              <article className="flex h-full flex-col">
                 <Link
                   href={`/products/${product.id}`}
-                  className="inline-flex items-center gap-2 text-sm text-copper-600 hover:text-copper-500"
+                  className="relative block aspect-[16/9] overflow-hidden border-b border-khaki/20 bg-black/50"
                 >
-                  Learn about {product.name}
-                  <span aria-hidden="true">↗</span>
+                  <Image
+                    src={product.tileImage || `/brand/products/${product.id}.png`}
+                    alt=""
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-contain object-center p-4 transition duration-300 hover:scale-[1.03]"
+                  />
                 </Link>
-                {product.appHref && product.appCtaLabel ? (
-                  <ProductCtaLink
-                    href={product.appHref}
-                    className="inline-flex items-center gap-2 text-sm text-navy-800 hover:text-copper-600"
-                  >
-                    {product.appCtaLabel}
-                    <span aria-hidden="true">↗</span>
-                  </ProductCtaLink>
-                ) : null}
-              </div>
-            </article>
+                <div className="flex flex-1 flex-col justify-between gap-4 p-5">
+                  <div className="space-y-3">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <h3 className="font-display text-2xl font-semibold uppercase tracking-wide text-bone">
+                        {product.name}
+                      </h3>
+                      <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-khaki">
+                        {product.badge}
+                      </span>
+                    </div>
+                    <p className="text-sm leading-relaxed text-bone/75">
+                      {product.description}
+                    </p>
+                    <ul className="space-y-1.5 text-sm text-bone/75">
+                      {product.points
+                        .filter((point) => point.trim().length > 0)
+                        .map((point) => (
+                          <li key={point} className="flex gap-2">
+                            <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-khaki" />
+                            <span>{point}</span>
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-4">
+                    <Link
+                      href={`/products/${product.id}`}
+                      className="inline-flex items-center gap-2 text-sm font-semibold text-khaki hover:text-bone"
+                    >
+                      Learn about {product.name}
+                      <span aria-hidden="true">↗</span>
+                    </Link>
+                    {product.appHref && product.appCtaLabel ? (
+                      <ProductCtaLink
+                        href={product.appHref}
+                        className="inline-flex items-center gap-2 text-sm text-bone/80 hover:text-khaki"
+                      >
+                        {product.appCtaLabel}
+                        <span aria-hidden="true">↗</span>
+                      </ProductCtaLink>
+                    ) : null}
+                  </div>
+                </div>
+              </article>
+            </TacticalFrame>
           ))}
         </div>
       </div>
@@ -367,29 +372,27 @@ export function HogbackCustomDev({ content }: { content: SiteContent }) {
   return (
     <section id="custom-development" className="scroll-mt-24">
       <div className="mx-auto max-w-6xl px-6">
-        <div className="border border-copper-500/30 bg-gradient-to-br from-white via-white to-copper-500/10 px-6 py-8 sm:px-8 sm:py-10">
-          <div className="max-w-3xl space-y-4">
+        <TacticalFrame>
+          <div className="max-w-3xl space-y-4 p-6 sm:p-8">
+            <p className="kicker">Custom development</p>
             {title ? (
-              <h2 className="font-display text-2xl font-semibold text-navy-950 sm:text-3xl">
+              <h2 className="font-display text-3xl font-semibold uppercase tracking-wide text-bone sm:text-4xl">
                 {title}
               </h2>
             ) : null}
             {body ? (
-              <p className="text-base leading-relaxed text-slate-600 sm:text-lg">
+              <p className="text-base leading-relaxed text-bone/80 sm:text-lg">
                 {body}
               </p>
             ) : null}
             {ctaLabel ? (
-              <a
-                href="#contact"
-                className="inline-flex items-center gap-2 rounded-md bg-copper-500 px-5 py-2.5 text-sm font-semibold text-navy-950 hover:bg-copper-400"
-              >
+              <a href="#contact" className={primaryButton}>
                 {ctaLabel}
                 <span aria-hidden="true">↓</span>
               </a>
             ) : null}
           </div>
-        </div>
+        </TacticalFrame>
       </div>
     </section>
   );
@@ -415,9 +418,10 @@ export function HogbackAbout({
   return (
     <section id="about" className="scroll-mt-24">
       <div className="mx-auto grid max-w-6xl items-start gap-10 px-6 lg:grid-cols-2">
-        <div className="space-y-4" style={bodyStyle}>
+        <div className="space-y-4 text-bone/80" style={bodyStyle}>
+          <p className="kicker">The company</p>
           <h2
-            className="font-display text-3xl font-semibold text-navy-950"
+            className="font-display text-4xl font-semibold uppercase tracking-wide text-bone"
             style={titleStyle}
           >
             {content.about.title}
@@ -426,26 +430,28 @@ export function HogbackAbout({
           <p>{content.about.paragraphs[1]}</p>
           <p>
             {content.about.paragraphs[2]}{" "}
-            <span className="text-navy-900">{content.about.highlight}</span>
+            <span className="text-khaki">{content.about.highlight}</span>
           </p>
 
-          <div className="rounded-2xl border border-slate-200 bg-gradient-to-r from-copper-500/15 to-white p-5">
-            <h3 className="mb-3 font-display text-lg font-semibold text-navy-950">
-              {content.about.caresTitle}
-            </h3>
-            <ul className="space-y-2 text-sm text-slate-600">
-              {content.about.cares.map((item) => (
-                <li key={item} className="flex gap-2">
-                  <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-copper-500" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <TacticalFrame>
+            <div className="p-5">
+              <h3 className="mb-3 font-display text-lg font-semibold uppercase tracking-wide text-bone">
+                {content.about.caresTitle}
+              </h3>
+              <ul className="space-y-2 text-sm text-bone/75">
+                {content.about.cares.map((item) => (
+                  <li key={item} className="flex gap-2">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-khaki" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </TacticalFrame>
         </div>
 
         <div className="space-y-6">
-          <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-[0_14px_40px_-28px_rgba(10,17,26,0.4)]">
+          <TacticalFrame>
             <Image
               src="/brand/hero-ridge.png"
               alt="Hogback Ridge geological formation"
@@ -453,14 +459,14 @@ export function HogbackAbout({
               height={600}
               className="h-auto w-full object-cover"
             />
-          </div>
+          </TacticalFrame>
 
-          <div className="rounded-2xl border border-slate-200 bg-gradient-to-r from-copper-500/15 to-white p-5">
-            <p className="mb-2 text-xs uppercase tracking-[0.25em] text-copper-600">
-              {content.about.locationLabel}
-            </p>
-            <p className="text-sm text-slate-700">{content.about.locationBody}</p>
-          </div>
+          <TacticalFrame>
+            <div className="p-5">
+              <p className="kicker">{content.about.locationLabel}</p>
+              <p className="mt-2 text-sm text-bone/80">{content.about.locationBody}</p>
+            </div>
+          </TacticalFrame>
         </div>
       </div>
     </section>
@@ -487,9 +493,10 @@ export function HogbackContact({
   return (
     <section id="contact" className="scroll-mt-24">
       <div className="mx-auto grid max-w-6xl items-start gap-10 px-6 lg:grid-cols-[1.2fr_1fr]">
-        <div className="space-y-4" style={bodyStyle}>
+        <div className="space-y-4 text-bone/80" style={bodyStyle}>
+          <p className="kicker">Contact</p>
           <h2
-            className="font-display text-3xl font-semibold text-navy-950"
+            className="font-display text-4xl font-semibold uppercase tracking-wide text-bone"
             style={titleStyle}
           >
             {content.contact.title}
@@ -498,20 +505,24 @@ export function HogbackContact({
           <p>{content.contact.paragraphs[1]}</p>
 
           <div className="space-y-3 text-sm">
-            <p className="text-slate-700">
-              <span className="text-slate-500">{content.contact.emailLabel}</span>{" "}
+            <p>
+              <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-sage">
+                {content.contact.emailLabel}
+              </span>{" "}
               <a
                 href={`mailto:${content.contact.email}`}
-                className="text-copper-600 hover:text-copper-500"
+                className="text-khaki hover:text-bone"
               >
                 {content.contact.email}
               </a>
             </p>
-            <p className="text-slate-700">
-              <span className="text-slate-500">{content.contact.websiteLabel}</span>{" "}
+            <p>
+              <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-sage">
+                {content.contact.websiteLabel}
+              </span>{" "}
               <a
                 href={`https://${content.contact.website}`}
-                className="text-copper-600 hover:text-copper-500"
+                className="text-khaki hover:text-bone"
               >
                 {content.contact.website}
               </a>
@@ -519,27 +530,28 @@ export function HogbackContact({
           </div>
         </div>
 
-        <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_30px_-24px_rgba(10,17,26,0.35)]">
-          <p className="text-sm text-slate-600">{content.contact.tipsTitle}</p>
-          <ul className="space-y-2 text-sm text-slate-600">
-            {content.contact.tips.map((tip) => (
-              <li key={tip} className="flex gap-2">
-                <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-copper-500" />
-                <span>{tip}</span>
-              </li>
-            ))}
-          </ul>
-
-          <div className="pt-2">
-            <a
-              href={`mailto:${content.contact.email}?subject=Hogback%20Ridge%20Technologies%20Inquiry`}
-              className="inline-flex items-center gap-2 rounded-md bg-copper-500 px-5 py-2 text-sm font-semibold text-navy-950 hover:bg-copper-400"
-            >
-              {content.contact.ctaLabel} {content.contact.email}
-              <span aria-hidden="true">↗</span>
-            </a>
+        <TacticalFrame>
+          <div className="space-y-4 p-5">
+            <p className="text-sm text-bone/80">{content.contact.tipsTitle}</p>
+            <ul className="space-y-2 text-sm text-bone/75">
+              {content.contact.tips.map((tip) => (
+                <li key={tip} className="flex gap-2">
+                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-khaki" />
+                  <span>{tip}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="pt-2">
+              <a
+                href={`mailto:${content.contact.email}?subject=Hogback%20Ridge%20Technologies%20Inquiry`}
+                className={primaryButton}
+              >
+                {content.contact.ctaLabel} {content.contact.email}
+                <span aria-hidden="true">↗</span>
+              </a>
+            </div>
           </div>
-        </div>
+        </TacticalFrame>
       </div>
     </section>
   );
@@ -547,14 +559,14 @@ export function HogbackContact({
 
 export function HogbackFooter({ content }: { content: SiteContent }) {
   return (
-    <footer className="mt-16 border-t border-slate-200">
-      <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-4 px-6 py-6 text-xs text-slate-500 sm:flex-row sm:items-center">
+    <footer className="mt-16 border-t border-khaki/25">
+      <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-4 px-6 py-6 font-mono text-[11px] uppercase tracking-[0.14em] text-sage sm:flex-row sm:items-center">
         <p>
           © <span suppressHydrationWarning>{new Date().getFullYear()}</span>{" "}
           Hogback Ridge Technologies · {content.footer.tagline}
         </p>
         <div className="flex flex-wrap items-center gap-4">
-          <Link href="/privacy" className="hover:text-copper-600">
+          <Link href="/privacy" className="hover:text-khaki">
             Privacy
           </Link>
           <p>{content.footer.brandLine}</p>

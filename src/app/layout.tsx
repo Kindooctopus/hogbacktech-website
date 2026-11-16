@@ -1,18 +1,25 @@
 import type { Metadata } from "next";
-import { Barlow, DM_Sans } from "next/font/google";
+import { Barlow_Condensed, IBM_Plex_Mono, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 import { company } from "@/lib/content";
 
-const dmSans = DM_Sans({
+const sourceSans = Source_Sans_3({
   subsets: ["latin"],
-  variable: "--font-dm-sans",
+  variable: "--font-source-sans",
   display: "swap",
 });
 
-const barlow = Barlow({
+const barlowCondensed = Barlow_Condensed({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-barlow",
+  weight: ["500", "600", "700"],
+  variable: "--font-barlow-condensed",
+  display: "swap",
+});
+
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-plex-mono",
   display: "swap",
 });
 
@@ -61,7 +68,10 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${dmSans.variable} ${barlow.variable}`}>
+    <html
+      lang="en"
+      className={`${sourceSans.variable} ${barlowCondensed.variable} ${plexMono.variable}`}
+    >
       <body className="font-sans antialiased">
         {children}
       </body>

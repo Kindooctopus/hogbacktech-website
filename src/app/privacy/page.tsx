@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { HogbackFooter, HogbackHeader } from "@/components/HogbackLandingPage";
 import { company } from "@/lib/content";
+import { fieldPageStyle } from "@/lib/field-theme";
 import { useSiteContent } from "@/lib/use-site-content";
 
 export default function PrivacyPage() {
@@ -11,32 +12,32 @@ export default function PrivacyPage() {
 
   return (
     <div
-      className="min-h-screen text-slate-600"
-      style={{ backgroundColor: content.design.pageBackground }}
+      className="field-surface min-h-screen text-bone/80"
+      style={fieldPageStyle(content.design)}
     >
       <HogbackHeader content={content} />
       <main className="mx-auto max-w-3xl space-y-8 px-6 py-12">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-sm text-slate-500 transition hover:text-copper-600"
+          className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em] text-sage transition hover:text-khaki"
         >
           <span aria-hidden="true">←</span>
           Back to home
         </Link>
 
         <header className="space-y-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-copper-600">
+          <p className="kicker">
             Legal
           </p>
-          <h1 className="font-display text-4xl font-semibold text-navy-950">
+          <h1 className="font-display text-4xl font-semibold uppercase tracking-wide text-bone">
             Privacy Policy
           </h1>
-          <p className="text-sm text-slate-500">
+          <p className="font-mono text-xs uppercase tracking-[0.14em] text-sage">
             Last updated: September 10, 2026
           </p>
         </header>
 
-        <div className="space-y-6 text-base leading-relaxed text-slate-700">
+        <div className="space-y-6 text-base leading-relaxed text-bone/80">
           <p>
             Hogback Ridge Technologies (&quot;Hogback,&quot; &quot;we,&quot;
             &quot;us&quot;) builds software for agencies and organizations,
@@ -45,7 +46,7 @@ export default function PrivacyPage() {
           </p>
 
           <section className="space-y-2">
-            <h2 className="font-display text-xl font-semibold text-navy-950">
+            <h2 className="font-display text-xl font-semibold uppercase tracking-wide text-bone">
               Information we collect
             </h2>
             <ul className="list-disc space-y-1 pl-5">
@@ -66,7 +67,7 @@ export default function PrivacyPage() {
           </section>
 
           <section className="space-y-2">
-            <h2 className="font-display text-xl font-semibold text-navy-950">
+            <h2 className="font-display text-xl font-semibold uppercase tracking-wide text-bone">
               How we use information
             </h2>
             <ul className="list-disc space-y-1 pl-5">
@@ -77,7 +78,7 @@ export default function PrivacyPage() {
           </section>
 
           <section className="space-y-2">
-            <h2 className="font-display text-xl font-semibold text-navy-950">
+            <h2 className="font-display text-xl font-semibold uppercase tracking-wide text-bone">
               What we do not do
             </h2>
             <ul className="list-disc space-y-1 pl-5">
@@ -91,7 +92,7 @@ export default function PrivacyPage() {
           </section>
 
           <section className="space-y-2">
-            <h2 className="font-display text-xl font-semibold text-navy-950">
+            <h2 className="font-display text-xl font-semibold uppercase tracking-wide text-bone">
               Storage and security
             </h2>
             <p>
@@ -101,7 +102,7 @@ export default function PrivacyPage() {
               controls, and administrator-managed uploads. More detail is on the{" "}
               <Link
                 href="/products/docs#security"
-                className="font-medium text-copper-600 hover:text-copper-500"
+                className="font-medium text-khaki hover:text-bone"
               >
                 Hogback Docs Security &amp; Privacy
               </Link>{" "}
@@ -110,14 +111,14 @@ export default function PrivacyPage() {
           </section>
 
           <section className="space-y-2">
-            <h2 className="font-display text-xl font-semibold text-navy-950">
+            <h2 className="font-display text-xl font-semibold uppercase tracking-wide text-bone">
               Contact
             </h2>
             <p>
               Questions about privacy or data handling:{" "}
               <a
                 href={`mailto:${email}`}
-                className="font-medium text-copper-600 hover:text-copper-500"
+                className="font-medium text-khaki hover:text-bone"
               >
                 {email}
               </a>

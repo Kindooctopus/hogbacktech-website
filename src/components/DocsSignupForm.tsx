@@ -42,24 +42,24 @@ export function DocsSignupForm({ email, copy }: DocsSignupFormProps) {
   }
 
   const inputClass =
-    "mt-2 w-full border-0 border-b border-slate-300 bg-transparent px-0 py-2.5 text-navy-950 outline-none transition focus:border-copper-500";
+    "mt-2 w-full border-0 border-b border-khaki/40 bg-transparent px-0 py-2.5 text-bone outline-none transition placeholder:text-sage/80 focus:border-khaki";
 
   return (
     <section
       id="signup"
-      className="scroll-mt-24 space-y-8 border-t border-slate-200 pt-12"
+      className="scroll-mt-24 space-y-8 border-t border-khaki/25 pt-12"
     >
       <div className="max-w-2xl space-y-3">
         {copy.eyebrow.trim() ? (
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-copper-600">
+          <p className="kicker">
             {copy.eyebrow}
           </p>
         ) : null}
-        <h2 className="font-display text-2xl font-semibold text-navy-950 sm:text-3xl">
+        <h2 className="font-display text-3xl font-semibold uppercase tracking-wide text-bone">
           {copy.title}
         </h2>
         {copy.body.trim() ? (
-          <p className="text-sm leading-relaxed text-slate-600 sm:text-base">
+          <p className="text-sm leading-relaxed text-bone/75 sm:text-base">
             {copy.body}
           </p>
         ) : null}
@@ -67,15 +67,15 @@ export function DocsSignupForm({ email, copy }: DocsSignupFormProps) {
 
       <div className="max-w-2xl">
         {submitted ? (
-          <div className="space-y-3 border-l-2 border-copper-500 pl-5 py-2">
-            <h3 className="font-display text-xl font-semibold text-navy-950">
+          <div className="space-y-3 border-l-2 border-khaki py-2 pl-5">
+            <h3 className="font-display text-xl font-semibold uppercase tracking-wide text-bone">
               {copy.successTitle}
             </h3>
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-bone/75">
               {copy.successBody}{" "}
               <a
                 href={`mailto:${email}`}
-                className="font-medium text-copper-600 hover:text-copper-500"
+                className="font-medium text-khaki hover:text-bone"
               >
                 {email}
               </a>
@@ -83,7 +83,7 @@ export function DocsSignupForm({ email, copy }: DocsSignupFormProps) {
             <button
               type="button"
               onClick={() => setSubmitted(false)}
-              className="text-sm font-medium text-navy-800 underline-offset-2 hover:underline"
+              className="text-sm font-medium text-khaki underline-offset-2 hover:underline"
             >
               {copy.editAgainLabel}
             </button>
@@ -94,7 +94,7 @@ export function DocsSignupForm({ email, copy }: DocsSignupFormProps) {
               <div className="sm:col-span-2">
                 <label
                   htmlFor="docs-org"
-                  className="block text-sm font-medium text-navy-950"
+                  className="block font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-sage"
                 >
                   {copy.organizationLabel}
                 </label>
@@ -109,7 +109,7 @@ export function DocsSignupForm({ email, copy }: DocsSignupFormProps) {
               <div>
                 <label
                   htmlFor="docs-contact"
-                  className="block text-sm font-medium text-navy-950"
+                  className="block font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-sage"
                 >
                   {copy.contactLabel}
                 </label>
@@ -124,7 +124,7 @@ export function DocsSignupForm({ email, copy }: DocsSignupFormProps) {
               <div>
                 <label
                   htmlFor="docs-email"
-                  className="block text-sm font-medium text-navy-950"
+                  className="block font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-sage"
                 >
                   {copy.emailLabel}
                 </label>
@@ -140,7 +140,7 @@ export function DocsSignupForm({ email, copy }: DocsSignupFormProps) {
               <div className="sm:col-span-2">
                 <label
                   htmlFor="docs-phone"
-                  className="block text-sm font-medium text-navy-950"
+                  className="block font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-sage"
                 >
                   {copy.phoneLabel}
                 </label>
@@ -155,7 +155,7 @@ export function DocsSignupForm({ email, copy }: DocsSignupFormProps) {
               <div className="sm:col-span-2">
                 <label
                   htmlFor="docs-notes"
-                  className="block text-sm font-medium text-navy-950"
+                  className="block font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-sage"
                 >
                   {copy.notesLabel}
                 </label>
@@ -170,7 +170,7 @@ export function DocsSignupForm({ email, copy }: DocsSignupFormProps) {
             </div>
             <button
               type="submit"
-              className="inline-flex items-center justify-center rounded-md bg-copper-500 px-6 py-3 text-sm font-semibold text-navy-950 transition hover:bg-copper-400"
+              className="inline-flex items-center justify-center rounded-md bg-khaki px-6 py-3 text-sm font-semibold tracking-wide text-ink transition hover:brightness-110"
             >
               {copy.submitLabel}
             </button>

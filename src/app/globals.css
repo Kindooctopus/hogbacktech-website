@@ -1,25 +1,35 @@
 @import "tailwindcss";
 
 @theme {
-  --color-navy-950: #0a111a;
-  --color-navy-900: #101820;
-  --color-navy-800: #1a2430;
-  --color-navy-700: #243040;
+  /* Hogback Geo field palette — dusk ground, bone type, khaki controls, copper metal. */
+  --color-navy-950: #0c1520;
+  --color-navy-900: #152232;
+  --color-navy-800: #243447;
+  --color-navy-700: #2c4158;
+  --color-dusk: #121510;
+  --color-stone: #4e4a44;
+  --color-bone: #ece2cc;
+  --color-sage: #8a946c;
+  --color-khaki: #c4a870;
+  --color-moss: #5a6646;
+  --color-ink: #121510;
+  --color-rust: #b86034;
   --color-slate-500: #64748b;
   --color-slate-400: #94a3b8;
   --color-slate-300: #cbd5e1;
   --color-slate-100: #f1f5f9;
-  --color-copper-600: #9a5a2e;
-  --color-copper-500: #b87333;
-  --color-copper-400: #d48c5c;
-  --color-copper-300: #e8a87a;
+  --color-copper-600: #c47a48;
+  --color-copper-500: #c4a870;
+  --color-copper-400: #d4bc8a;
+  --color-copper-300: #e4d2a8;
   --color-ops: #c45c3e;
-  --color-geo: #3b82a0;
-  --color-docs: #5a8f7b;
-  --color-forge: #b87333;
-  --color-sat: #4a7c9b;
-  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-barlow), ui-sans-serif, system-ui, sans-serif;
+  --color-geo: #c4a870;
+  --color-docs: #8a946c;
+  --color-forge: #c47a48;
+  --color-sat: #4ec4e8;
+  --font-sans: var(--font-source-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-barlow-condensed), "Avenir Next Condensed", ui-sans-serif, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "Menlo", monospace;
 }
 
 html {
@@ -27,19 +37,24 @@ html {
 }
 
 body {
-  background-color: #eef2f6;
-  color: #475569;
+  background-color: #121510;
+  color: #ece2cc;
 }
 
 ::selection {
-  background-color: color-mix(in srgb, var(--color-copper-500) 35%, transparent);
-  color: white;
+  background-color: color-mix(in srgb, var(--color-khaki) 70%, transparent);
+  color: #121510;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-khaki);
+  outline-offset: 2px;
 }
 
 @keyframes fade-up {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -48,41 +63,134 @@ body {
 }
 
 .animate-fade-up {
-  animation: fade-up 0.7s ease-out forwards;
+  animation: fade-up 0.45s ease-out forwards;
 }
 
-.animation-delay-100 { animation-delay: 100ms; }
-.animation-delay-200 { animation-delay: 200ms; }
-.animation-delay-300 { animation-delay: 300ms; }
-
-.gradient-copper {
-  background: linear-gradient(135deg, var(--color-copper-400), var(--color-copper-600));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+@keyframes capability-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.hero-overlay {
-  background: linear-gradient(
-    to bottom,
-    rgba(10, 17, 26, 0.55) 0%,
-    rgba(10, 17, 26, 0.75) 45%,
-    rgba(10, 17, 26, 0.95) 100%
+.capability-panel {
+  animation: capability-in 180ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .capability-panel {
+    animation: none;
+  }
+}
+
+.field-surface {
+  background-color: #121510;
+  background-image:
+    radial-gradient(ellipse 70% 45% at 100% -10%, rgba(196, 168, 112, 0.09), transparent 55%),
+    radial-gradient(ellipse 50% 40% at -10% 110%, rgba(21, 34, 50, 0.55), transparent 60%);
+}
+
+.tactical-frame {
+  position: relative;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--color-khaki) 40%, transparent);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-stone) 34%, transparent),
+      color-mix(in srgb, var(--color-stone) 14%, transparent)
+    ),
+    color-mix(in srgb, var(--color-dusk) 84%, transparent);
+  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--color-khaki) 88%, transparent);
+}
+
+.tactical-hash {
+  position: absolute;
+  top: 6px;
+  left: 24px;
+  right: 24px;
+  height: 5px;
+  z-index: 2;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-khaki) 42%, transparent) 0 1px,
+    transparent 1px 5px
   );
 }
 
-.banner-fade {
-  background: linear-gradient(
-    to bottom,
-    transparent 70%,
-    rgba(10, 17, 26, 1) 100%
-  );
+.tactical-corner {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  z-index: 2;
+  pointer-events: none;
+  border-color: color-mix(in srgb, var(--color-khaki) 82%, transparent);
+  border-style: solid;
+}
+
+.tactical-corner.tl {
+  top: 7px;
+  left: 8px;
+  border-width: 1.5px 0 0 1.5px;
+}
+.tactical-corner.tr {
+  top: 7px;
+  right: 8px;
+  border-width: 1.5px 1.5px 0 0;
+}
+.tactical-corner.bl {
+  bottom: 7px;
+  left: 8px;
+  border-width: 0 0 1.5px 1.5px;
+}
+.tactical-corner.br {
+  right: 8px;
+  bottom: 7px;
+  border-width: 0 1.5px 1.5px 0;
+}
+
+.tactical-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--color-khaki) 34%, transparent);
+  background: color-mix(in srgb, var(--color-dusk) 62%, transparent);
+  color: var(--color-bone);
+  padding: 0.8rem 0.9rem;
+  text-align: left;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease;
+}
+
+.tactical-tab:hover {
+  border-color: color-mix(in srgb, var(--color-khaki) 70%, transparent);
+}
+
+.tactical-tab-active {
+  background: var(--color-khaki);
+  color: #121510;
+  border-color: var(--color-khaki);
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-khaki);
 }
 
 .product-accent-ops { border-color: color-mix(in srgb, var(--color-ops) 40%, transparent); }
 .product-accent-geo { border-color: color-mix(in srgb, var(--color-geo) 40%, transparent); }
 .product-accent-docs { border-color: color-mix(in srgb, var(--color-docs) 40%, transparent); }
 .product-accent-forge { border-color: color-mix(in srgb, var(--color-forge) 40%, transparent); }
-
-/* Soft edge blend kept only for dark-on-dark overlays when explicitly needed.
-   Product/capability tiles on the light theme render without masks so full artwork stays visible. */

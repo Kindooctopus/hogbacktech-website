@@ -562,7 +562,7 @@ export default function AdminPage() {
                 />
               </label>
               <label className="block text-sm">
-                <span className="mb-1 block text-slate-500">Copper accent</span>
+                <span className="mb-1 block text-slate-500">Accent</span>
                 <input
                   type="color"
                   value={content.design.copper}
