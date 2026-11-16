@@ -551,7 +551,7 @@ export const defaultSiteContent: SiteContent = {
   hero: {
     titleLine1: "Solid Foundation.",
     titleLine2: "Smart Solutions.",
-    body: "Hogback Ridge Technologies builds software for the people who keep communities moving—public safety, fleets, and field operations. We are also a custom app developer: tell us what you need, and we will scope a practical build.",
+    body: "Mission-critical software for public safety, fleets, and field operations.",
     primaryCta: "Explore products",
     secondaryCta: "Schedule a conversation",
     bannerPosition: "above-titles",
@@ -560,7 +560,7 @@ export const defaultSiteContent: SiteContent = {
         label: "Software Development",
         image: "/brand/tiles/software-dark.png",
         title: "Software development",
-        body: "We design and build practical software for public safety, fleets, and field operations—from focused tools to full platforms. Hogback Ops, Geo, Docs, Sat, and Forge all come from the same ground-up engineering approach.",
+        body: "From a focused field tool to a full platform, scoped around the workflow your team already runs.",
         ctaLabel: "Explore products",
         ctaHref: "#products",
       },
@@ -930,13 +930,13 @@ export const defaultSiteContent: SiteContent = {
     title: "Built from the ridge line up",
     paragraphs: [
       "Hogback Ridge Technologies is rooted in the Pacific Northwest—where steep ridges, real weather, and real work shape how people think about reliability. Our software carries that same mindset.",
-      "We focus on public safety, fleets, and field operations because that's where downtime isn't an option. Every screen, workflow, and integration is designed to support the people doing the work, not get in their way.",
+      "Every screen, workflow, and integration is built for the people doing the work.",
       "The ridge in our name isn't just a logo. It's a reminder:",
     ],
     highlight: "build on solid ground, and you can go higher.",
     caresTitle: "What we care about",
     cares: [
-      "Clarity under pressure for public safety and operations teams",
+      "Clarity when the work is under pressure",
       "Long‑term partnerships instead of short‑term projects",
       "Software that respects budgets, time, and the realities of the field",
     ],
@@ -947,8 +947,8 @@ export const defaultSiteContent: SiteContent = {
   contact: {
     title: "Start a conversation from solid ground",
     paragraphs: [
-      "Whether you're exploring Hogback Ops, Geo, Docs, Forge, Sat—or you need a custom app for a specific workflow—the first step is a simple conversation about what you're trying to solve.",
-      "Share a bit about your agency, fleet, or organization, and we'll talk through what a practical, grounded path forward could look like.",
+      "Tell us what you're trying to solve.",
+      "Share your agency, fleet, or organization, and the systems you already run.",
     ],
     emailLabel: "Email:",
     email: "developer@hogbacktech.com",
@@ -1117,6 +1117,34 @@ function normalizeBlock(raw: unknown, fallbackIndex: number): PageBlock | null {
   return null;
 }
 
+const LEGACY_HERO_BODY =
+  "Hogback Ridge Technologies builds software for the people who keep communities moving—public safety, fleets, and field operations. We are also a custom app developer: tell us what you need, and we will scope a practical build.";
+
+const LEGACY_SOFTWARE_CAPABILITY =
+  "We design and build practical software for public safety, fleets, and field operations—from focused tools to full platforms. Hogback Ops, Geo, Docs, Sat, and Forge all come from the same ground-up engineering approach.";
+
+const LEGACY_ABOUT_FOCUS =
+  "We focus on public safety, fleets, and field operations because that's where downtime isn't an option. Every screen, workflow, and integration is designed to support the people doing the work, not get in their way.";
+
+const LEGACY_CARE_CLARITY =
+  "Clarity under pressure for public safety and operations teams";
+
+const LEGACY_CONTACT_OPENING =
+  "Whether you're exploring Hogback Ops, Geo, Docs, Forge, Sat—or you need a custom app for a specific workflow—the first step is a simple conversation about what you're trying to solve.";
+
+const LEGACY_CONTACT_FOLLOW =
+  "Share a bit about your agency, fleet, or organization, and we'll talk through what a practical, grounded path forward could look like.";
+
+function replaceLegacyCopy(
+  value: string | undefined,
+  legacy: string,
+  next: string,
+): string {
+  const trimmed = value?.trim() ?? "";
+  if (!trimmed || trimmed === legacy) return next;
+  return value ?? next;
+}
+
 /** Older product marketing copy still stored in KV — prefer current defaults. */
 const PRODUCT_LEGACY_COPY: Record<string, Set<string>> = {
   ops: new Set([
@@ -1155,6 +1183,11 @@ export function mergeSiteContent(partial: unknown): SiteContent {
         incoming.hero?.bannerPosition === "above-titles"
           ? incoming.hero.bannerPosition
           : defaultSiteContent.hero.bannerPosition,
+      body: replaceLegacyCopy(
+        incoming.hero?.body,
+        LEGACY_HERO_BODY,
+        defaultSiteContent.hero.body,
+      ),
       capabilities: Array.isArray(incoming.hero?.capabilities) &&
         incoming.hero.capabilities.length > 0
         ? incoming.hero.capabilities.map((item, i) => {
@@ -1171,10 +1204,11 @@ export function mergeSiteContent(partial: unknown): SiteContent {
                   ? item.title
                   : (fallback?.title ??
                     (typeof item?.label === "string" ? item.label : "")),
-              body:
-                typeof item?.body === "string" && item.body.trim().length > 0
-                  ? item.body
-                  : (fallback?.body ?? ""),
+              body: replaceLegacyCopy(
+                typeof item?.body === "string" ? item.body : undefined,
+                LEGACY_SOFTWARE_CAPABILITY,
+                fallback?.body ?? "",
+              ),
               ctaLabel:
                 typeof item?.ctaLabel === "string" && item.ctaLabel.trim().length > 0
                   ? item.ctaLabel
@@ -1384,11 +1418,19 @@ export function mergeSiteContent(partial: unknown): SiteContent {
       ...incoming.about,
       paragraphs: [
         incoming.about?.paragraphs?.[0] ?? defaultSiteContent.about.paragraphs[0],
-        incoming.about?.paragraphs?.[1] ?? defaultSiteContent.about.paragraphs[1],
+        replaceLegacyCopy(
+          incoming.about?.paragraphs?.[1],
+          LEGACY_ABOUT_FOCUS,
+          defaultSiteContent.about.paragraphs[1],
+        ),
         incoming.about?.paragraphs?.[2] ?? defaultSiteContent.about.paragraphs[2],
       ],
       cares: [
-        incoming.about?.cares?.[0] ?? defaultSiteContent.about.cares[0],
+        replaceLegacyCopy(
+          incoming.about?.cares?.[0],
+          LEGACY_CARE_CLARITY,
+          defaultSiteContent.about.cares[0],
+        ),
         incoming.about?.cares?.[1] ?? defaultSiteContent.about.cares[1],
         incoming.about?.cares?.[2] ?? defaultSiteContent.about.cares[2],
       ],
@@ -1397,8 +1439,16 @@ export function mergeSiteContent(partial: unknown): SiteContent {
       ...defaultSiteContent.contact,
       ...incoming.contact,
       paragraphs: [
-        incoming.contact?.paragraphs?.[0] ?? defaultSiteContent.contact.paragraphs[0],
-        incoming.contact?.paragraphs?.[1] ?? defaultSiteContent.contact.paragraphs[1],
+        replaceLegacyCopy(
+          incoming.contact?.paragraphs?.[0],
+          LEGACY_CONTACT_OPENING,
+          defaultSiteContent.contact.paragraphs[0],
+        ),
+        replaceLegacyCopy(
+          incoming.contact?.paragraphs?.[1],
+          LEGACY_CONTACT_FOLLOW,
+          defaultSiteContent.contact.paragraphs[1],
+        ),
       ],
       tips: [
         incoming.contact?.tips?.[0] ?? defaultSiteContent.contact.tips[0],

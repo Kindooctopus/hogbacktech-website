@@ -26,8 +26,6 @@ import {
 
 const primaryButton =
   "inline-flex items-center gap-2 rounded-md bg-khaki px-5 py-2.5 text-sm font-semibold tracking-wide text-ink transition hover:brightness-110";
-const secondaryButton =
-  "inline-flex items-center gap-2 rounded-md border border-khaki/45 px-5 py-2.5 text-sm font-semibold tracking-wide text-bone transition hover:border-khaki hover:bg-khaki/10";
 
 export function HogbackLandingPage() {
   const { content } = useSiteContent();
@@ -63,12 +61,7 @@ function PageBlockView({
     case "hero":
       return <HogbackHero content={content} block={block} />;
     case "products":
-      return (
-        <>
-          <HogbackProducts content={content} block={block} />
-          <HogbackCustomDev content={content} />
-        </>
-      );
+      return <HogbackProducts content={content} block={block} />;
     case "about":
       return <HogbackAbout content={content} block={block} />;
     case "contact":
@@ -179,82 +172,62 @@ export function HogbackHero({
       })
     : undefined;
   const bodyStyle = block ? textStyleToCss(block.bodyStyle) : undefined;
-  const titlesFirst = content.hero.bannerPosition === "below-titles";
-
-  const banner = (
-    <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-      <TacticalFrame>
-        <Image
-          src="/brand/top-logo.png"
-          alt="Hogback Technologies — Solid Foundation. Smart Solutions."
-          width={1022}
-          height={694}
-          className="block h-auto w-full object-cover"
-          priority
-        />
-      </TacticalFrame>
-      <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-        {content.products.cards.map((product) => (
-          <Link
-            key={product.id}
-            href={`/products/${product.id}`}
-            className="tactical-tab w-auto shrink-0 px-3 py-2"
-          >
-            <span className="font-display text-xs font-bold tracking-[0.16em]">
-              {product.name.replace("Hogback ", "").toUpperCase()}
-            </span>
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-
-  const copy = (
-    <div className="mx-auto max-w-6xl space-y-6 px-6">
-      <div className="space-y-4">
-        <p className="kicker">Hogback Ridge Technologies</p>
-        <h1
-          className="font-display text-5xl font-semibold uppercase leading-[0.92] tracking-wide text-bone sm:text-6xl lg:text-7xl"
-          style={titleStyle}
-        >
-          {content.hero.titleLine1}
-          <br />
-          <span className="text-khaki">{content.hero.titleLine2}</span>
-        </h1>
-        <p
-          className="max-w-xl text-base leading-relaxed text-bone/80 sm:text-lg"
-          style={bodyStyle}
-        >
-          {content.hero.body}
-        </p>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-3">
-        <a href="#products" className={primaryButton}>
-          {content.hero.primaryCta}
-        </a>
-        <a href="#contact" className={secondaryButton}>
-          {content.hero.secondaryCta}
-        </a>
-      </div>
-
-      <CapabilityTiles tiles={content.hero.capabilities || []} />
-    </div>
-  );
 
   return (
-    <section id="top" className="scroll-mt-16 space-y-8 pt-8">
-      {titlesFirst ? (
-        <>
-          {copy}
-          {banner}
-        </>
-      ) : (
-        <>
-          {banner}
-          {copy}
-        </>
-      )}
+    <section id="top" className="scroll-mt-16">
+      <div className="relative min-h-[30rem] overflow-hidden lg:min-h-[38rem]">
+        <Image
+          src="/brand/topo-field.svg"
+          alt="Sample topographic map with elevation contours"
+          fill
+          priority
+          sizes="100vw"
+          className="pointer-events-none object-cover object-[78%_42%]"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 lg:hidden"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(18,21,16,0.12) 0%, rgba(18,21,16,0.45) 38%, #121510 72%)",
+          }}
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 hidden lg:block"
+          style={{
+            background:
+              "linear-gradient(90deg, #121510 0%, #121510 32%, rgba(18,21,16,0.72) 48%, rgba(18,21,16,0.18) 100%)",
+          }}
+        />
+        <div className="relative mx-auto flex min-h-[30rem] max-w-6xl items-end px-6 pb-12 pt-28 lg:min-h-[38rem] lg:items-center lg:py-20">
+          <div className="max-w-xl space-y-5">
+            <h1
+              className="font-display text-5xl font-semibold uppercase leading-[0.92] tracking-wide text-bone sm:text-6xl lg:text-7xl"
+              style={titleStyle}
+            >
+              {content.hero.titleLine1}
+              <br />
+              <span className="text-khaki">{content.hero.titleLine2}</span>
+            </h1>
+            <p
+              className="max-w-xl text-base leading-relaxed text-bone/80 sm:text-lg"
+              style={bodyStyle}
+            >
+              {content.hero.body}
+            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              <a href="#products" className={primaryButton}>
+                {content.hero.primaryCta}
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-6xl px-6 pt-12">
+        <CapabilityTiles tiles={content.hero.capabilities || []} />
+      </div>
     </section>
   );
 }
@@ -321,19 +294,22 @@ export function HogbackProducts({
                         {product.badge}
                       </span>
                     </div>
-                    <p className="text-sm leading-relaxed text-bone/75">
-                      {product.description}
-                    </p>
-                    <ul className="space-y-1.5 text-sm text-bone/75">
-                      {product.points
-                        .filter((point) => point.trim().length > 0)
-                        .map((point) => (
-                          <li key={point} className="flex gap-2">
-                            <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-khaki" />
-                            <span>{point}</span>
-                          </li>
-                        ))}
-                    </ul>
+                    {product.description.trim() ? (
+                      <p className="text-sm leading-relaxed text-bone/75">
+                        {product.description}
+                      </p>
+                    ) : (
+                      <ul className="space-y-1.5 text-sm text-bone/75">
+                        {product.points
+                          .filter((point) => point.trim().length > 0)
+                          .map((point) => (
+                            <li key={point} className="flex gap-2">
+                              <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-khaki" />
+                              <span>{point}</span>
+                            </li>
+                          ))}
+                      </ul>
+                    )}
                   </div>
                   <div className="flex flex-wrap items-center gap-4">
                     <Link
@@ -358,41 +334,6 @@ export function HogbackProducts({
             </TacticalFrame>
           ))}
         </div>
-      </div>
-    </section>
-  );
-}
-
-export function HogbackCustomDev({ content }: { content: SiteContent }) {
-  const title = content.customDev?.title?.trim();
-  const body = content.customDev?.body?.trim();
-  const ctaLabel = content.customDev?.ctaLabel?.trim();
-  if (!title && !body) return null;
-
-  return (
-    <section id="custom-development" className="scroll-mt-24">
-      <div className="mx-auto max-w-6xl px-6">
-        <TacticalFrame>
-          <div className="max-w-3xl space-y-4 p-6 sm:p-8">
-            <p className="kicker">Custom development</p>
-            {title ? (
-              <h2 className="font-display text-3xl font-semibold uppercase tracking-wide text-bone sm:text-4xl">
-                {title}
-              </h2>
-            ) : null}
-            {body ? (
-              <p className="text-base leading-relaxed text-bone/80 sm:text-lg">
-                {body}
-              </p>
-            ) : null}
-            {ctaLabel ? (
-              <a href="#contact" className={primaryButton}>
-                {ctaLabel}
-                <span aria-hidden="true">↓</span>
-              </a>
-            ) : null}
-          </div>
-        </TacticalFrame>
       </div>
     </section>
   );
