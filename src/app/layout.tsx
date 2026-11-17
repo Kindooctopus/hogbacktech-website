@@ -61,7 +61,13 @@ export const metadata: Metadata = {
     description: company.mission,
   },
   robots: { index: true, follow: true },
-  icons: { icon: "/brand/top-logo.png", apple: "/brand/top-logo.png" },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "32x32" },
+      { url: "/brand/favicon.png", type: "image/png", sizes: "512x512" },
+    ],
+    apple: [{ url: "/brand/apple-touch-icon.png", sizes: "180x180" }],
+  },
 };
 
 export default function RootLayout({
