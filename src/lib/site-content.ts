@@ -1120,6 +1120,9 @@ function normalizeBlock(raw: unknown, fallbackIndex: number): PageBlock | null {
 const LEGACY_HERO_BODY =
   "Hogback Ridge Technologies builds software for the people who keep communities moving—public safety, fleets, and field operations. We are also a custom app developer: tell us what you need, and we will scope a practical build.";
 
+const LEGACY_HERO_BODY_RIDGE =
+  "Hogback Ridge Technologies builds software for the people who keep communities moving—public safety, fleets, and field operations. Grounded in real-world experience, engineered for what comes next.";
+
 const LEGACY_HERO_BODY_SHORT =
   "Mission-critical software for public safety, fleets, and field operations.";
 
@@ -1190,11 +1193,15 @@ export function mergeSiteContent(partial: unknown): SiteContent {
           : defaultSiteContent.hero.bannerPosition,
       body: replaceLegacyCopy(
         replaceLegacyCopy(
-          incoming.hero?.body,
-          LEGACY_HERO_BODY,
+          replaceLegacyCopy(
+            incoming.hero?.body,
+            LEGACY_HERO_BODY,
+            defaultSiteContent.hero.body,
+          ),
+          LEGACY_HERO_BODY_SHORT,
           defaultSiteContent.hero.body,
         ),
-        LEGACY_HERO_BODY_SHORT,
+        LEGACY_HERO_BODY_RIDGE,
         defaultSiteContent.hero.body,
       ),
       primaryCta: replaceLegacyCopy(

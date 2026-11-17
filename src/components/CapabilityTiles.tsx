@@ -1,7 +1,6 @@
 "use client";
 
 import { useId, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import type { CapabilityTile } from "@/lib/site-content";
 import { TacticalFrame } from "@/components/TacticalFrame";
@@ -85,16 +84,6 @@ export function CapabilityTiles({ tiles }: { tiles: CapabilityTile[] }) {
                 {active.title.trim() || active.label}
               </h3>
             </div>
-            {active.image.trim() ? (
-              <Image
-                src={active.image}
-                alt=""
-                width={96}
-                height={96}
-                className="hidden h-16 w-16 shrink-0 rounded-md object-cover ring-1 ring-khaki/40 sm:block"
-                aria-hidden
-              />
-            ) : null}
           </div>
           {active.body.trim() ? (
             <p className="max-w-xl text-base leading-relaxed text-bone/80">

@@ -453,7 +453,7 @@ for (let i = 1; i < 8; i += 1) {
 }
 
 const svg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${WIDTH} ${HEIGHT}" role="img" aria-label="Topographic map sample with elevation contours">
+<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" role="img" aria-label="Topographic map sample with elevation contours">
   <rect width="${WIDTH}" height="${HEIGHT}" fill="#121510"/>
   <image href="data:image/png;base64,${png.toString("base64")}" width="${WIDTH}" height="${HEIGHT}" preserveAspectRatio="none"/>
   <g fill="none" stroke="#8f8678" stroke-opacity="0.16" stroke-width="1">${grid.join("")}</g>
