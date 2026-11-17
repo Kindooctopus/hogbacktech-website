@@ -235,24 +235,33 @@ export function HogbackHero({
   );
 }
 
-const shelfIds = ["docs", "geo"];
+/** Custom builds stay with software development. Every other product is off the shelf. */
+const customBuildIds = new Set(["ops", "forge"]);
+const shelfLeadIds = ["docs", "geo"];
+
+function shelfProducts(cards: SiteContent["products"]["cards"]) {
+  const ready = cards.filter(
+    (card) => !customBuildIds.has(card.id) && card.name.trim().length > 0,
+  );
+  return [
+    ...shelfLeadIds.flatMap((id) => ready.filter((card) => card.id === id)),
+    ...ready.filter((card) => !shelfLeadIds.includes(card.id)),
+  ];
+}
 
 function OffTheShelf({ content }: { content: SiteContent }) {
-  const products = shelfIds
-    .map((id) => content.products.cards.find((card) => card.id === id))
-    .filter((card) => card !== undefined);
+  const products = shelfProducts(content.products.cards);
 
   if (products.length === 0) return null;
 
   return (
     <section id="products" className="scroll-mt-24 space-y-4 border-t border-khaki/20 pt-6">
       <div className="max-w-2xl space-y-2">
-        <p className="kicker">Off the shelf</p>
         <h2 className="font-display text-3xl font-semibold uppercase tracking-wide text-bone">
-          Docs and Geo
+          Off the shelf products
         </h2>
         <p className="text-bone/75">
-          Ready products for documents and field mapping. We set them up for your organization.
+          Built and ready. We set them up for your organization.
         </p>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
