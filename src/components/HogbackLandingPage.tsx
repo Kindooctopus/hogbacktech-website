@@ -229,6 +229,55 @@ export function HogbackHero({
           </div>
         </div>
         <CapabilityTiles tiles={content.hero.capabilities || []} />
+        <OffTheShelf content={content} />
+      </div>
+    </section>
+  );
+}
+
+const shelfIds = ["docs", "geo"];
+
+function OffTheShelf({ content }: { content: SiteContent }) {
+  const products = shelfIds
+    .map((id) => content.products.cards.find((card) => card.id === id))
+    .filter((card) => card !== undefined);
+
+  if (products.length === 0) return null;
+
+  return (
+    <section id="products" className="scroll-mt-24 space-y-4 border-t border-khaki/20 pt-6">
+      <div className="max-w-2xl space-y-2">
+        <p className="kicker">Off the shelf</p>
+        <h2 className="font-display text-3xl font-semibold uppercase tracking-wide text-bone">
+          Docs and Geo
+        </h2>
+        <p className="text-bone/75">
+          Ready products for documents and field mapping. We set them up for your organization.
+        </p>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        {products.map((product) => (
+          <TacticalFrame key={product.id}>
+            <article className="flex h-full flex-col gap-3 p-5">
+              <div className="flex items-baseline justify-between gap-3">
+                <h3 className="font-display text-2xl font-semibold uppercase tracking-wide text-bone">
+                  {product.name}
+                </h3>
+                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-khaki">
+                  {product.badge}
+                </span>
+              </div>
+              <p className="text-sm leading-relaxed text-bone/75">{product.description}</p>
+              <Link
+                href={`/products/${product.id}`}
+                className="mt-auto inline-flex items-center gap-2 text-sm font-semibold text-khaki hover:text-bone"
+              >
+                Learn about {product.name}
+                <span aria-hidden="true">↗</span>
+              </Link>
+            </article>
+          </TacticalFrame>
+        ))}
       </div>
     </section>
   );
