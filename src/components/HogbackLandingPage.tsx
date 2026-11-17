@@ -30,22 +30,37 @@ const primaryButton =
 export function HogbackLandingPage() {
   const { content } = useSiteContent();
 
+  const pageStyle = fieldPageStyle(content.design);
+
   return (
     <div
-      className="field-surface min-h-screen text-bone/85"
-      style={fieldPageStyle(content.design)}
+      className="relative min-h-screen text-bone/85"
+      style={{ ...pageStyle, backgroundColor: "transparent", backgroundImage: "none" }}
     >
-      <FontThemeLoader themeId={content.design.fontTheme} />
-      <HogbackHeader content={content} />
-      <main
-        className="flex flex-col pb-24"
-        style={{ gap: content.design.sectionSpacingPx }}
-      >
-        {content.blocks.map((block) => (
-          <PageBlockView key={block.id} block={block} content={content} />
-        ))}
-      </main>
-      <HogbackFooter content={content} />
+      <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0">
+        <Image
+          src="/brand/topo-field.svg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[72%_center]"
+        />
+        <div className="absolute inset-0 bg-dusk/72" />
+      </div>
+      <div className="relative z-10">
+        <FontThemeLoader themeId={content.design.fontTheme} />
+        <HogbackHeader content={content} />
+        <main
+          className="flex flex-col pb-8"
+          style={{ gap: content.design.sectionSpacingPx }}
+        >
+          {content.blocks.map((block) => (
+            <PageBlockView key={block.id} block={block} content={content} />
+          ))}
+        </main>
+        <HogbackFooter content={content} />
+      </div>
     </div>
   );
 }
@@ -175,57 +190,28 @@ export function HogbackHero({
 
   return (
     <section id="top" className="scroll-mt-16">
-      <div className="relative min-h-[30rem] overflow-hidden lg:min-h-[38rem]">
-        <Image
-          src="/brand/topo-field.svg"
-          alt="Sample topographic map with elevation contours"
-          fill
-          priority
-          sizes="100vw"
-          className="pointer-events-none object-cover object-[78%_42%]"
-        />
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 lg:hidden"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(18,21,16,0.12) 0%, rgba(18,21,16,0.45) 38%, #121510 72%)",
-          }}
-        />
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 hidden lg:block"
-          style={{
-            background:
-              "linear-gradient(90deg, #121510 0%, #121510 32%, rgba(18,21,16,0.72) 48%, rgba(18,21,16,0.18) 100%)",
-          }}
-        />
-        <div className="relative mx-auto flex min-h-[30rem] max-w-6xl items-end px-6 pb-12 pt-28 lg:min-h-[38rem] lg:items-center lg:py-20">
-          <div className="max-w-xl space-y-5">
-            <h1
-              className="font-display text-5xl font-semibold uppercase leading-[0.92] tracking-wide text-bone sm:text-6xl lg:text-7xl"
-              style={titleStyle}
-            >
-              {content.hero.titleLine1}
-              <br />
-              <span className="text-khaki">{content.hero.titleLine2}</span>
-            </h1>
-            <p
-              className="max-w-xl text-base leading-relaxed text-bone/80 sm:text-lg"
-              style={bodyStyle}
-            >
-              {content.hero.body}
-            </p>
-            <div className="flex flex-wrap items-center gap-3">
-              <a href="#products" className={primaryButton}>
-                {content.hero.primaryCta}
-              </a>
-            </div>
+      <div className="mx-auto max-w-6xl space-y-6 px-6 pt-6 lg:pt-8">
+        <div className="max-w-xl space-y-4">
+          <h1
+            className="font-display text-5xl font-semibold uppercase leading-[0.92] tracking-wide text-bone sm:text-6xl"
+            style={titleStyle}
+          >
+            {content.hero.titleLine1}
+            <br />
+            <span className="text-khaki">{content.hero.titleLine2}</span>
+          </h1>
+          <p
+            className="max-w-xl text-base leading-relaxed text-bone/80 sm:text-lg"
+            style={bodyStyle}
+          >
+            {content.hero.body}
+          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <a href="#products" className={primaryButton}>
+              {content.hero.primaryCta}
+            </a>
           </div>
         </div>
-      </div>
-
-      <div className="mx-auto max-w-6xl px-6 pt-12">
         <CapabilityTiles tiles={content.hero.capabilities || []} />
       </div>
     </section>
@@ -251,7 +237,7 @@ export function HogbackProducts({
 
   return (
     <section id="products" className="scroll-mt-24">
-      <div className="mx-auto max-w-6xl space-y-8 px-6">
+      <div className="mx-auto max-w-6xl space-y-5 px-6">
         <div className="space-y-3">
           <p className="kicker">Product line</p>
           <h2
@@ -358,7 +344,7 @@ export function HogbackAbout({
 
   return (
     <section id="about" className="scroll-mt-24">
-      <div className="mx-auto grid max-w-6xl items-start gap-10 px-6 lg:grid-cols-2">
+      <div className="mx-auto grid max-w-6xl items-start gap-6 px-6 lg:grid-cols-2">
         <div className="space-y-4 text-bone/80" style={bodyStyle}>
           <p className="kicker">The company</p>
           <h2
@@ -433,7 +419,7 @@ export function HogbackContact({
 
   return (
     <section id="contact" className="scroll-mt-24">
-      <div className="mx-auto grid max-w-6xl items-start gap-10 px-6 lg:grid-cols-[1.2fr_1fr]">
+      <div className="mx-auto grid max-w-6xl items-start gap-6 px-6 lg:grid-cols-[1.2fr_1fr]">
         <div className="space-y-4 text-bone/80" style={bodyStyle}>
           <p className="kicker">Contact</p>
           <h2
@@ -500,7 +486,7 @@ export function HogbackContact({
 
 export function HogbackFooter({ content }: { content: SiteContent }) {
   return (
-    <footer className="mt-16 border-t border-khaki/25">
+    <footer className="border-t border-khaki/25">
       <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-4 px-6 py-6 font-mono text-[11px] uppercase tracking-[0.14em] text-sage sm:flex-row sm:items-center">
         <p>
           © <span suppressHydrationWarning>{new Date().getFullYear()}</span>{" "}

@@ -102,10 +102,9 @@ body {
   background:
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--color-stone) 34%, transparent),
-      color-mix(in srgb, var(--color-stone) 14%, transparent)
-    ),
-    color-mix(in srgb, var(--color-dusk) 84%, transparent);
+      color-mix(in srgb, var(--color-stone) 28%, var(--color-dusk)),
+      color-mix(in srgb, var(--color-stone) 10%, var(--color-dusk))
+    );
   box-shadow: inset 3px 0 0 color-mix(in srgb, var(--color-khaki) 88%, transparent);
 }
 
@@ -161,7 +160,7 @@ body {
   gap: 0.75rem;
   border-radius: 10px;
   border: 1px solid color-mix(in srgb, var(--color-khaki) 34%, transparent);
-  background: color-mix(in srgb, var(--color-dusk) 62%, transparent);
+  background: color-mix(in srgb, var(--color-dusk) 94%, transparent);
   color: var(--color-bone);
   padding: 0.8rem 0.9rem;
   text-align: left;

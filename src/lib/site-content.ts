@@ -979,7 +979,7 @@ export const defaultSiteContent: SiteContent = {
   ],
   design: {
     pageBackground: "#121510",
-    sectionSpacingPx: 96,
+    sectionSpacingPx: 48,
     cardGapPx: 20,
     copper: "#c4a870",
     navy: "#0c1520",
@@ -1489,6 +1489,10 @@ function resolveDesign(incoming?: Partial<SiteContent["design"]> | null) {
     ...defaultSiteContent.design,
     ...incoming,
     fontTheme: getFontTheme(incoming?.fontTheme).id,
+    sectionSpacingPx:
+      incoming?.sectionSpacingPx == null || incoming.sectionSpacingPx === 96
+        ? defaultSiteContent.design.sectionSpacingPx
+        : incoming.sectionSpacingPx,
   };
   const legacyColors =
     incoming?.pageBackground === LEGACY_LIGHT_THEME.pageBackground &&
