@@ -189,6 +189,32 @@ body {
   color: var(--color-khaki);
 }
 
+.leaflet-container {
+  background: #121510;
+  font-family: var(--font-source-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+.leaflet-bar {
+  border: 1px solid color-mix(in srgb, var(--color-khaki) 40%, transparent);
+  box-shadow: none;
+}
+
+.leaflet-bar a,
+.leaflet-bar a:hover {
+  background: #1c1914;
+  color: var(--color-bone);
+  border-bottom-color: color-mix(in srgb, var(--color-khaki) 30%, transparent);
+}
+
+.leaflet-control-attribution {
+  background: rgb(18 21 16 / 88%);
+  color: var(--color-sage);
+}
+
+.leaflet-control-attribution a {
+  color: var(--color-khaki);
+}
+
 .product-accent-ops { border-color: color-mix(in srgb, var(--color-ops) 40%, transparent); }
 .product-accent-geo { border-color: color-mix(in srgb, var(--color-geo) 40%, transparent); }
 .product-accent-docs { border-color: color-mix(in srgb, var(--color-docs) 40%, transparent); }
