@@ -190,6 +190,24 @@ export function HogbackHero({
     <section id="top" className="scroll-mt-16">
       <div className="mx-auto max-w-6xl space-y-6 px-6 pt-6 lg:pt-8">
         <div className="max-w-xl space-y-4">
+          <div className="flex items-center gap-4">
+            <Image
+              src="/brand/logo-ridge.png"
+              alt=""
+              width={671}
+              height={270}
+              priority
+              className="h-14 w-auto sm:h-16"
+            />
+            <div className="leading-none">
+              <p className="font-display text-3xl font-bold tracking-[0.14em] text-bone sm:text-4xl">
+                HOGBACK
+              </p>
+              <p className="mt-1.5 text-[11px] font-semibold tracking-[0.32em] text-copper-600 sm:text-xs">
+                TECHNOLOGIES
+              </p>
+            </div>
+          </div>
           <h1
             className="font-display text-5xl font-semibold uppercase leading-[0.92] tracking-wide text-bone sm:text-6xl"
             style={titleStyle}
@@ -235,7 +253,7 @@ export function HogbackAbout({
 
   return (
     <section id="about" className="scroll-mt-24">
-      <div className="mx-auto grid max-w-6xl items-start gap-6 px-6 lg:grid-cols-2">
+      <div className="mx-auto grid max-w-6xl items-start gap-6 px-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(16rem,0.7fr)]">
         <div className="space-y-4 text-bone/80" style={bodyStyle}>
           <p className="kicker">The company</p>
           <h2
@@ -268,24 +286,12 @@ export function HogbackAbout({
           </TacticalFrame>
         </div>
 
-        <div className="space-y-6">
-          <TacticalFrame>
-            <Image
-              src="/brand/hero-ridge.png"
-              alt="Hogback Ridge geological formation"
-              width={800}
-              height={600}
-              className="h-auto w-full object-cover"
-            />
-          </TacticalFrame>
-
-          <TacticalFrame>
-            <div className="p-5">
-              <p className="kicker">{content.about.locationLabel}</p>
-              <p className="mt-2 text-sm text-bone/80">{content.about.locationBody}</p>
-            </div>
-          </TacticalFrame>
-        </div>
+        <TacticalFrame>
+          <div className="p-5">
+            <p className="kicker">{content.about.locationLabel}</p>
+            <p className="mt-2 text-sm text-bone/80">{content.about.locationBody}</p>
+          </div>
+        </TacticalFrame>
       </div>
     </section>
   );
