@@ -14,7 +14,6 @@ import { fieldPageStyle } from "@/lib/field-theme";
 import { FontThemeLoader } from "@/components/FontThemeLoader";
 import { CapabilityTiles } from "@/components/CapabilityTiles";
 import { HogbackLogo } from "@/components/HogbackLogo";
-import { ProductCtaLink } from "@/components/ProductCtaLink";
 import { TacticalFrame } from "@/components/TacticalFrame";
 import {
   BoxBlockSection,
@@ -76,7 +75,7 @@ function PageBlockView({
     case "hero":
       return <HogbackHero content={content} block={block} />;
     case "products":
-      return <HogbackProducts content={content} block={block} />;
+      return null;
     case "about":
       return <HogbackAbout content={content} block={block} />;
     case "contact":
@@ -102,7 +101,6 @@ function PageBlockView({
 }
 
 const navLinks = [
-  { href: "#products", label: "Products" },
   { href: "#about", label: "About" },
   { href: "#contact", label: "Contact" },
 ];
@@ -207,119 +205,12 @@ export function HogbackHero({
             {content.hero.body}
           </p>
           <div className="flex flex-wrap items-center gap-3">
-            <a href="#products" className={primaryButton}>
+            <a href="#contact" className={primaryButton}>
               {content.hero.primaryCta}
             </a>
           </div>
         </div>
         <CapabilityTiles tiles={content.hero.capabilities || []} />
-      </div>
-    </section>
-  );
-}
-
-export function HogbackProducts({
-  content,
-  block,
-}: {
-  content: SiteContent;
-  block?: BuiltinBlock;
-}) {
-  const titleStyle = block
-    ? textStyleToCss({
-        ...block.titleStyle,
-        fontSizePx: Math.round(
-          block.titleStyle.fontSizePx * content.design.headingScale,
-        ),
-      })
-    : undefined;
-  const bodyStyle = block ? textStyleToCss(block.bodyStyle) : undefined;
-
-  return (
-    <section id="products" className="scroll-mt-24">
-      <div className="mx-auto max-w-6xl space-y-5 px-6">
-        <div className="space-y-3">
-          <p className="kicker">Product line</p>
-          <h2
-            className="font-display text-4xl font-semibold uppercase tracking-wide text-bone"
-            style={titleStyle}
-          >
-            {content.products.sectionTitle}
-          </h2>
-          <p className="max-w-2xl text-bone/75" style={bodyStyle}>
-            {content.products.sectionBody}
-          </p>
-        </div>
-
-        <div
-          className="grid md:grid-cols-2"
-          style={{ gap: content.design.cardGapPx }}
-        >
-          {content.products.cards.map((product) => (
-            <TacticalFrame key={product.id}>
-              <article className="flex h-full flex-col">
-                <Link
-                  href={`/products/${product.id}`}
-                  className="relative block aspect-[16/9] overflow-hidden border-b border-khaki/20 bg-black/50"
-                >
-                  <Image
-                    src={product.tileImage || `/brand/products/${product.id}.png`}
-                    alt=""
-                    fill
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    className="object-contain object-center p-4 transition duration-300 hover:scale-[1.03]"
-                  />
-                </Link>
-                <div className="flex flex-1 flex-col justify-between gap-4 p-5">
-                  <div className="space-y-3">
-                    <div className="flex items-baseline justify-between gap-3">
-                      <h3 className="font-display text-2xl font-semibold uppercase tracking-wide text-bone">
-                        {product.name}
-                      </h3>
-                      <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-khaki">
-                        {product.badge}
-                      </span>
-                    </div>
-                    {product.description.trim() ? (
-                      <p className="text-sm leading-relaxed text-bone/75">
-                        {product.description}
-                      </p>
-                    ) : (
-                      <ul className="space-y-1.5 text-sm text-bone/75">
-                        {product.points
-                          .filter((point) => point.trim().length > 0)
-                          .map((point) => (
-                            <li key={point} className="flex gap-2">
-                              <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-khaki" />
-                              <span>{point}</span>
-                            </li>
-                          ))}
-                      </ul>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap items-center gap-4">
-                    <Link
-                      href={`/products/${product.id}`}
-                      className="inline-flex items-center gap-2 text-sm font-semibold text-khaki hover:text-bone"
-                    >
-                      Learn about {product.name}
-                      <span aria-hidden="true">↗</span>
-                    </Link>
-                    {product.appHref && product.appCtaLabel ? (
-                      <ProductCtaLink
-                        href={product.appHref}
-                        className="inline-flex items-center gap-2 text-sm text-bone/80 hover:text-khaki"
-                      >
-                        {product.appCtaLabel}
-                        <span aria-hidden="true">↗</span>
-                      </ProductCtaLink>
-                    ) : null}
-                  </div>
-                </div>
-              </article>
-            </TacticalFrame>
-          ))}
-        </div>
       </div>
     </section>
   );

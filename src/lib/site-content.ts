@@ -551,8 +551,8 @@ export const defaultSiteContent: SiteContent = {
   hero: {
     titleLine1: "Solid Foundation.",
     titleLine2: "Smart Solutions.",
-    body: "Mission-critical software for public safety, fleets, and field operations.",
-    primaryCta: "Explore products",
+    body: "Hogback is a software development company. We build practical systems for public safety, fleets, and field operations.",
+    primaryCta: "Start a conversation",
     secondaryCta: "Schedule a conversation",
     bannerPosition: "above-titles",
     capabilities: [
@@ -561,8 +561,8 @@ export const defaultSiteContent: SiteContent = {
         image: "/brand/tiles/software-dark.png",
         title: "Software development",
         body: "From a focused field tool to a full platform, scoped around the workflow your team already runs.",
-        ctaLabel: "Explore products",
-        ctaHref: "#products",
+        ctaLabel: "Start a conversation",
+        ctaHref: "#contact",
       },
       {
         label: "Mobile App Development",
@@ -1120,6 +1120,11 @@ function normalizeBlock(raw: unknown, fallbackIndex: number): PageBlock | null {
 const LEGACY_HERO_BODY =
   "Hogback Ridge Technologies builds software for the people who keep communities moving—public safety, fleets, and field operations. We are also a custom app developer: tell us what you need, and we will scope a practical build.";
 
+const LEGACY_HERO_BODY_SHORT =
+  "Mission-critical software for public safety, fleets, and field operations.";
+
+const LEGACY_EXPLORE_PRODUCTS = "Explore products";
+
 const LEGACY_SOFTWARE_CAPABILITY =
   "We design and build practical software for public safety, fleets, and field operations—from focused tools to full platforms. Hogback Ops, Geo, Docs, Sat, and Forge all come from the same ground-up engineering approach.";
 
@@ -1184,9 +1189,18 @@ export function mergeSiteContent(partial: unknown): SiteContent {
           ? incoming.hero.bannerPosition
           : defaultSiteContent.hero.bannerPosition,
       body: replaceLegacyCopy(
-        incoming.hero?.body,
-        LEGACY_HERO_BODY,
+        replaceLegacyCopy(
+          incoming.hero?.body,
+          LEGACY_HERO_BODY,
+          defaultSiteContent.hero.body,
+        ),
+        LEGACY_HERO_BODY_SHORT,
         defaultSiteContent.hero.body,
+      ),
+      primaryCta: replaceLegacyCopy(
+        incoming.hero?.primaryCta,
+        LEGACY_EXPLORE_PRODUCTS,
+        defaultSiteContent.hero.primaryCta,
       ),
       capabilities: Array.isArray(incoming.hero?.capabilities) &&
         incoming.hero.capabilities.length > 0
@@ -1209,14 +1223,17 @@ export function mergeSiteContent(partial: unknown): SiteContent {
                 LEGACY_SOFTWARE_CAPABILITY,
                 fallback?.body ?? "",
               ),
-              ctaLabel:
-                typeof item?.ctaLabel === "string" && item.ctaLabel.trim().length > 0
-                  ? item.ctaLabel
-                  : (fallback?.ctaLabel ?? ""),
+              ctaLabel: replaceLegacyCopy(
+                typeof item?.ctaLabel === "string" ? item.ctaLabel : undefined,
+                LEGACY_EXPLORE_PRODUCTS,
+                fallback?.ctaLabel ?? "Start a conversation",
+              ),
               ctaHref:
-                typeof item?.ctaHref === "string" && item.ctaHref.trim().length > 0
-                  ? item.ctaHref
-                  : (fallback?.ctaHref ?? ""),
+                item?.ctaHref === "#products"
+                  ? "#contact"
+                  : typeof item?.ctaHref === "string" && item.ctaHref.trim().length > 0
+                    ? item.ctaHref
+                    : (fallback?.ctaHref ?? "#contact"),
             };
           })
         : defaultSiteContent.hero.capabilities.map((item) => ({ ...item })),

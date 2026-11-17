@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { DocsSignupForm } from "@/components/DocsSignupForm";
 import { HogbackFooter, HogbackHeader } from "@/components/HogbackLandingPage";
@@ -17,7 +16,6 @@ import {
 } from "@/lib/site-content";
 import { fieldPageStyle } from "@/lib/field-theme";
 import { useSiteContent } from "@/lib/use-site-content";
-import { TacticalFrame } from "@/components/TacticalFrame";
 
 export function ProductDetailPage({ productId }: { productId: string }) {
   const { content } = useSiteContent();
@@ -51,20 +49,7 @@ export function ProductDetailPage({ productId }: { productId: string }) {
           {content.products.backHomeLabel}
         </Link>
 
-        <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
-          <TacticalFrame>
-            <Image
-              src={product.tileImage}
-              alt={product.name}
-              width={1024}
-              height={1024}
-              className="h-auto w-full object-contain"
-              priority
-            />
-          </TacticalFrame>
-
-          <ProductCopy product={product} email={email} content={content} />
-        </div>
+        <ProductCopy product={product} email={email} />
 
         <ProductSecuritySection
           product={product}
@@ -91,20 +76,14 @@ export function ProductDetailPage({ productId }: { productId: string }) {
           <h2 className="font-display text-2xl font-semibold uppercase tracking-wide text-bone">
             {content.products.exploreOthersLabel}
           </h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="flex flex-wrap gap-3">
             {others.map((other) => (
               <Link
                 key={other.id}
                 href={`/products/${other.id}`}
-                className="group overflow-hidden rounded-xl border border-khaki/30 bg-dusk transition hover:border-khaki"
+                className="rounded-md border border-khaki/35 px-4 py-2 text-sm font-semibold text-bone transition hover:border-khaki hover:text-khaki"
               >
-                <Image
-                  src={other.tileImage}
-                  alt={other.name}
-                  width={1024}
-                  height={1024}
-                  className="h-auto w-full object-contain transition duration-200 group-hover:scale-[1.02]"
-                />
+                {other.name}
               </Link>
             ))}
           </div>
@@ -118,11 +97,9 @@ export function ProductDetailPage({ productId }: { productId: string }) {
 function ProductCopy({
   product,
   email,
-  content,
 }: {
   product: ProductCardContent;
   email: string;
-  content: ReturnType<typeof useSiteContent>["content"];
 }) {
   const showSignup = Boolean(product.signup?.enabled);
   const signupHref = showSignup ? "#signup" : product.appHref;
@@ -155,74 +132,23 @@ function ProductCopy({
           ))}
       </ul>
 
-      <TacticalFrame>
-        <div className="p-5">
-        <p className="kicker mb-3">
-          {content.products.pricingLabel}
-        </p>
-        <table className="w-full border-collapse text-sm">
-          <thead>
-            <tr className="border-b border-khaki/25 text-left font-mono text-[10px] uppercase tracking-[0.16em] text-sage">
-              <th className="pb-2 pr-4 font-medium">
-                {content.products.planColumnLabel || "Plan"}
-              </th>
-              <th className="pb-2 text-right font-medium">
-                {content.products.priceColumnLabel || "Price"}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {(product.pricingRows?.length ? product.pricingRows : [])
-              .filter((row) => row.plan.trim() || row.price.trim())
-              .map((row) => (
-                <tr
-                  key={`${row.plan}-${row.price}`}
-                  className="border-b border-khaki/15 last:border-b-0"
-                >
-                  <td className="py-2.5 pr-4 font-medium text-bone">
-                    {row.plan || "—"}
-                  </td>
-                  <td className="py-2.5 text-right font-mono tabular-nums text-khaki">
-                    {row.price || "—"}
-                  </td>
-                </tr>
-              ))}
-            {product.pricingSetup.trim().length > 0 ? (
-              <tr className="border-t border-khaki/25">
-                <td className="pt-3 pr-4 text-sage">
-                  {content.products.setupLabel.replace(/:$/, "") || "Setup"}
-                </td>
-                <td className="pt-3 text-right font-mono tabular-nums text-bone/80">
-                  {product.pricingSetup}
-                </td>
-              </tr>
-            ) : null}
-          </tbody>
-        </table>
-        </div>
-      </TacticalFrame>
-
       <div className="flex flex-wrap items-center gap-3">
+        <a
+          href={`mailto:${email}?subject=${encodeURIComponent(`${product.name} inquiry`)}`}
+          className="inline-flex items-center gap-2 rounded-md bg-khaki px-5 py-2.5 text-sm font-semibold tracking-wide text-ink hover:brightness-110"
+        >
+          {product.talkCtaLabel}
+          <span aria-hidden="true">↗</span>
+        </a>
         {hasApp ? (
           <ProductCtaLink
             href={signupHref || product.appHref}
-            className="inline-flex items-center gap-2 rounded-md bg-khaki px-5 py-2.5 text-sm font-semibold tracking-wide text-ink hover:brightness-110"
+            className="inline-flex items-center gap-2 rounded-md border border-khaki/45 px-5 py-2.5 text-sm font-semibold text-bone hover:border-khaki hover:bg-khaki/10"
           >
             {product.appCtaLabel}
             <span aria-hidden="true">{showSignup ? "↓" : "↗"}</span>
           </ProductCtaLink>
         ) : null}
-        <a
-          href={`mailto:${email}?subject=${encodeURIComponent(`${product.name} inquiry`)}`}
-          className={`inline-flex items-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold ${
-            hasApp
-              ? "border border-khaki/45 text-bone hover:border-khaki hover:bg-khaki/10"
-              : "bg-khaki text-ink hover:brightness-110"
-          }`}
-        >
-          {product.talkCtaLabel}
-          <span aria-hidden="true">↗</span>
-        </a>
       </div>
     </div>
   );
