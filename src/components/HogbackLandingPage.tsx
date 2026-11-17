@@ -190,24 +190,6 @@ export function HogbackHero({
     <section id="top" className="scroll-mt-16">
       <div className="mx-auto max-w-6xl space-y-6 px-6 pt-6 lg:pt-8">
         <div className="max-w-xl space-y-4">
-          <div className="flex items-center gap-4">
-            <Image
-              src="/brand/logo-ridge.png"
-              alt=""
-              width={671}
-              height={270}
-              priority
-              className="h-14 w-auto sm:h-16"
-            />
-            <div className="leading-none">
-              <p className="font-display text-3xl font-bold tracking-[0.14em] text-bone sm:text-4xl">
-                HOGBACK
-              </p>
-              <p className="mt-1.5 text-[11px] font-semibold tracking-[0.32em] text-copper-600 sm:text-xs">
-                TECHNOLOGIES
-              </p>
-            </div>
-          </div>
           <h1
             className="font-display text-5xl font-semibold uppercase leading-[0.92] tracking-wide text-bone sm:text-6xl"
             style={titleStyle}
