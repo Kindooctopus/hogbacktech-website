@@ -34,7 +34,7 @@ export function fieldPageStyle(design: SiteContent["design"]): CSSProperties {
       ? {}
       : {
           ["--color-bone" as string]: "#161910",
-          ["--color-sage" as string]: "#4e5640",
+          ["--color-sage" as string]: "#5c564c",
           ["--color-dusk" as string]: "#f6f3ea",
           ["--color-stone" as string]: "#e4dece",
         }),

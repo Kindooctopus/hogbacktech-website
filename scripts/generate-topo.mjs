@@ -394,11 +394,11 @@ for (let y = 0; y < shadeH; y += 1) {
       Math.cos(zenith) * Math.cos(slope) +
       Math.sin(zenith) * Math.sin(slope) * Math.cos(azimuth - aspect);
     light = Math.min(1, Math.max(0, light));
-    const valley = [32, 46, 36];
-    const slopeColor = [58, 72, 48];
-    const ridge = [154, 132, 78];
+    const valley = [34, 30, 24];
+    const slopeColor = [64, 52, 38];
+    const ridge = [128, 106, 74];
     const elev = z < 0.45 ? mix(valley, slopeColor, z / 0.45) : mix(slopeColor, ridge, (z - 0.45) / 0.55);
-    const shadow = [14, 18, 14];
+    const shadow = [16, 14, 12];
     const rgb = mix(shadow, elev, 0.35 + light * 0.65);
     const i = (y * shadeW + x) * 4;
     rgba[i] = rgb[0];
@@ -456,7 +456,7 @@ const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${WIDTH} ${HEIGHT}" role="img" aria-label="Topographic map sample with elevation contours">
   <rect width="${WIDTH}" height="${HEIGHT}" fill="#121510"/>
   <image href="data:image/png;base64,${png.toString("base64")}" width="${WIDTH}" height="${HEIGHT}" preserveAspectRatio="none"/>
-  <g fill="none" stroke="#8a946c" stroke-opacity="0.16" stroke-width="1">${grid.join("")}</g>
+  <g fill="none" stroke="#8f8678" stroke-opacity="0.16" stroke-width="1">${grid.join("")}</g>
   <g fill="none" stroke="#c4a870" stroke-opacity="0.55" stroke-width="0.9" stroke-linejoin="round" stroke-linecap="round">
     ${intermediate.map((d) => `<path d="${d}"/>`).join("")}
   </g>
