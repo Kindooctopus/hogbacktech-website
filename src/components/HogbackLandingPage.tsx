@@ -234,6 +234,12 @@ function shelfProducts(cards: SiteContent["products"]["cards"]) {
   ];
 }
 
+function silenceFilm(video: HTMLVideoElement) {
+  video.defaultMuted = true;
+  if (!video.muted) video.muted = true;
+  if (video.volume !== 0) video.volume = 0;
+}
+
 function HomepageFilm({ content }: { content: SiteContent }) {
   const src = homepageVideoSrc(content.homepageVideo?.src);
   const poster = homepageVideoSrc(content.homepageVideo?.poster, "");
@@ -241,10 +247,15 @@ function HomepageFilm({ content }: { content: SiteContent }) {
     content.homepageVideo?.label?.trim() || "Hogback Ridge Technologies";
   const ref = useRef<HTMLVideoElement>(null);
 
+  function bindFilm(node: HTMLVideoElement | null) {
+    ref.current = node;
+    if (node) silenceFilm(node);
+  }
+
   useEffect(() => {
     const video = ref.current;
     if (!video || !src) return;
-    video.muted = true;
+    silenceFilm(video);
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) {
       video.pause();
@@ -252,6 +263,13 @@ function HomepageFilm({ content }: { content: SiteContent }) {
     }
     const play = video.play();
     if (play) void play.catch(() => {});
+    const keepQuiet = () => silenceFilm(video);
+    video.addEventListener("play", keepQuiet);
+    video.addEventListener("volumechange", keepQuiet);
+    return () => {
+      video.removeEventListener("play", keepQuiet);
+      video.removeEventListener("volumechange", keepQuiet);
+    };
   }, [src]);
 
   if (!src) return null;
@@ -260,7 +278,7 @@ function HomepageFilm({ content }: { content: SiteContent }) {
     <div className="relative w-full overflow-hidden bg-ink">
       <div className="relative aspect-video w-full">
         <video
-          ref={ref}
+          ref={bindFilm}
           key={src}
           className="homepage-film absolute inset-0 h-full w-full object-cover object-center"
           src={src}
