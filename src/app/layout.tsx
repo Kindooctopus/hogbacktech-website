@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Barlow_Condensed, IBM_Plex_Mono, Source_Sans_3 } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
+import { MailtoContactConversion } from "@/components/MailtoContactConversion";
 import { company } from "@/lib/content";
 import { GOOGLE_ADS_ID } from "@/lib/google-ads";
 
@@ -88,6 +89,7 @@ export default function RootLayout({
             gtag('config', '${GOOGLE_ADS_ID}');
           `}
         </Script>
+        <MailtoContactConversion />
         {children}
       </body>
     </html>
