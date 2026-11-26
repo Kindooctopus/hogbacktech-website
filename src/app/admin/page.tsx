@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import Link from "next/link";
+import { developerMailto } from "@/lib/content";
 import {
   BRAND_IMAGE_OPTIONS,
   FONT_THEMES,
@@ -1458,7 +1459,7 @@ function BlockContentEditor({
                   }
                 />
                 <Field
-                  label="Detail CTA link (#contact, /privacy, …)"
+                  label="Detail CTA link (mailto: or /privacy, …)"
                   value={cap.ctaHref ?? ""}
                   onChange={(v) =>
                     setContent((c) => {
@@ -1490,7 +1491,7 @@ function BlockContentEditor({
                       title: "New capability",
                       body: "",
                       ctaLabel: "Contact for details",
-                      ctaHref: "#contact",
+                      ctaHref: developerMailto,
                     },
                   ],
                 },
@@ -1648,7 +1649,7 @@ function BlockContentEditor({
             }
           />
           <Field
-            label="CTA label (links to Contact)"
+            label="CTA label"
             value={content.customDev?.ctaLabel ?? ""}
             onChange={(v) =>
               setContent((c) => ({

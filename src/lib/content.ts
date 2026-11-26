@@ -5,13 +5,17 @@
  * Pricing and product copy here are NOT used by the live site — keep only
  * company metadata and any leftover unused components in sync intentionally.
  */
+/** Address used by every contact / conversation / talk-with-us control. */
+export const developerEmail = "developer@hogbacktech.com";
+export const developerMailto = `mailto:${developerEmail}`;
+
 export const company = {
   name: "Hogback Ridge Technologies",
   shortName: "Hogback",
   domain: "hogbacktech.com",
-  email: "developer@hogbacktech.com",
+  email: developerEmail,
   emails: {
-    developer: "developer@hogbacktech.com",
+    developer: developerEmail,
   },
   location: "Pacific Northwest",
   tagline: "Solid Foundation. Smart Solutions.",

@@ -8,6 +8,7 @@ import { ProductScreenshotGallery } from "@/components/ProductScreenshotGallery"
 import { ProductSecuritySection } from "@/components/ProductSecuritySection";
 import {
   company,
+  developerMailto,
 } from "@/lib/content";
 import {
   defaultSiteContent,
@@ -134,7 +135,7 @@ function ProductCopy({
 
       <div className="flex flex-wrap items-center gap-3">
         <a
-          href={`mailto:${email}?subject=${encodeURIComponent(`${product.name} inquiry`)}`}
+          href={`${developerMailto}?subject=${encodeURIComponent(`${product.name} inquiry`)}`}
           className="inline-flex items-center gap-2 rounded-md bg-khaki px-5 py-2.5 text-sm font-semibold tracking-wide text-ink hover:brightness-110"
         >
           {product.talkCtaLabel}
