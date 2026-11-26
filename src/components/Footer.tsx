@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { company, products } from "@/lib/content";
+import { company, developerMailto, products } from "@/lib/content";
 
 export function Footer() {
   const year = new Date().getFullYear();
@@ -41,7 +41,7 @@ export function Footer() {
               <li><a href="#about" className="hover:text-white">About</a></li>
               <li><a href="#markets" className="hover:text-white">Markets</a></li>
               <li><a href="#pricing" className="hover:text-white">Pricing</a></li>
-              <li><a href="#contact" className="hover:text-white">Contact</a></li>
+              <li><a href={developerMailto} className="hover:text-white">Contact</a></li>
             </ul>
           </div>
 

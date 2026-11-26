@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { developerMailto } from "@/lib/content";
 
 const navLinks = [
   { href: "#products", label: "Products" },
   { href: "#markets", label: "Markets" },
   { href: "#pricing", label: "Pricing" },
   { href: "#about", label: "About" },
-  { href: "#contact", label: "Contact" },
+  { href: developerMailto, label: "Contact" },
 ];
 
 export function Header() {
@@ -39,7 +40,7 @@ export function Header() {
             </a>
           ))}
           <a
-            href="#contact"
+            href={developerMailto}
             className="rounded-full bg-copper-500 px-5 py-2 text-sm font-semibold text-navy-950 transition-colors hover:bg-copper-400"
           >
             Get Started
@@ -77,7 +78,7 @@ export function Header() {
               </a>
             ))}
             <a
-              href="#contact"
+              href={developerMailto}
               className="rounded-full bg-copper-500 px-5 py-2.5 text-center text-sm font-semibold text-navy-950"
               onClick={() => setMenuOpen(false)}
             >

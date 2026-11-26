@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { company } from "@/lib/content";
+import { company, developerMailto } from "@/lib/content";
 
 export function Hero() {
   return (
@@ -51,7 +51,7 @@ export function Hero() {
                 Explore Products
               </a>
               <a
-                href="#contact"
+                href={developerMailto}
                 className="inline-flex items-center justify-center rounded-full border border-white/15 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:border-copper-500/40 hover:bg-white/5"
               >
                 Request a Demo

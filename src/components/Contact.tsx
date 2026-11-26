@@ -12,7 +12,7 @@ export function Contact() {
   }
 
   return (
-    <section id="contact" className="relative py-24 sm:py-32">
+    <section className="relative py-24 sm:py-32">
       <div className="mx-auto max-w-6xl px-6">
         <div className="grid gap-16 lg:grid-cols-2">
           <div>

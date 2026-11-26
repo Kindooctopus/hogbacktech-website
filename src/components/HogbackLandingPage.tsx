@@ -10,6 +10,7 @@ import {
   type SiteContent,
 } from "@/lib/site-content";
 import { useSiteContent } from "@/lib/use-site-content";
+import { developerMailto } from "@/lib/content";
 import { fieldPageStyle } from "@/lib/field-theme";
 import { FontThemeLoader } from "@/components/FontThemeLoader";
 import { CapabilityTiles } from "@/components/CapabilityTiles";
@@ -102,7 +103,7 @@ function PageBlockView({
 
 const navLinks = [
   { href: "#about", label: "About" },
-  { href: "#contact", label: "Contact" },
+  { href: developerMailto, label: "Contact" },
 ];
 
 export function HogbackHeader({ content }: { content: SiteContent }) {
@@ -128,7 +129,7 @@ export function HogbackHeader({ content }: { content: SiteContent }) {
         </nav>
 
         <div className="flex items-center gap-2">
-          <a href="#contact" className={`${primaryButton} px-4 py-1.5`}>
+          <a href={developerMailto} className={`${primaryButton} px-4 py-1.5`}>
             {content.header.ctaLabel}
           </a>
           <button
@@ -205,7 +206,7 @@ export function HogbackHero({
             {content.hero.body}
           </p>
           <div className="flex flex-wrap items-center gap-3">
-            <a href="#contact" className={primaryButton}>
+            <a href={developerMailto} className={primaryButton}>
               {content.hero.primaryCta}
             </a>
           </div>
@@ -355,7 +356,7 @@ export function HogbackContact({
   const bodyStyle = block ? textStyleToCss(block.bodyStyle) : undefined;
 
   return (
-    <section id="contact" className="scroll-mt-24">
+    <section>
       <div className="mx-auto grid max-w-6xl items-start gap-6 px-6 lg:grid-cols-[1.2fr_1fr]">
         <div className="space-y-4 text-bone/80" style={bodyStyle}>
           <p className="kicker">Contact</p>
@@ -374,7 +375,7 @@ export function HogbackContact({
                 {content.contact.emailLabel}
               </span>{" "}
               <a
-                href={`mailto:${content.contact.email}`}
+                href={developerMailto}
                 className="text-khaki hover:text-bone"
               >
                 {content.contact.email}
@@ -407,7 +408,7 @@ export function HogbackContact({
             </ul>
             <div className="pt-2">
               <a
-                href={`mailto:${content.contact.email}?subject=Hogback%20Ridge%20Technologies%20Inquiry`}
+                href={`${developerMailto}?subject=Hogback%20Ridge%20Technologies%20Inquiry`}
                 className={primaryButton}
               >
                 {content.contact.ctaLabel} {content.contact.email}

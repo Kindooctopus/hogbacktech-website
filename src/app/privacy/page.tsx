@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { HogbackFooter, HogbackHeader } from "@/components/HogbackLandingPage";
-import { company } from "@/lib/content";
+import { company, developerMailto } from "@/lib/content";
 import { fieldPageStyle } from "@/lib/field-theme";
 import { useSiteContent } from "@/lib/use-site-content";
 
@@ -117,7 +117,7 @@ export default function PrivacyPage() {
             <p>
               Questions about privacy or data handling:{" "}
               <a
-                href={`mailto:${email}`}
+                href={developerMailto}
                 className="font-medium text-khaki hover:text-bone"
               >
                 {email}

@@ -1,4 +1,4 @@
-import { products, supportPlans } from "@/lib/content";
+import { developerMailto, products, supportPlans } from "@/lib/content";
 
 export function Pricing() {
   return (
@@ -50,7 +50,7 @@ export function Pricing() {
           <p className="mt-6 text-xs text-slate-500">
             Add-ons available: Android App, GIS Layers, Hogback Sat feed, ICS Web Editor, Drone
             Integration.{" "}
-            <a href="#contact" className="text-copper-400 hover:underline">Contact us for details.</a>
+            <a href={developerMailto} className="text-copper-400 hover:underline">Contact us for details.</a>
           </p>
         </div>
       </div>

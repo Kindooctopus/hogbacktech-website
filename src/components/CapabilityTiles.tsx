@@ -2,7 +2,7 @@
 
 import { useId, useState } from "react";
 import Link from "next/link";
-import type { CapabilityTile } from "@/lib/site-content";
+import { contactEntryHref, type CapabilityTile } from "@/lib/site-content";
 import { TacticalFrame } from "@/components/TacticalFrame";
 
 export function CapabilityTiles({ tiles }: { tiles: CapabilityTile[] }) {
@@ -93,7 +93,7 @@ export function CapabilityTiles({ tiles }: { tiles: CapabilityTile[] }) {
           {active.ctaLabel.trim() && active.ctaHref.trim() ? (
             <div>
               <CapabilityCta
-                href={active.ctaHref}
+                href={contactEntryHref(active.ctaHref)}
                 label={active.ctaLabel}
               />
             </div>
@@ -108,6 +108,10 @@ function CapabilityCta({ href, label }: { href: string; label: string }) {
   const className =
     "inline-flex items-center gap-2 rounded-md bg-khaki px-4 py-2 text-sm font-semibold tracking-wide text-ink transition hover:brightness-110";
   const mark = href.startsWith("#") ? "↓" : "↗";
+  const external =
+    href.startsWith("http://") ||
+    href.startsWith("https://") ||
+    href.startsWith("//");
 
   if (href.startsWith("#") || href.startsWith("/")) {
     return (
@@ -119,7 +123,12 @@ function CapabilityCta({ href, label }: { href: string; label: string }) {
   }
 
   return (
-    <a href={href} target="_blank" rel="noreferrer" className={className}>
+    <a
+      href={href}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noreferrer" : undefined}
+      className={className}
+    >
       {label}
       <span aria-hidden="true">↗</span>
     </a>

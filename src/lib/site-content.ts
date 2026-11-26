@@ -1,5 +1,22 @@
 /** Editable homepage content + design tokens for the site admin. */
 
+import { developerMailto } from "@/lib/content";
+
+/** In-page targets whose only job was to jump to the conversation block. */
+const CONTACT_JUMP_HREFS = new Set(["#contact", "/#contact", "#products"]);
+
+/** Keep real destinations. Conversation jumps open the developer mailbox. */
+export function contactEntryHref(
+  href: string | undefined,
+  fallback: string = developerMailto,
+): string {
+  const value = href?.trim() ?? "";
+  if (CONTACT_JUMP_HREFS.has(value)) return developerMailto;
+  if (value) return value;
+  if (!fallback || CONTACT_JUMP_HREFS.has(fallback)) return developerMailto;
+  return fallback;
+}
+
 export type ProductCardContent = {
   id: string;
   name: string;
@@ -562,7 +579,7 @@ export const defaultSiteContent: SiteContent = {
         title: "Software development",
         body: "From a focused field tool to a full platform, scoped around the workflow your team already runs.",
         ctaLabel: "Start a conversation",
-        ctaHref: "#contact",
+        ctaHref: developerMailto,
       },
       {
         label: "Mobile App Development",
@@ -570,7 +587,7 @@ export const defaultSiteContent: SiteContent = {
         title: "Mobile app development",
         body: "Deliver where the work happens. We build iOS, Android, and web apps—including Apple CarPlay where it helps responders on the road—so your team can run the same workflows in station, in the cab, and in the field.",
         ctaLabel: "Talk about a mobile build",
-        ctaHref: "#contact",
+        ctaHref: developerMailto,
       },
       {
         label: "Customized for Your Organization",
@@ -578,7 +595,7 @@ export const defaultSiteContent: SiteContent = {
         title: "Customized for your organization",
         body: "Your branding, your workflows, your systems. Hogback is a custom app developer—we scope apps around your apparatus labels, CAD feeds, maps, documents, and the way your organization actually operates.",
         ctaLabel: "Contact for details",
-        ctaHref: "#contact",
+        ctaHref: developerMailto,
       },
       {
         label: "Secure Platforms",
@@ -594,7 +611,7 @@ export const defaultSiteContent: SiteContent = {
         title: "Communication & development strategy",
         body: "Before we write code, we map the problem: who needs what, which systems talk to each other, and what a grounded rollout looks like. Share your goals and we will outline a practical path forward.",
         ctaLabel: "Schedule a conversation",
-        ctaHref: "#contact",
+        ctaHref: developerMailto,
       },
     ],
   },
@@ -1235,12 +1252,10 @@ export function mergeSiteContent(partial: unknown): SiteContent {
                 LEGACY_EXPLORE_PRODUCTS,
                 fallback?.ctaLabel ?? "Start a conversation",
               ),
-              ctaHref:
-                item?.ctaHref === "#products"
-                  ? "#contact"
-                  : typeof item?.ctaHref === "string" && item.ctaHref.trim().length > 0
-                    ? item.ctaHref
-                    : (fallback?.ctaHref ?? "#contact"),
+              ctaHref: contactEntryHref(
+                item?.ctaHref,
+                fallback?.ctaHref ?? developerMailto,
+              ),
             };
           })
         : defaultSiteContent.hero.capabilities.map((item) => ({ ...item })),
