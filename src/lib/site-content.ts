@@ -38,7 +38,7 @@ export type ProductCardContent = {
   /** Legacy single-string tiers; kept in sync from pricingRows for older content. */
   pricingTiers: string[];
   pricingSetup: string;
-  /** Optional in-app CTA, e.g. `/apps/sat` or `/apps/geo`. */
+  /** Optional in-app CTA, e.g. `/apps/geo`. */
   appHref: string;
   appCtaLabel: string;
   talkCtaLabel: string;
@@ -919,8 +919,8 @@ export const defaultSiteContent: SiteContent = {
           "Pro $5,000/yr",
         ],
         pricingSetup: "$500–$2,000",
-        appHref: "/apps/sat",
-        appCtaLabel: "Open live feed",
+        appHref: "",
+        appCtaLabel: "",
         talkCtaLabel: "Talk about Hogback Sat",
         screenshotsHeading: "App screenshots",
         screenshots: [],
@@ -1160,6 +1160,39 @@ const LEGACY_CONTACT_OPENING =
 const LEGACY_CONTACT_FOLLOW =
   "Share a bit about your agency, fleet, or organization, and we'll talk through what a practical, grounded path forward could look like.";
 
+/** Public Hogback Sat live-feed control. Stored content must not put this link back. */
+const RETIRED_SAT_LIVE_HREF = "/apps/sat";
+const RETIRED_SAT_LIVE_LABEL = "open live feed";
+
+function isRetiredSatLiveCta(href: string, label: string): boolean {
+  const normalizedHref = href.trim().replace(/\/+$/, "") || "/";
+  return (
+    normalizedHref === RETIRED_SAT_LIVE_HREF ||
+    label.trim().toLowerCase() === RETIRED_SAT_LIVE_LABEL
+  );
+}
+
+function productAppCta(
+  productId: string,
+  incomingHref: unknown,
+  incomingLabel: unknown,
+  fallbackHref: string,
+  fallbackLabel: string,
+): { appHref: string; appCtaLabel: string } {
+  const href =
+    typeof incomingHref === "string" && incomingHref.trim().length > 0
+      ? incomingHref.trim()
+      : fallbackHref;
+  const label =
+    typeof incomingLabel === "string" && incomingLabel.trim().length > 0
+      ? incomingLabel.trim()
+      : fallbackLabel;
+  if (productId === "sat" && isRetiredSatLiveCta(href, label)) {
+    return { appHref: "", appCtaLabel: "" };
+  }
+  return { appHref: href, appCtaLabel: label };
+}
+
 function replaceLegacyCopy(
   value: string | undefined,
   legacy: string,
@@ -1379,15 +1412,14 @@ export function mergeSiteContent(partial: unknown): SiteContent {
               ? card.screenshotsHeading
               : fallback.screenshotsHeading,
           // Keep defaults when KV still has empty CTA fields (e.g. Docs signup).
-          appHref:
-            typeof card.appHref === "string" && card.appHref.trim().length > 0
-              ? card.appHref
-              : fallback.appHref,
-          appCtaLabel:
-            typeof card.appCtaLabel === "string" &&
-            card.appCtaLabel.trim().length > 0
-              ? card.appCtaLabel
-              : fallback.appCtaLabel,
+          // Drop the retired Hogback Sat live-feed link even if KV still stores it.
+          ...productAppCta(
+            fallback.id,
+            card.appHref,
+            card.appCtaLabel,
+            fallback.appHref,
+            fallback.appCtaLabel,
+          ),
           pageDescription: (() => {
             if (preferProductDefaults) return fallback.pageDescription;
             const incomingPage =
