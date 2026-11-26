@@ -2,12 +2,14 @@
 
 import { FormEvent, useState } from "react";
 import { company, products } from "@/lib/content";
+import { trackContactConversion } from "@/lib/google-ads";
 
 export function Contact() {
   const [submitted, setSubmitted] = useState(false);
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    trackContactConversion();
     setSubmitted(true);
   }
 

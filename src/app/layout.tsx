@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { Barlow_Condensed, IBM_Plex_Mono, Source_Sans_3 } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
+import { MailtoContactConversion } from "@/components/MailtoContactConversion";
 import { company } from "@/lib/content";
+import { GOOGLE_ADS_ID } from "@/lib/google-ads";
 
 const sourceSans = Source_Sans_3({
   subsets: ["latin"],
@@ -73,6 +76,20 @@ export default function RootLayout({
       className={`${sourceSans.variable} ${barlowCondensed.variable} ${plexMono.variable}`}
     >
       <body className="font-sans antialiased">
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-ads-gtag" strategy="beforeInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            window.gtag = window.gtag || gtag;
+            gtag('js', new Date());
+            gtag('config', '${GOOGLE_ADS_ID}');
+          `}
+        </Script>
+        <MailtoContactConversion />
         {children}
       </body>
     </html>
