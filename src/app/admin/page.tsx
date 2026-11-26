@@ -23,6 +23,7 @@ import {
   createImageTextBlock,
   createTextBlock,
   defaultSiteContent,
+  HOMEPAGE_VIDEO_MAX_BYTES,
   mergeSiteContent,
   pricingTiersFromRows,
   type BuiltinBlockType,
@@ -408,7 +409,8 @@ export default function AdminPage() {
                 <p className="text-sm text-slate-500">
                   Drag each <strong>preview card</strong> to move sections on the
                   homepage. Use Edit to change content. Inside a Box section, you
-                  can also drag the boxes within that section.
+                  can also drag the boxes within that section. The homepage video
+                  is edited from the Hero section.
                 </p>
               </div>
 
@@ -664,6 +666,8 @@ export default function AdminPage() {
                     content={content}
                     setContent={setContent}
                     updateBlock={updateBlock}
+                    setStatus={setStatus}
+                    setBusy={setBusy}
                   />
                 </>
               )}
@@ -1275,16 +1279,150 @@ function NestedBoxFields({
   );
 }
 
+function HomepageVideoEditor({
+  content,
+  setContent,
+  setStatus,
+  setBusy,
+}: {
+  content: SiteContent;
+  setContent: React.Dispatch<React.SetStateAction<SiteContent>>;
+  setStatus: (value: string) => void;
+  setBusy: (value: boolean) => void;
+}) {
+  const video = content.homepageVideo;
+  const [uploading, setUploading] = useState(false);
+
+  function update(patch: Partial<SiteContent["homepageVideo"]>) {
+    setContent((current) => ({
+      ...current,
+      homepageVideo: { ...current.homepageVideo, ...patch },
+    }));
+  }
+
+  async function onUpload(file: File | null) {
+    if (!file) return;
+    const isMp4 =
+      file.type === "video/mp4" || file.name.toLowerCase().endsWith(".mp4");
+    if (!isMp4) {
+      setStatus("Upload an MP4 file.");
+      return;
+    }
+    if (file.size > HOMEPAGE_VIDEO_MAX_BYTES) {
+      setStatus(
+        "That MP4 is over 24 MB. Compress it, or set a path to a file already on the site.",
+      );
+      return;
+    }
+    setUploading(true);
+    setBusy(true);
+    setStatus("Uploading video…");
+    try {
+      const res = await fetch("/api/admin/homepage-video", {
+        method: "POST",
+        headers: { "content-type": "video/mp4" },
+        credentials: "same-origin",
+        body: file,
+      });
+      if (res.status === 401) {
+        setStatus("Session expired — sign in again to upload.");
+        return;
+      }
+      if (!res.ok) {
+        const err = (await res.json().catch(() => ({}))) as { error?: string };
+        setStatus(err.error ?? `Upload failed (${res.status}).`);
+        return;
+      }
+      const data = (await res.json()) as { src?: string };
+      if (!data.src) {
+        setStatus("Upload failed — no video path returned.");
+        return;
+      }
+      update({ src: data.src, poster: "" });
+      setStatus("Video uploaded. Save changes to point the homepage at it.");
+    } catch {
+      setStatus("Upload failed — network or Worker error.");
+    } finally {
+      setUploading(false);
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="space-y-3 rounded-xl border border-slate-200 p-3">
+      <p className="text-sm font-medium text-navy-950">Homepage video</p>
+      <p className="text-xs text-slate-500">
+        Full-width 16:9 film at the top of the hero. It plays muted, looped, and
+        without player controls. Change the path and save, or upload a
+        replacement MP4 (up to 24 MB). Saving publishes what the homepage plays.
+      </p>
+      {video.src ? (
+        <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-slate-900">
+          <video
+            key={video.src}
+            className="h-full w-full object-cover"
+            src={video.src}
+            poster={video.poster || undefined}
+            muted
+            playsInline
+            controls
+            preload="metadata"
+            aria-label="Homepage video preview"
+          />
+        </div>
+      ) : (
+        <p className="text-xs text-slate-500">
+          No video path — the homepage film is hidden until you set one and save.
+        </p>
+      )}
+      <Field
+        label="Video path or https URL"
+        value={video.src}
+        onChange={(value) => update({ src: value })}
+      />
+      <Field
+        label="Accessible label"
+        value={video.label}
+        onChange={(value) => update({ label: value })}
+      />
+      <Field
+        label="Poster image path (optional)"
+        value={video.poster}
+        onChange={(value) => update({ poster: value })}
+      />
+      <label className="block text-sm">
+        <span className="mb-1 block text-slate-500">Upload a replacement MP4</span>
+        <input
+          type="file"
+          accept="video/mp4,.mp4"
+          aria-label="Upload a replacement MP4"
+          disabled={uploading}
+          onChange={(event) => {
+            const file = event.target.files?.[0] ?? null;
+            event.target.value = "";
+            void onUpload(file);
+          }}
+          className="block w-full text-sm text-slate-600 file:mr-3 file:rounded-full file:border-0 file:bg-copper-500 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-navy-950 hover:file:bg-copper-400"
+        />
+      </label>
+    </div>
+  );
+}
+
 function BlockContentEditor({
   block,
   content,
   setContent,
   updateBlock,
+  setStatus,
+  setBusy,
 }: {
   block: PageBlock;
   content: SiteContent;
   setContent: React.Dispatch<React.SetStateAction<SiteContent>>;
   updateBlock: (id: string, next: PageBlock) => void;
+  setStatus: (value: string) => void;
+  setBusy: (value: boolean) => void;
 }) {
   if (block.type === "group") {
     return <GroupChildrenEditor block={block} updateBlock={updateBlock} />;
@@ -1293,6 +1431,12 @@ function BlockContentEditor({
   if (block.type === "hero") {
     return (
       <div className="space-y-3">
+        <HomepageVideoEditor
+          content={content}
+          setContent={setContent}
+          setStatus={setStatus}
+          setBusy={setBusy}
+        />
         <label className="block text-sm">
           <span className="mb-1 block text-slate-500">
             Hero order (titles vs heading picture)

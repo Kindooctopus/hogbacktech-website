@@ -64,6 +64,7 @@ MFA path for this site.
 
 ### What you can edit
 
+- **Homepage video:** the Hero section sets the full-width film (`/media/homepage-ad.mp4` by default). Change the path or upload a replacement MP4 (up to 24 MB), then Save. The homepage plays whatever path was last saved.
 - **Layout:** drag page sections to reorder; add text boxes, images, image+text, or content boxes
 - **Theme:** whole-page font themes, body size, heading scale, colors, spacing
 - **Per section:** copy plus title/body text size, weight, alignment, and color

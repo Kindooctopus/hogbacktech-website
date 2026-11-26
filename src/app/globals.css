@@ -180,6 +180,18 @@ body {
   border-color: var(--color-khaki);
 }
 
+/* Silent homepage film: no native controls, including the iOS playback glyph. */
+.homepage-film {
+  pointer-events: none;
+}
+
+.homepage-film::-webkit-media-controls,
+.homepage-film::-webkit-media-controls-enclosure,
+.homepage-film::-webkit-media-controls-start-playback-button {
+  display: none !important;
+  -webkit-appearance: none;
+}
+
 .kicker {
   font-family: var(--font-mono);
   font-size: 10px;

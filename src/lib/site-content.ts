@@ -352,11 +352,55 @@ export const BRAND_IMAGE_OPTIONS = [
   "/brand/products/sat.png",
 ] as const;
 
+/** Shipped 16:9 homepage film. Admins can point the page at another path. */
+export const DEFAULT_HOMEPAGE_VIDEO_SRC = "/media/homepage-ad.mp4";
+export const DEFAULT_HOMEPAGE_VIDEO_POSTER = "/media/homepage-ad-poster.jpg";
+/**
+ * Uploaded replacements are stored in KV and served here.
+ * 24 MiB stays under the Workers KV value limit (25 MiB).
+ */
+export const HOMEPAGE_VIDEO_MAX_BYTES = 24 * 1024 * 1024;
+
+export type HomepageVideo = {
+  /** Site path (`/media/...`) or https URL. Blank hides the film. */
+  src: string;
+  /** Accessible name for the silent film. */
+  label: string;
+  /** Optional still shown before the first frame. Blank skips it. */
+  poster: string;
+};
+
+/** Keep site paths and https URLs. Blank stays blank. Anything else uses fallback. */
+export function homepageVideoSrc(
+  src: string | undefined,
+  fallback = DEFAULT_HOMEPAGE_VIDEO_SRC,
+): string {
+  const value = src?.trim() ?? "";
+  if (!value) return "";
+  if (
+    value.startsWith("/") &&
+    !value.startsWith("//") &&
+    !value.includes("\\") &&
+    !/[\u0000-\u001f]/.test(value)
+  ) {
+    return value;
+  }
+  try {
+    const url = new URL(value);
+    if (url.protocol === "https:") return url.toString();
+  } catch {
+    /* not a URL */
+  }
+  return fallback;
+}
+
 export type SiteContent = {
   version: 2;
   header: {
     ctaLabel: string;
   };
+  /** Full-width 16:9 film at the top of the hero. */
+  homepageVideo: HomepageVideo;
   hero: {
     titleLine1: string;
     titleLine2: string;
@@ -564,6 +608,11 @@ export const defaultSiteContent: SiteContent = {
   version: 2,
   header: {
     ctaLabel: "Talk with us",
+  },
+  homepageVideo: {
+    src: DEFAULT_HOMEPAGE_VIDEO_SRC,
+    label: "Hogback Ridge Technologies",
+    poster: DEFAULT_HOMEPAGE_VIDEO_POSTER,
   },
   hero: {
     titleLine1: "Solid Foundation.",
@@ -1184,6 +1233,27 @@ const PRODUCT_LEGACY_COPY: Record<string, Set<string>> = {
   ]),
 };
 
+export function normalizeHomepageVideo(
+  incoming?: Partial<HomepageVideo> | null,
+): HomepageVideo {
+  const defaults = defaultSiteContent.homepageVideo;
+  const src =
+    incoming && typeof incoming.src === "string"
+      ? homepageVideoSrc(incoming.src, defaults.src)
+      : defaults.src;
+  const poster =
+    incoming && typeof incoming.poster === "string"
+      ? homepageVideoSrc(incoming.poster, defaults.poster)
+      : defaults.poster;
+  const label =
+    incoming &&
+    typeof incoming.label === "string" &&
+    incoming.label.trim().length > 0
+      ? incoming.label.trim()
+      : defaults.label;
+  return { src, poster, label };
+}
+
 export function mergeSiteContent(partial: unknown): SiteContent {
   if (!partial || typeof partial !== "object") return defaultSiteContent;
   const incoming = partial as Partial<SiteContent>;
@@ -1519,6 +1589,7 @@ export function mergeSiteContent(partial: unknown): SiteContent {
     footer: { ...defaultSiteContent.footer, ...incoming.footer },
     blocks: mergedBlocks.length > 0 ? mergedBlocks : defaultSiteContent.blocks,
     design: resolveDesign(incoming.design),
+    homepageVideo: normalizeHomepageVideo(incoming.homepageVideo),
   };
 }
 

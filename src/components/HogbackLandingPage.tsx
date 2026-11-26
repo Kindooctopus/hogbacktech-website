@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
+  homepageVideoSrc,
   textStyleToCss,
   type BuiltinBlock,
   type PageBlock,
@@ -189,6 +190,7 @@ export function HogbackHero({
 
   return (
     <section id="top" className="scroll-mt-16">
+      <HomepageFilm content={content} />
       <div className="mx-auto max-w-6xl space-y-6 px-6 pt-6 lg:pt-8">
         <div className="max-w-xl space-y-4">
           <h1
@@ -230,6 +232,50 @@ function shelfProducts(cards: SiteContent["products"]["cards"]) {
     ...shelfLeadIds.flatMap((id) => ready.filter((card) => card.id === id)),
     ...ready.filter((card) => !shelfLeadIds.includes(card.id)),
   ];
+}
+
+function HomepageFilm({ content }: { content: SiteContent }) {
+  const src = homepageVideoSrc(content.homepageVideo?.src);
+  const poster = homepageVideoSrc(content.homepageVideo?.poster, "");
+  const label =
+    content.homepageVideo?.label?.trim() || "Hogback Ridge Technologies";
+  const ref = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = ref.current;
+    if (!video || !src) return;
+    video.muted = true;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) {
+      video.pause();
+      return;
+    }
+    const play = video.play();
+    if (play) void play.catch(() => {});
+  }, [src]);
+
+  if (!src) return null;
+
+  return (
+    <div className="relative w-full overflow-hidden bg-ink">
+      <div className="relative aspect-video w-full">
+        <video
+          ref={ref}
+          key={src}
+          className="homepage-film absolute inset-0 h-full w-full object-cover object-center"
+          src={src}
+          poster={poster || undefined}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-label={label}
+          disablePictureInPicture
+        />
+      </div>
+    </div>
+  );
 }
 
 function OffTheShelf({ content }: { content: SiteContent }) {

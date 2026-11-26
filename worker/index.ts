@@ -11,7 +11,11 @@
  *   Add the binding to wrangler.jsonc (see comments there).
  */
 
-import { defaultSiteContent, mergeSiteContent } from "../src/lib/site-content";
+import {
+  defaultSiteContent,
+  HOMEPAGE_VIDEO_MAX_BYTES,
+  mergeSiteContent,
+} from "../src/lib/site-content";
 
 export interface Env {
   ASSETS: Fetcher;
@@ -22,6 +26,7 @@ export interface Env {
 }
 
 const CONTENT_KEY = "site-content-v1";
+const HOMEPAGE_VIDEO_KEY = "homepage-video-file";
 const SESSION_COOKIE = "hogback_admin_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 12; // 12 hours
 const LOGIN_RATE_LIMIT = 8;
@@ -187,6 +192,81 @@ async function hasValidAdminSession(
   return verifySessionToken(secret, token);
 }
 
+function isMp4(bytes: Uint8Array): boolean {
+  if (bytes.byteLength < 12) return false;
+  return (
+    bytes[4] === 0x66 &&
+    bytes[5] === 0x74 &&
+    bytes[6] === 0x79 &&
+    bytes[7] === 0x70
+  );
+}
+
+function videoResponse(bytes: Uint8Array, request: Request): Response {
+  const total = bytes.byteLength;
+  const headers: Record<string, string> = {
+    "content-type": "video/mp4",
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=3600",
+    "x-content-type-options": "nosniff",
+  };
+  const range = request.headers.get("range");
+  if (!range || request.method === "HEAD") {
+    headers["content-length"] = String(total);
+    return new Response(request.method === "HEAD" ? null : bytes, {
+      status: 200,
+      headers,
+    });
+  }
+  const match = /^bytes=(\d*)-(\d*)$/.exec(range.trim());
+  if (!match || (match[1] === "" && match[2] === "")) {
+    return new Response(null, {
+      status: 416,
+      headers: { "content-range": `bytes */${total}` },
+    });
+  }
+  let start = match[1] ? Number(match[1]) : 0;
+  let end = match[2] ? Number(match[2]) : total - 1;
+  if (match[1] === "" && match[2]) {
+    const suffix = Number(match[2]);
+    start = Math.max(0, total - suffix);
+    end = total - 1;
+  }
+  if (
+    !Number.isFinite(start) ||
+    !Number.isFinite(end) ||
+    start < 0 ||
+    start >= total ||
+    end < start
+  ) {
+    return new Response(null, {
+      status: 416,
+      headers: { "content-range": `bytes */${total}` },
+    });
+  }
+  end = Math.min(end, total - 1);
+  const chunk = bytes.slice(start, end + 1);
+  return new Response(chunk, {
+    status: 206,
+    headers: {
+      ...headers,
+      "content-range": `bytes ${start}-${end}/${total}`,
+      "content-length": String(chunk.byteLength),
+    },
+  });
+}
+
+async function readHomepageVideo(env: Env): Promise<Uint8Array | null> {
+  if (!env.CONTENT) return null;
+  try {
+    const stored = await env.CONTENT.get(HOMEPAGE_VIDEO_KEY, "arrayBuffer");
+    if (!stored || stored.byteLength === 0) return null;
+    return new Uint8Array(stored);
+  } catch {
+    return null;
+  }
+}
+
 async function readStoredContent(env: Env) {
   if (!env.CONTENT) return defaultSiteContent;
   try {
@@ -202,6 +282,52 @@ async function handleApi(request: Request, env: Env): Promise<Response> {
 
   if (path === "/api/content" && request.method === "GET") {
     return json(await readStoredContent(env));
+  }
+
+  if (
+    path === "/api/media/homepage-video" &&
+    (request.method === "GET" || request.method === "HEAD")
+  ) {
+    const bytes = await readHomepageVideo(env);
+    if (!bytes) return json({ error: "Not found" }, 404);
+    return videoResponse(bytes, request);
+  }
+
+  if (path === "/api/admin/homepage-video" && request.method === "POST") {
+    if (!(await hasValidAdminSession(request, env))) {
+      return unauthorized("Sign in required");
+    }
+    if (!env.CONTENT) {
+      return json(
+        {
+          error:
+            "CONTENT KV binding is not configured. Create a KV namespace and add it to wrangler.jsonc.",
+        },
+        503,
+      );
+    }
+    const declared = Number(request.headers.get("content-length") || "0");
+    if (Number.isFinite(declared) && declared > HOMEPAGE_VIDEO_MAX_BYTES) {
+      return json({ error: "Video must be 24 MB or smaller." }, 413);
+    }
+    let body: ArrayBuffer;
+    try {
+      body = await request.arrayBuffer();
+    } catch {
+      return json({ error: "Could not read the upload." }, 400);
+    }
+    if (body.byteLength === 0 || body.byteLength > HOMEPAGE_VIDEO_MAX_BYTES) {
+      return json({ error: "Video must be 24 MB or smaller." }, 413);
+    }
+    const bytes = new Uint8Array(body);
+    if (!isMp4(bytes)) {
+      return json({ error: "Upload an MP4 file." }, 400);
+    }
+    await env.CONTENT.put(HOMEPAGE_VIDEO_KEY, body);
+    return json({
+      ok: true,
+      src: `/api/media/homepage-video?v=${Date.now()}`,
+    });
   }
 
   if (path === "/api/admin/session" && request.method === "GET") {
