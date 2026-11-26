@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { trackContactConversion } from "@/lib/google-ads";
 import type { ProductSignupContent } from "@/lib/site-content";
 
 type DocsSignupFormProps = {
@@ -37,6 +38,7 @@ export function DocsSignupForm({ email, copy }: DocsSignupFormProps) {
       copy.mailtoSubject,
     )}&body=${encodeURIComponent(body)}`;
 
+    trackContactConversion();
     window.location.href = mailto;
     setSubmitted(true);
   }
