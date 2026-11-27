@@ -69,4 +69,14 @@ export function trackContactConversion(): void {
   window.gtag?.("event", "conversion", {
     send_to: CONTACT_CONVERSION_SEND_TO,
   });
+  // First-party counter for the admin Traffic digest (best-effort).
+  try {
+    void fetch("/api/analytics/conversion", {
+      method: "POST",
+      credentials: "same-origin",
+      keepalive: true,
+    });
+  } catch {
+    /* ignore */
+  }
 }

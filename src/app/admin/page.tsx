@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import Link from "next/link";
+import AdminTrafficPanel from "@/components/AdminTrafficPanel";
 import { developerMailto } from "@/lib/content";
 import {
   BRAND_IMAGE_OPTIONS,
@@ -37,7 +38,7 @@ import {
   type TextStyle,
 } from "@/lib/site-content";
 
-type SectionId = "layout" | "theme" | "content";
+type SectionId = "layout" | "theme" | "content" | "traffic";
 
 export default function AdminPage() {
   const [password, setPassword] = useState("");
@@ -382,6 +383,7 @@ export default function AdminPage() {
               ["layout", "Layout & boxes"],
               ["theme", "Theme & fonts"],
               ["content", "Edit section"],
+              ["traffic", "Traffic"],
             ] as const
           ).map(([id, label]) => (
             <button
@@ -673,6 +675,8 @@ export default function AdminPage() {
               )}
             </div>
           )}
+
+          {section === "traffic" && <AdminTrafficPanel />}
         </div>
       </div>
     </div>

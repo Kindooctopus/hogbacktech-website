@@ -63,6 +63,12 @@ export default function PrivacyPage() {
                 Basic technical logs needed to keep services running securely
                 (for example access and error logs).
               </li>
+              <li>
+                On hogbacktech.com, first-party page-view metrics (path, rough
+                bot vs human classification, country, and referrer host) used to
+                understand marketing-site traffic. These are not used to build
+                advertising profiles.
+              </li>
             </ul>
           </section>
 
@@ -74,6 +80,10 @@ export default function PrivacyPage() {
               <li>Provide, maintain, and improve Hogback products and support.</li>
               <li>Respond to inquiries and set up customer organizations.</li>
               <li>Protect accounts, systems, and organizational document libraries.</li>
+              <li>
+                Review aggregate marketing-site traffic and contact conversions
+                (including optional email digests to Hogback administrators).
+              </li>
             </ul>
           </section>
 

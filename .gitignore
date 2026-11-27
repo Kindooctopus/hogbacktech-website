@@ -30,7 +30,9 @@ yarn-error.log*
 
 # env files
 .env*
+.dev.vars
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.wrangler
