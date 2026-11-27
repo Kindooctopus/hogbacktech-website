@@ -247,27 +247,53 @@ function HomepageFilm({ content }: { content: SiteContent }) {
     content.homepageVideo?.label?.trim() || "Hogback Ridge Technologies";
   const ref = useRef<HTMLVideoElement>(null);
 
-  function bindFilm(node: HTMLVideoElement | null) {
-    ref.current = node;
-    if (node) silenceFilm(node);
-  }
-
   useEffect(() => {
     const video = ref.current;
     if (!video || !src) return;
-    silenceFilm(video);
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) {
       video.pause();
       return;
     }
-    const play = video.play();
-    if (play) void play.catch(() => {});
+
+    let cancelled = false;
+    // The first play() often dies while the file is still downloading.
+    // A refresh then works only because the file is cached. Keep asking
+    // until frames are actually moving.
+    const kick = () => {
+      if (cancelled) return;
+      silenceFilm(video);
+      if (!video.paused && video.currentTime > 0) return;
+      const pending = video.play();
+      if (pending) void pending.catch(() => {});
+    };
+
+    kick();
+    const onReady = () => kick();
+    video.addEventListener("loadeddata", onReady);
+    video.addEventListener("canplay", onReady);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") kick();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    const timer = window.setInterval(() => {
+      if (!video.paused && video.currentTime > 0) {
+        window.clearInterval(timer);
+        return;
+      }
+      kick();
+    }, 700);
+    const stop = window.setTimeout(() => window.clearInterval(timer), 20000);
     const keepQuiet = () => silenceFilm(video);
-    video.addEventListener("play", keepQuiet);
     video.addEventListener("volumechange", keepQuiet);
+
     return () => {
-      video.removeEventListener("play", keepQuiet);
+      cancelled = true;
+      window.clearInterval(timer);
+      window.clearTimeout(stop);
+      video.removeEventListener("loadeddata", onReady);
+      video.removeEventListener("canplay", onReady);
+      document.removeEventListener("visibilitychange", onVisible);
       video.removeEventListener("volumechange", keepQuiet);
     };
   }, [src]);
@@ -278,7 +304,7 @@ function HomepageFilm({ content }: { content: SiteContent }) {
     <div className="relative w-full overflow-hidden bg-ink">
       <div className="relative aspect-video w-full">
         <video
-          ref={bindFilm}
+          ref={ref}
           key={src}
           className="homepage-film absolute inset-0 h-full w-full object-cover object-center"
           src={src}
@@ -287,7 +313,7 @@ function HomepageFilm({ content }: { content: SiteContent }) {
           muted
           loop
           playsInline
-          preload="metadata"
+          preload="auto"
           aria-label={label}
           disablePictureInPicture
         />
