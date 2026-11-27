@@ -18,14 +18,10 @@
       "preview_id": "cfc110435fd8459a9b9f3e3e53026b6a"
     }
   ],
-  // Optional Analytics Engine dataset for raw datapoints (admin UI uses KV rollups).
-  "analytics_engine_datasets": [
-    {
-      "binding": "ANALYTICS",
-      "dataset": "hogback_traffic"
-    }
-  ],
   // Daily digests at 15:00 UTC (7:00 AM Pacific). Weekly digest also sends on Mondays.
+  // Note: Analytics Engine is intentionally omitted — it requires a one-time dashboard
+  // enablement and breaks Workers Builds with no_access_to_analytics_engine until then.
+  // Daily rollups live in CONTENT KV (analytics:day:*).
   "triggers": {
     "crons": ["0 15 * * *"]
   }

@@ -115,5 +115,4 @@ worker/
 
 After deploy, open **`/admin` → Traffic** for daily / 7-day / 30-day views with likely-human vs
 bot split, top pages, countries, and referrers. Rollups live in the existing `CONTENT` KV
-namespace (`analytics:day:*`). An Analytics Engine dataset `hogback_traffic` also receives raw
-datapoints when the binding is active.
+namespace (`analytics:day:*`).

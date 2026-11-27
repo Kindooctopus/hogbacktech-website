@@ -1,9 +1,9 @@
 /**
  * Page-view + conversion analytics for the marketing Worker.
  *
- * Stores daily rollups in CONTENT KV (prefix analytics:day:) and optional
- * Analytics Engine datapoints. Classifies traffic with Cloudflare bot signals
- * when available, otherwise User-Agent heuristics.
+ * Stores daily rollups in CONTENT KV (prefix analytics:day:). Classifies
+ * traffic with Cloudflare bot signals when available, otherwise User-Agent
+ * heuristics.
  */
 
 import {
@@ -19,7 +19,6 @@ import {
 
 export interface AnalyticsEnv {
   CONTENT?: KVNamespace;
-  ANALYTICS?: AnalyticsEngineDataset;
   /** Resend API key for digest emails */
   RESEND_API_KEY?: string;
   /** Comma-separated recipient list */
@@ -246,16 +245,6 @@ export async function recordPageView(
       /* non-fatal */
     }
   }
-
-  try {
-    env.ANALYTICS?.writeDataPoint({
-      indexes: [path],
-      blobs: [kind, country, referrer],
-      doubles: [1, score ?? -1],
-    });
-  } catch {
-    /* Analytics Engine optional */
-  }
 }
 
 export async function recordConversion(env: AnalyticsEnv): Promise<void> {
@@ -264,15 +253,6 @@ export async function recordConversion(env: AnalyticsEnv): Promise<void> {
   const day = await readDay(env, date);
   day.conversions += 1;
   await writeDay(env, day);
-  try {
-    env.ANALYTICS?.writeDataPoint({
-      indexes: ["__conversion__"],
-      blobs: ["conversion", "ZZ", "(event)"],
-      doubles: [1, -1],
-    });
-  } catch {
-    /* optional */
-  }
 }
 
 export async function loadDays(
