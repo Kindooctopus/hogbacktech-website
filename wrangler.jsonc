@@ -7,8 +7,9 @@
   "assets": {
     "directory": "./out",
     "binding": "ASSETS",
-    // Route /api/* through the Worker before static assets so content edits work.
-    "run_worker_first": ["/api/*"]
+    // Run the Worker on every request so HTML page views can be counted.
+    // /api/* is handled in worker/index.ts; everything else falls through to ASSETS.
+    "run_worker_first": true
   },
   "kv_namespaces": [
     {
@@ -16,5 +17,16 @@
       "id": "cfc110435fd8459a9b9f3e3e53026b6a",
       "preview_id": "cfc110435fd8459a9b9f3e3e53026b6a"
     }
-  ]
+  ],
+  // Optional Analytics Engine dataset for raw datapoints (admin UI uses KV rollups).
+  "analytics_engine_datasets": [
+    {
+      "binding": "ANALYTICS",
+      "dataset": "hogback_traffic"
+    }
+  ],
+  // Daily digests at 15:00 UTC (7:00 AM Pacific). Weekly digest also sends on Mondays.
+  "triggers": {
+    "crons": ["0 15 * * *"]
+  }
 }

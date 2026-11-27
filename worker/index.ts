@@ -1,12 +1,17 @@
 /**
- * Cloudflare Worker: static site assets + content API for the admin editor.
+ * Cloudflare Worker: static site assets + content API for the admin editor
+ * + first-party traffic analytics (page views, bot/human split, email digests).
  *
  * Secrets:
  *   npx wrangler secret put ADMIN_PASSWORD --name hogbacktech-website
  *   npx wrangler secret put SESSION_SECRET --name hogbacktech-website
  *     (optional but recommended — random 32+ chars; falls back to ADMIN_PASSWORD)
+ *   npx wrangler secret put RESEND_API_KEY --name hogbacktech-website
+ *   npx wrangler secret put ANALYTICS_EMAIL_TO --name hogbacktech-website
+ *   npx wrangler secret put ANALYTICS_EMAIL_FROM --name hogbacktech-website
  *
- * KV (optional until configured — without it, GET returns defaults and PUT 503s):
+ * KV (optional until configured — without it, GET returns defaults and PUT 503s;
+ * analytics rollups also need CONTENT):
  *   npx wrangler kv namespace create SITE_CONTENT
  *   Add the binding to wrangler.jsonc (see comments there).
  */
@@ -16,10 +21,19 @@ import {
   HOMEPAGE_VIDEO_MAX_BYTES,
   mergeSiteContent,
 } from "../src/lib/site-content";
+import {
+  getAnalyticsSummary,
+  recordConversion,
+  recordPageView,
+  renderDigestHtml,
+  runScheduledDigests,
+  sendDigestEmail,
+  type AnalyticsEnv,
+} from "./analytics";
+import type { AnalyticsSummary } from "../src/lib/analytics";
 
-export interface Env {
+export interface Env extends AnalyticsEnv {
   ASSETS: Fetcher;
-  CONTENT?: KVNamespace;
   ADMIN_PASSWORD?: string;
   /** HMAC key for admin session cookies. */
   SESSION_SECRET?: string;
@@ -400,15 +414,95 @@ async function handleApi(request: Request, env: Env): Promise<Response> {
     return json({ ok: true, content: merged });
   }
 
+  if (path === "/api/analytics/conversion" && request.method === "POST") {
+    // Fire-and-forget friendly: no auth (mirrors client conversion beacons).
+    // Only increments a counter — does not expose data.
+    if (!env.CONTENT) return json({ ok: false }, 503);
+    await recordConversion(env);
+    return json({ ok: true });
+  }
+
+  if (path === "/api/admin/analytics" && request.method === "GET") {
+    if (!(await hasValidAdminSession(request, env))) {
+      return unauthorized("Sign in required");
+    }
+    if (!env.CONTENT) {
+      return json(
+        {
+          error:
+            "CONTENT KV binding is not configured. Analytics rollups need the CONTENT namespace.",
+        },
+        503,
+      );
+    }
+    const rangeParam = new URL(request.url).searchParams.get("range") ?? "7d";
+    const range: AnalyticsSummary["range"] =
+      rangeParam === "1d" || rangeParam === "30d" ? rangeParam : "7d";
+    return json(await getAnalyticsSummary(env, range));
+  }
+
+  if (path === "/api/admin/analytics/email" && request.method === "POST") {
+    if (!(await hasValidAdminSession(request, env))) {
+      return unauthorized("Sign in required");
+    }
+    if (!env.CONTENT) {
+      return json({ error: "CONTENT KV binding is not configured." }, 503);
+    }
+    let body: { range?: string } = {};
+    try {
+      body = (await request.json()) as { range?: string };
+    } catch {
+      body = {};
+    }
+    const range: AnalyticsSummary["range"] =
+      body.range === "1d" || body.range === "30d" || body.range === "7d"
+        ? body.range
+        : "7d";
+    const summary = await getAnalyticsSummary(env, range);
+    const title =
+      range === "1d"
+        ? "Hogback Tech — daily traffic (manual)"
+        : range === "30d"
+          ? "Hogback Tech — 30-day traffic (manual)"
+          : "Hogback Tech — weekly traffic (manual)";
+    const sent = await sendDigestEmail(env, {
+      subject: `${title} — ${summary.totals.human} human / ${summary.totals.views} views`,
+      html: renderDigestHtml(title, summary),
+    });
+    if (!sent.ok) return json({ ok: false, error: sent.error }, 503);
+    return json({ ok: true });
+  }
+
   return json({ error: "Not found" }, 404);
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(
+    request: Request,
+    env: Env,
+    ctx: ExecutionContext,
+  ): Promise<Response> {
     const url = new URL(request.url);
     if (url.pathname.startsWith("/api/")) {
       return handleApi(request, env);
     }
+    ctx.waitUntil(
+      recordPageView(request, env).catch(() => {
+        /* never fail the page */
+      }),
+    );
     return env.ASSETS.fetch(request);
+  },
+
+  async scheduled(
+    _controller: ScheduledController,
+    env: Env,
+    ctx: ExecutionContext,
+  ): Promise<void> {
+    ctx.waitUntil(
+      runScheduledDigests(env).catch((err) => {
+        console.error("analytics digest failed", err);
+      }),
+    );
   },
 };

@@ -52,7 +52,26 @@ Edit homepage text, product boxes, spacing, and colors in the browser at **`/adm
    (signs the HttpOnly admin session cookie). If omitted, the Worker falls back to
    `ADMIN_PASSWORD` for signing.
 
-3. **Deploy** (`npm run build && npm run deploy`), then open `https://hogbacktech.com/admin`.
+3. **Optional — traffic email digests** (Resend):
+
+   ```bash
+   npx wrangler secret put RESEND_API_KEY --name hogbacktech-website
+   npx wrangler secret put ANALYTICS_EMAIL_TO --name hogbacktech-website
+   npx wrangler secret put ANALYTICS_EMAIL_FROM --name hogbacktech-website
+   ```
+
+   `ANALYTICS_EMAIL_TO` accepts a comma-separated list. `ANALYTICS_EMAIL_FROM` must be a
+   sender address verified in [Resend](https://resend.com) (for example
+   `analytics@hogbacktech.com`). A Worker cron emails **yesterday’s** traffic every day at
+   **7:00 AM Pacific**, and a **weekly** rollup every Monday. The **/admin → Traffic** tab
+   shows live rollups and can send a manual digest.
+
+   Page views are counted in the Worker (not only in the browser), so bots that never run
+   JavaScript still appear. Classification uses Cloudflare bot scores when the zone provides
+   them; otherwise User-Agent heuristics. Contact conversions also increment the first-party
+   counter when the site fires the Google Ads Contact conversion.
+
+4. **Deploy** (`npm run build && npm run deploy`), then open `https://hogbacktech.com/admin`.
 
 Without KV, the site still loads bundled defaults; Save in `/admin` returns an error until the
 binding is configured. Without `ADMIN_PASSWORD`, login is disabled.
@@ -88,5 +107,13 @@ src/
     ├── site-content.ts     # Editable homepage schema + defaults
     └── use-site-content.ts # Client fetch of /api/content
 worker/
-└── index.ts                # Content API + cookie session admin auth
+├── index.ts                # Content API, traffic tracking, digest cron
+└── analytics.ts            # Bot/human classification + KV rollups + email
 ```
+
+## Traffic analytics
+
+After deploy, open **`/admin` → Traffic** for daily / 7-day / 30-day views with likely-human vs
+bot split, top pages, countries, and referrers. Rollups live in the existing `CONTENT` KV
+namespace (`analytics:day:*`). An Analytics Engine dataset `hogback_traffic` also receives raw
+datapoints when the binding is active.
