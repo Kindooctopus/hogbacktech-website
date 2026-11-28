@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hogback · Geo Map Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet" />
+  <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+  <link href="./admin.css?v=5" rel="stylesheet" />
+  <style>
+    /* Embed fills the Geo admin iframe; hide standalone chrome foot links that leave the frame. */
+    html, body { height: 100%; }
+    #app { height: 100%; }
+    .panel-foot a[href="/geo/map/"],
+    .panel-foot a[href="/geo/mapbase/v1/catalog.json"],
+    .panel-foot a[href="/latest/manifest.json"] {
+      /* Keep, but point at CDN via JS if needed */
+    }
+  </style>
+</head>
+<body>
+  <!-- Auth is enforced by the parent Next.js /geo page (RequireAdmin). -->
+  <div id="app">
+    <aside class="panel" id="panel">
+      <header class="brand">
+        <p class="brand-mark">Hogback</p>
+        <h1>Map Admin</h1>
+        <p class="brand-sub">Compose basemap + overlays. Same MapLibre stack as the apps.</p>
+      </header>
+
+      <section class="block">
+        <h2>Basemap</h2>
+        <div class="seg" id="basemap-seg" role="radiogroup" aria-label="Basemap"></div>
+        <p class="hint" id="basemap-hint"></p>
+      </section>
+
+      <section class="block">
+        <div class="block-head">
+          <h2>Layer stacks</h2>
+          <button type="button" class="ghost" id="btn-fit-or">Fit Oregon</button>
+        </div>
+        <div id="layer-stacks"></div>
+      </section>
+
+      <section class="block">
+        <h2>Field packs</h2>
+        <div id="pack-list" class="pack-list">
+          <p class="hint">Loading catalog…</p>
+        </div>
+      </section>
+
+      <section class="block status-block">
+        <div class="status-row">
+          <span>Zoom</span>
+          <strong id="zoom-readout">—</strong>
+        </div>
+        <div class="status-row">
+          <span>Center</span>
+          <strong id="center-readout">—</strong>
+        </div>
+        <div class="status-row">
+          <span>Edition</span>
+          <strong id="edition-readout">—</strong>
+        </div>
+        <div class="status-row">
+          <span>Live</span>
+          <strong id="live-readout">idle</strong>
+        </div>
+      </section>
+
+      <footer class="panel-foot">
+        <a href="https://hogback-geo.web.app/geo/map/" target="_blank" rel="noreferrer">Pack list</a>
+        <a href="https://hogback-geo.web.app/geo/mapbase/v1/catalog.json" target="_blank" rel="noreferrer">Catalog</a>
+        <a href="https://hogback-geo.web.app/latest/manifest.json" target="_blank" rel="noreferrer">Manifest</a>
+      </footer>
+    </aside>
+
+    <main class="map-shell">
+      <div id="map"></div>
+      <button type="button" class="panel-toggle" id="panel-toggle" aria-label="Toggle panel">Layers</button>
+      <div class="inspect" id="inspect" hidden>
+        <button type="button" class="inspect-close" id="inspect-close" aria-label="Close">×</button>
+        <div id="inspect-body"></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script src="https://unpkg.com/pmtiles@3.2.0/dist/pmtiles.js"></script>
+  <script src="./admin.js?v=5" type="module"></script>
+</body>
+</html>

@@ -18,7 +18,7 @@ export function RequireAdmin({ children }: { children: ReactNode }) {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center text-slate-400">
-        Loading admin portal…
+        Loading Hogback Admin…
       </div>
     );
   }
