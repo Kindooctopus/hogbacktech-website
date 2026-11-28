@@ -24,16 +24,20 @@ export function DocsBrand({ subtitle }: { subtitle?: string }) {
 export function AdminShell({
   children,
   actions,
+  brandHref = "/home",
+  brandSubtitle = "Hogback Admin",
 }: {
   children: React.ReactNode;
   actions?: React.ReactNode;
+  brandHref?: string;
+  brandSubtitle?: string;
 }) {
   return (
     <div className="min-h-screen bg-navy-950">
       <header className="border-b border-white/10 bg-navy-900/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-4">
-          <Link href="/dashboard">
-            <DocsBrand subtitle="Organization document management" />
+          <Link href={brandHref}>
+            <DocsBrand subtitle={brandSubtitle} />
           </Link>
           {actions}
         </div>

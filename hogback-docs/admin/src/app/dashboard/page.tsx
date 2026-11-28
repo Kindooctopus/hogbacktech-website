@@ -24,8 +24,13 @@ export default function DashboardPage() {
   return (
     <RequireAdmin>
       <AdminShell
+        brandHref="/home"
+        brandSubtitle="Organization document management"
         actions={
           <div className="flex items-center gap-3">
+            <Link href="/home">
+              <Button variant="secondary">All products</Button>
+            </Link>
             <Link href="/organizations/new">
               <Button>New organization</Button>
             </Link>
